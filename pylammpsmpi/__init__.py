@@ -1,1 +1,0 @@
-from lammps import LammpsLibrary
