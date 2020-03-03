@@ -20,6 +20,8 @@ __email__ = "janssen@mpie.de"
 __status__ = "production"
 __date__ = "Feb 28, 2020"
 
+#dict for extract atom methods
+atom_properties = { "x":{"type":3, "dim":3}}
 
 # Lammps executable
 job = lammps(cmdargs=["-screen", "none"])
@@ -67,12 +69,23 @@ def extract_atom(funct_args):
         #extract atoms return an internal data type
         #this has to be reformatted
         name = str(funct_args[0])
-        type = int(funct_args[1])
-        val = job.extract_atom(name=name, type=type)
+        if not name in atom_properties.keys():
+            raise TypeError("Unknown key")
+
+        val = job.extract_atom(name, atom_properties[name]["type"])
         #this is per atom quantity - so get
-        #number of atoms
+        #number of atoms - first dimension
         natoms = job.get_natoms()
-        data = [val[x] for x in range(int(natoms))]
+        #second dim is from dict
+        dim = atom_properties[name]["dim"]
+        data = []
+        if dim > 0:
+            for i in range(int(natoms)):
+                dummy = [val[i][x] for x in range(dim)]
+                data.append(dummy)
+        else:
+            data = [val[x] for x in range(int(natoms))]
+
         return data
 
 
