@@ -21,7 +21,23 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 #dict for extract atom methods
-atom_properties = { "x":{"type":3, "dim":3}}
+atom_properties = { "x":{"type":3, "dim":3},
+                    "mass":{"type":2, "dim":0},
+                    "id":{"type":0, "dim":0},
+                    "type":{"type":0, "dim":0},
+                    "mask":{"type":0, "dim":0},
+                    "v":{"type":3, "dim":3},
+                    "f":{"type":3, "dim":3},
+                    "molecule":{"type":0, "dim":0},
+                    "q":{"type":2, "dim":0},
+                    "mu":{"type":3, "dim":3},
+                    "omega":{"type":3, "dim":3},
+                    "angmom":{"type":3, "dim":3},
+                    "torque":{"type":3, "dim":3},
+                    "radius":{"type":2, "dim":0},
+                    #we can add more quantities as needed
+                    #taken directly from atom.cpp -> extract()
+                  }
 
 # Lammps executable
 job = lammps(cmdargs=["-screen", "none"])
@@ -70,9 +86,14 @@ def extract_atom(funct_args):
         #this has to be reformatted
         name = str(funct_args[0])
         if not name in atom_properties.keys():
-            raise TypeError("Unknown key")
+            return []
 
-        val = job.extract_atom(name, atom_properties[name]["type"])
+        #this block prevents error when trying to access values
+        #that do not exist
+        try:
+            val = job.extract_atom(name, atom_properties[name]["type"])
+        except ValueError:
+            return []
         #this is per atom quantity - so get
         #number of atoms - first dimension
         natoms = job.get_natoms()
