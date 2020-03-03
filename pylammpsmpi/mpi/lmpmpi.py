@@ -64,7 +64,16 @@ def extract_box(funct_args):
 
 def extract_atom(funct_args):
     if MPI.COMM_WORLD.rank == 0:
-        return job.extract_atom(*funct_args)
+        #extract atoms return an internal data type
+        #this has to be reformatted
+        name = str(funct_args[0])
+        type = int(funct_args[1])
+        val = job.extract_atom(name=name, type=type)
+        #this is per atom quantity - so get
+        #number of atoms
+        natoms = job.get_natoms()
+        data = [val[x] for x in range(int(natoms))]
+        return data
 
 
 def extract_fix(funct_args):
@@ -223,4 +232,3 @@ if __name__ == "__main__":
         if MPI.COMM_WORLD.rank == 0 and output is not None:
             pickle.dump(output, sys.stdout.buffer)
             sys.stdout.flush()
-

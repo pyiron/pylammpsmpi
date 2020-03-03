@@ -78,9 +78,12 @@ class LammpsLibrary(object):
         self._send(command="extract_box", data=[])
         return self._receive()
 
-    def extract_atom(self, *args):
-        self._send(command="extract_atom", data=list(args))
-        return self._receive()
+    def extract_atom(self, name=None, type=None):
+        if ((name is not None) and (type is not None)):
+            self._send(command="extract_atom", data=list([name, type]))
+            return self._receive()
+        else:
+            raise ValueError("name and type cannot be None")
 
     def extract_fix(self, *args):
         self._send(command="extract_fix", data=list(args))
