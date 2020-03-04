@@ -106,9 +106,6 @@ class LammpsLibrary(object):
         self._send(command="reset_box", data=list(args))
 
 
-    def scatter_atoms_subset(self, *args):
-        self._send(command="scatter_atoms_subset", data=list(args))
-
     def create_atoms(self, *args):
         self._send(command="create_atoms", data=list(args))
 
@@ -250,14 +247,21 @@ class LammpsLibrary(object):
         return self._receive()
 
 
-    def scatter_atoms(self, *args):
+    def scatter_atoms(self, *args, ids=None):
         """
         Scatter atoms for the lammps library
 
         Args:
             *args:
         """
-        self._send(command="scatter_atoms", data=list(args))
+        if ids is not None:
+            lenids = len(ids)
+            args = list(args)
+            args.append(len(ids))
+            args.append(ids)
+            self._send(command="scatter_atoms_subset", data=args)
+        else:
+            self._send(command="scatter_atoms", data=list(args))
 
     def get_thermo(self, *args):
         """
