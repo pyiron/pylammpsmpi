@@ -279,9 +279,6 @@ def get_thermo(funct_args):
 
 def scatter_atoms(funct_args):
     name = str(funct_args[0])
-    if not name in atom_properties.keys():
-        return False
-
     py_vector = funct_args[1]
     #now see if its an integer or double type- but before flatten
     py_vector = np.array(py_vector).flatten()
@@ -292,20 +289,17 @@ def scatter_atoms(funct_args):
         c_vector = (len(py_vector) * c_double)(*py_vector)
 
     job.scatter_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], c_vector)
-    return True
+
 
 def scatter_atoms_subset(funct_args):
     name = str(funct_args[0])
-    lenids = int(funct_args[1])
-    ids = funct_args[2]
+    lenids = int(funct_args[2])
+    ids = funct_args[3]
 
     #prep ids
     cids = (lenids*c_int)()
     for i in range(lenids):
         cids[i] = ids[i]
-
-    if not name in atom_properties.keys():
-        return False
 
     py_vector = funct_args[1]
     #now see if its an integer or double type- but before flatten
@@ -317,7 +311,6 @@ def scatter_atoms_subset(funct_args):
         c_vector = (len(py_vector) * c_double)(*py_vector)
 
     job.scatter_atoms_subset(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], lenids, cids, c_vector)
-    return True
 
 def command(funct_args):
     job.command(funct_args)
