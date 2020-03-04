@@ -49,7 +49,7 @@ def test_scatter_atoms():
     f[1][0] = val
     lmp.scatter_atoms("f", f)
     f1 = lmp.gather_atoms("f")
-    assert f1[0][0] == val
+    assert f1[1][0] == val
     
     f = lmp.gather_atoms("f", ids=[1,2])
     val = np.random.randint(0, 100)
