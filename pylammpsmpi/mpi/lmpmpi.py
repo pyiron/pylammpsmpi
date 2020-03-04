@@ -157,7 +157,10 @@ def gather_atoms(funct_args):
     #number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    if dim>1:
+        data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    else:
+        data = list(val)
     return np.array(data)
 
 def gather_atoms_concat(funct_args):
@@ -177,7 +180,10 @@ def gather_atoms_concat(funct_args):
     #number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    if dim > 1:
+        data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    else:
+        data = list(val)
     return np.array(data)
 
 
@@ -205,7 +211,10 @@ def gather_atoms_subset(funct_args):
     #number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    if dim>1:
+        data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    else:
+        data = list(val)
     return np.array(data)
 
 
