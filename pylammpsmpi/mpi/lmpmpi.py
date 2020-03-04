@@ -116,9 +116,15 @@ def extract_fix(funct_args):
 
 
 def extract_variable(funct_args):
+    #in the args - if the third one,
+    #which is the type is 1 - a lammps array is returned
     if MPI.COMM_WORLD.rank == 0:
-        return job.extract_variable(*funct_args)
-
+        #if type is 1 - reformat file
+        val = job.extract_variable(*funct_args)
+        if funct_args[2] == 1:
+            natoms = job.get_natoms()
+            val = np.array([val[x] for x in range(natoms)])
+        return val
 
 def get_natoms(funct_args):
     if MPI.COMM_WORLD.rank == 0:
