@@ -528,8 +528,19 @@ class LammpsLibrary(object):
         self._send(command="extract_compute", data=args)
         return self._receive()
 
-    #TODO
+
     def close(self):
+        """
+        Close the current lammps object
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._send(command="close")
         self._process.kill()
         self._process = None
