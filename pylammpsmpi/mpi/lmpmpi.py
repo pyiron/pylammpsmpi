@@ -45,7 +45,24 @@ job = lammps(cmdargs=["-screen", "none"])
 
 def extract_compute(funct_args):
     if MPI.COMM_WORLD.rank == 0:
-        return np.array(job.extract_compute(*funct_args))
+        filtered_args = funct_args[:4]
+        val = job.extract_compute(*filtered_args)
+
+        #now process
+        #length should be set
+        data = []
+        if funct_args[2] == 2:
+            for i in range(length):
+                dummy = []
+                for j in range(width):
+                    dummy.append(val[i][j])
+                data.append(dummy)
+        elif funct_args[2] == 1:
+            for i in range(length):
+                data.append(val[i])
+        else:
+            data = val
+        return data
 
 
 def get_version(funct_args):

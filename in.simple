@@ -20,6 +20,10 @@ neigh_modify	delay 0 every 20 check no
 
 compute         1 all temp
 compute         2 all pressure 1
+compute         ke all ke/atom
+compute         msd all msd
+compute         v all property/atom vx vy vz 
+
 variable        fx atom fx
 variable        tt equal temp
 variable        test string "25"

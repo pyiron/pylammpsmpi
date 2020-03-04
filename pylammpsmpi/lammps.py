@@ -395,7 +395,7 @@ class LammpsLibrary(object):
 
         Parameters
         ----------
-        cmd : string
+        cmd : string, list of strings
             command to be sent
 
         Returns
@@ -492,17 +492,42 @@ class LammpsLibrary(object):
         return self._receive()
 
     #TODO
-    def extract_compute(self, *args):
+    def extract_compute(self, id, style, type, length=0, width=0):
         """
-        Extract compute from the lammps library
+        Extract compute value from the lammps library
 
-        Args:
-            *args:
+        Parameters
+        ----------
+        id : string
+            id of the compute
 
-        Returns:
+        style: {0, 1}
+            0 - global data
+            1 - per atom data
+
+        type: {0, 1, 2}
+            0 - scalar
+            1 - vector
+            2 - array
+
+        length: int, optional. Default 0
+            if `style` is 0 and `type` is 1 or 2, then `length` is the length
+            of vector.
+
+        width: int, optional. Default 0
+            if `type` is 2, then `width` is the number of elements in each
+            element along length.
+
+        Returns
+        -------
+        val
+            data computed by the fix depending on the chosen inputs
 
         """
-        self._send(command="extract_compute", data=list(args))
+        if style==1:
+            length = self.get_natoms()
+        args = [id, style, type, length, width]
+        self._send(command="extract_compute", data=args)
         return self._receive()
 
     #TODO
