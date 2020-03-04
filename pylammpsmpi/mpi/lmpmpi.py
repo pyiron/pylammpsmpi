@@ -22,19 +22,19 @@ __date__ = "Feb 28, 2020"
 
 #dict for extract atom methods
 atom_properties = { "x":{"type":3, "dim":3},
-                    "mass":{"type":2, "dim":0},
-                    "id":{"type":0, "dim":0},
-                    "type":{"type":0, "dim":0},
-                    "mask":{"type":0, "dim":0},
+                    "mass":{"type":2, "dim":1},
+                    "id":{"type":0, "dim":1},
+                    "type":{"type":0, "dim":1},
+                    "mask":{"type":0, "dim":1},
                     "v":{"type":3, "dim":3},
                     "f":{"type":3, "dim":3},
-                    "molecule":{"type":0, "dim":0},
-                    "q":{"type":2, "dim":0},
+                    "molecule":{"type":0, "dim":1},
+                    "q":{"type":2, "dim":1},
                     "mu":{"type":3, "dim":3},
                     "omega":{"type":3, "dim":3},
                     "angmom":{"type":3, "dim":3},
                     "torque":{"type":3, "dim":3},
-                    "radius":{"type":2, "dim":0},
+                    "radius":{"type":2, "dim":1},
                     #we can add more quantities as needed
                     #taken directly from atom.cpp -> extract()
                   }
@@ -226,7 +226,33 @@ def command(funct_args):
 
 
 def gather_atoms(funct_args):
-    return np.array(job.gather_atoms(*funct_args))
+    if MPI.COMM_WORLD.rank == 0:
+        #extract atoms return an internal data type
+        #this has to be reformatted
+        name = str(funct_args[0])
+        if not name in atom_properties.keys():
+            return []
+
+        #this block prevents error when trying to access values
+        #that do not exist
+        try:
+            val = job.gather_atoms(name, atom_properties[name]["type"], atom_properties[name]["dim"])
+        except ValueError:
+            return []
+        #this is per atom quantity - so get
+        #number of atoms - first dimension
+        natoms = job.get_natoms()
+        #second dim is from dict
+        dim = atom_properties[name]["dim"]
+        data = []
+        if dim > 0:
+            for i in range(int(natoms)):
+                dummy = [val[i][x] for x in range(dim)]
+                data.append(dummy)
+        else:
+            data = [val[x] for x in range(int(natoms))]
+
+        return data
 
 
 def select_cmd(argument):
