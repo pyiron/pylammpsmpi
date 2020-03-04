@@ -21,20 +21,20 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 #dict for extract atom methods
-atom_properties = { "x":{"type":3, "dim":3},
-                    "mass":{"type":2, "dim":1},
-                    "id":{"type":0, "dim":1},
-                    "type":{"type":0, "dim":1},
-                    "mask":{"type":0, "dim":1},
-                    "v":{"type":3, "dim":3},
-                    "f":{"type":3, "dim":3},
-                    "molecule":{"type":0, "dim":1},
-                    "q":{"type":2, "dim":1},
-                    "mu":{"type":3, "dim":3},
-                    "omega":{"type":3, "dim":3},
-                    "angmom":{"type":3, "dim":3},
-                    "torque":{"type":3, "dim":3},
-                    "radius":{"type":2, "dim":1},
+atom_properties = { "x":{"type":3, "gtype":1, "dim":3},
+                    "mass":{"type":2, "gtype":1, "dim":1},
+                    "id":{"type":0, "gtype":0, "dim":1},
+                    "type":{"type":0, "gtype":0, "dim":1},
+                    "mask":{"type":0, "gtype":0, "dim":1},
+                    "v":{"type":3, "gtype":1, "dim":3},
+                    "f":{"type":3, "gtype":1, "dim":3},
+                    "molecule":{"type":0, "gtype":0, "dim":1},
+                    "q":{"type":2, "gtype":1, "dim":1},
+                    "mu":{"type":3, "gtype":1, "dim":3},
+                    "omega":{"type":3, "gtype":1, "dim":3},
+                    "angmom":{"type":3, "gtype":1, "dim":3},
+                    "torque":{"type":3, "gtype":1, "dim":3},
+                    "radius":{"type":2, "gtype":1, "dim":1},
                     #we can add more quantities as needed
                     #taken directly from atom.cpp -> extract()
                   }
@@ -236,7 +236,7 @@ def gather_atoms(funct_args):
         #this block prevents error when trying to access values
         #that do not exist
         try:
-            val = job.gather_atoms(name, atom_properties[name]["type"], atom_properties[name]["dim"])
+            val = job.gather_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
         except ValueError:
             return []
         #this is per atom quantity - so get

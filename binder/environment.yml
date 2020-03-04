@@ -5,3 +5,4 @@ dependencies:
 - mpi4py
 - numpy
 - lammps
+- pytest
