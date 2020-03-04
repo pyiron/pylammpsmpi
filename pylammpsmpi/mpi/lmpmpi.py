@@ -45,19 +45,27 @@ job = lammps(cmdargs=["-screen", "none"])
 
 def extract_compute(funct_args):
     if MPI.COMM_WORLD.rank == 0:
-        filtered_args = funct_args[:4]
+        id = funct_args[0]
+        style =  funct_args[1]
+        type = funct_args[2]
+        length = funct_args[3]
+        width = funct_args[4]
+        filtered_args = [id, style, type]
+
         val = job.extract_compute(*filtered_args)
 
         #now process
         #length should be set
         data = []
-        if funct_args[2] == 2:
+        if style == 1:
+            length = job.get_natoms()
+        if type == 2:
             for i in range(length):
                 dummy = []
                 for j in range(width):
                     dummy.append(val[i][j])
                 data.append(dummy)
-        elif funct_args[2] == 1:
+        elif type == 1:
             for i in range(length):
                 data.append(val[i])
         else:
@@ -370,8 +378,8 @@ if __name__ == "__main__":
     while True:
         if MPI.COMM_WORLD.rank == 0:
             input_dict = pickle.load(sys.stdin.buffer)
-            #with open('process.txt', 'a') as file:
-            #     print('Input:', input_dict, file=file)
+            with open('process.txt', 'a') as file:
+                 print('Input:', input_dict, file=file)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
@@ -380,8 +388,8 @@ if __name__ == "__main__":
             break
         output = select_cmd(input_dict["c"])(input_dict["d"])
         if MPI.COMM_WORLD.rank == 0 and output is not None:
-            #with open('process.txt', 'a') as file:
-            #     print('Output:', output, file=file)
+            with open('process.txt', 'a') as file:
+                 print('Output:', output, file=file)
 
             pickle.dump(output, sys.stdout.buffer)
             sys.stdout.flush()

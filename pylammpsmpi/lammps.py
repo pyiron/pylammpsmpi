@@ -524,8 +524,6 @@ class LammpsLibrary(object):
             data computed by the fix depending on the chosen inputs
 
         """
-        if style==1:
-            length = self.get_natoms()
         args = [id, style, type, length, width]
         self._send(command="extract_compute", data=args)
         return self._receive()
