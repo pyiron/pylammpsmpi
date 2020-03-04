@@ -40,7 +40,7 @@ def test_extract_variable():
     assert np.round(x, 2) == 1.13
     
     x = lmp.extract_variable("fx", "all", 1)
-    assert len(x) == 256
+    assert len(x) == 128
     assert np.round(x[0], 2) == -0.26
     
 def test_scatter_atoms():

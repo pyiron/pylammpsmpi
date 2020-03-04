@@ -219,6 +219,11 @@ class LammpsLibrary(object):
         -------
         data
             value of variable depending on the requested dimension
+
+        Notes
+        -----
+        Currently only returns the information provided on a single processor
+        
         """
         self._send(command="extract_variable", data=list(args))
         return self._receive()
