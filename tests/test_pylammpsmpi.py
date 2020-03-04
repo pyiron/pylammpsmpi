@@ -20,5 +20,47 @@ def test_gather_atoms():
     #this checks if info was gathered from
     #all processors
     assert np.round(f[-22][0], 2) == 0.31
-b
+
+    ids = lmp.extract_atom("id")
+    assert len(ids) == 256
+
+def test_extract_box():
+    box = lmp.extract_box()
+    assert len(box) == 7
+    
+    assert box[0][0] == 0.0
+    assert np.round(box[1][0], 2) == 6.72
+
+def test_extract_fix():
+    x = lmp.extract_fix("2", 0, 1, 1)
+    assert np.round(x, 2) == -2.61
+
+def test_extract_variable():
+    x = lmp.extract_variable("tt", "all", 0)
+    assert np.round(x, 2) == 1.13
+    
+    x = lmp.extract_variable("fx", "all", 1)
+    assert len(x) == 256
+    assert np.round(x[0], 2) == -0.26
+    
+def test_scatter_atoms():
+    f = lmp.gather_atoms("f")
+    val = np.random.randint(0, 100)
+    f[1][0] = val
+    lmp.scatter_atoms("f", f)
+    f1 = lmp.gather_atoms("f")
+    assert f1[0][0] == val
+    
+    f = lmp.gather_atoms("f", ids=[1,2])
+    val = np.random.randint(0, 100)
+    f[1][1] = val
+    lmp.scatter_atoms("f", f, ids=[1,2])
+    f1 = lmp.gather_atoms("f", ids=[1,2])
+    assert f1[1][1] == val
+
+
+
+
+    
+    
     
