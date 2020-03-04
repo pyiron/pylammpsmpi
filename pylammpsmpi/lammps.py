@@ -105,9 +105,38 @@ class LammpsLibrary(object):
         self._send(command="extract_setting", data=list(args))
         return self._receive()
 
-    #TODO
-    def extract_global(self, *args):
-        self._send(command="extract_global", data=list(args))
+    
+    def extract_global(self, name, type):
+        """
+        Extract value of global simulation parameters
+
+        Parameters
+        ----------
+        name : string
+            see notes for a set of possible options
+
+        type : {0, 1}
+            0 if output value is integer
+            1 if output value is float
+
+        Notes
+        -----
+        The possible options for `name` are-
+        "dt", "boxlo", "boxhi", "boxxlo", "boxxhi",
+        "boxylo", "boxyhi", "boxzlo", "boxzhi", "periodicity",
+        "xy", "xz", "yz", "natoms", "nbonds", "nangles",
+        "ndihedrals", "nimpropers", "nlocal", "nghost",
+        "nmax", "ntypes", "ntimestep", "units", "triclinic",
+        "q_flag", "atime", "atimestep"
+
+        Also global constants defined by units can be accessed-
+        "boltz", "hplanck", "mvv2e", "ftm2v", "mv2d",
+        "nktv2p", "qqr2e", "qe2f", "vxmu2f", "xxt2kmu",
+        "dielectric", "qqr2e", "e_mass", "hhmrr2e",
+        "mvh2r", "angstrom", "femtosecond", "qelectron"
+
+        """
+        self._send(command="extract_global", data=[name, type])
         return self._receive()
 
     def extract_box(self):
