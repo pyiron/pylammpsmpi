@@ -30,6 +30,11 @@ def test_extract_box():
     
     assert box[0][0] == 0.0
     assert np.round(box[1][0], 2) == 6.72
+    
+    lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
+    assert box[0][0] == 0.0
+    assert np.round(box[1][0], 2) == 8.0
+    
 
 def test_extract_fix():
     x = lmp.extract_fix("2", 0, 1, 1)
@@ -57,6 +62,8 @@ def test_scatter_atoms():
     lmp.scatter_atoms("f", f, ids=[1,2])
     f1 = lmp.gather_atoms("f", ids=[1,2])
     assert f1[1][1] == val
+    
+    
 
 
 

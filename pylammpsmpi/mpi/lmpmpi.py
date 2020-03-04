@@ -138,7 +138,7 @@ def set_variable(funct_args):
 
 
 def reset_box(funct_args):
-    job.reset_box()
+    job.reset_box(*funct_args)
 
 def gather_atoms(funct_args):
     #extract atoms return an internal data type

@@ -223,7 +223,7 @@ class LammpsLibrary(object):
         Notes
         -----
         Currently only returns the information provided on a single processor
-        
+
         """
         self._send(command="extract_variable", data=list(args))
         return self._receive()
@@ -269,8 +269,22 @@ class LammpsLibrary(object):
         self._send(command="set_variable", data=list(args))
         return self._receive()
 
-    #TODO
+
     def reset_box(self, *args):
+        """
+        Reset the simulation box
+
+        Parameters
+        ----------
+        boxlo: array of floats
+            lower bound of box in three dimensions
+
+        boxhi: array of floats
+            upper bound of box in three dimensions
+
+        xy, yz, xz : floats
+            box tilts
+        """
         self._send(command="reset_box", data=list(args))
 
     #TODO
