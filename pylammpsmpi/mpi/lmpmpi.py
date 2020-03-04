@@ -183,13 +183,30 @@ def gather_atoms_concat(funct_args):
 
 def gather_atoms_subset(funct_args):
     #convert to ctypes
-    filtered_args = funct_args[:-1]
-    lenids = int(funct_args[-2])
-    ids = (lenids*c_int)()
+    name = str(funct_args[0])
+    lenids = int(funct_args[1])
+    ids = funct_args[2]
+
+    #prep ids
+    cids = (lenids*c_int)()
     for i in range(lenids):
-        ids[i] = funct_args[-1][i]
-    filtered_args.append(ids)
-    return np.array(job.gather_atoms_subset(*filtered_args))
+        cids[i] = ids[i]
+
+    if not name in atom_properties.keys():
+        return []
+
+    #this block prevents error when trying to access values
+    #that do not exist
+    try:
+        val = job.gather_atoms_subset(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], lenids, cids)
+    except ValueError:
+        return []
+    #this is per atom quantity - so get
+    #number of atoms - first dimension
+    val = list(val)
+    dim = atom_properties[name]["dim"]
+    data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    return np.array(data)
 
 
 def scatter_atoms_subset(funct_args):
@@ -304,8 +321,8 @@ if __name__ == "__main__":
     while True:
         if MPI.COMM_WORLD.rank == 0:
             input_dict = pickle.load(sys.stdin.buffer)
-            #with open('process.txt', 'a') as file:
-            #     print('Input:', input_dict, file=file)
+            with open('process.txt', 'a') as file:
+                 print('Input:', input_dict, file=file)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
@@ -314,8 +331,8 @@ if __name__ == "__main__":
             break
         output = select_cmd(input_dict["c"])(input_dict["d"])
         if MPI.COMM_WORLD.rank == 0 and output is not None:
-            with open('process.txt', 'a') as file:
-                 print('Output:', output, file=file)
+            #with open('process.txt', 'a') as file:
+            #     print('Output:', output, file=file)
 
             pickle.dump(output, sys.stdout.buffer)
             sys.stdout.flush()
