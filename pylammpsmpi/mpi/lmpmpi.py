@@ -140,9 +140,45 @@ def set_variable(funct_args):
 def reset_box(funct_args):
     job.reset_box()
 
+def gather_atoms(funct_args):
+    #extract atoms return an internal data type
+    #this has to be reformatted
+    name = str(funct_args[0])
+    if not name in atom_properties.keys():
+        return []
+
+    #this block prevents error when trying to access values
+    #that do not exist
+    try:
+        val = job.gather_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
+    except ValueError:
+        return []
+    #this is per atom quantity - so get
+    #number of atoms - first dimension
+    val = list(val)
+    dim = atom_properties[name]["dim"]
+    data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    return np.array(data)
 
 def gather_atoms_concat(funct_args):
-    return np.array(job.gather_atoms_concat(*funct_args))
+    #extract atoms return an internal data type
+    #this has to be reformatted
+    name = str(funct_args[0])
+    if not name in atom_properties.keys():
+        return []
+
+    #this block prevents error when trying to access values
+    #that do not exist
+    try:
+        val = job.gather_atoms_concat(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
+    except ValueError:
+        return []
+    #this is per atom quantity - so get
+    #number of atoms - first dimension
+    val = list(val)
+    dim = atom_properties[name]["dim"]
+    data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    return np.array(data)
 
 
 def gather_atoms_subset(funct_args):
@@ -232,25 +268,6 @@ def scatter_atoms(funct_args):
 def command(funct_args):
     job.command(funct_args)
 
-def gather_atoms(funct_args):
-    #extract atoms return an internal data type
-    #this has to be reformatted
-    name = str(funct_args[0])
-    if not name in atom_properties.keys():
-        return []
-
-    #this block prevents error when trying to access values
-    #that do not exist
-    try:
-        val = job.gather_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
-    except ValueError:
-        return []
-    #this is per atom quantity - so get
-    #number of atoms - first dimension
-    val = list(val)
-    dim = atom_properties[name]["dim"]
-    data = [val[x:x+dim] for x in range(0, len(val), dim)]
-    return np.array(data)
 
 
 def select_cmd(argument):

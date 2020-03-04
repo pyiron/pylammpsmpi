@@ -104,10 +104,6 @@ class LammpsLibrary(object):
     def reset_box(self, *args):
         self._send(command="reset_box", data=list(args))
 
-    def gather_atoms_concat(self, *args):
-        self._send(command="gather_atoms_concat", data=list(args))
-        return self._receive()
-
     def gather_atoms_subset(self, *args):
         self._send(command="gather_atoms_subset", data=list(args))
         return self._receive()
@@ -232,7 +228,7 @@ class LammpsLibrary(object):
         """
         self._send(command="command", data=cmd)
 
-    def gather_atoms(self, *args):
+    def gather_atoms(self, *args, concat=True):
         """
         Gather atoms from the lammps library
 
@@ -242,7 +238,10 @@ class LammpsLibrary(object):
         Returns:
             np.array
         """
-        self._send(command="gather_atoms", data=list(args))
+        if concat:
+            self._send(command="gather_atoms_concat", data=list(args))
+        else:
+            self._send(command="gather_atoms", data=list(args))
         return self._receive()
 
     def scatter_atoms(self, *args):
