@@ -182,7 +182,13 @@ def gather_atoms_concat(funct_args):
 
 
 def gather_atoms_subset(funct_args):
-    return np.array(job.gather_atoms_subset(*funct_args))
+    #convert to ctypes
+    filtered_args = funct_args[:-1]
+    ids = (funct_args[-2]*ctypes.c_int)()
+    for i in range(funct_args[-2]):
+        ids[i] = funct_args[-1][i]
+    filtered_args.append(ids)
+    return np.array(job.gather_atoms_subset(*filtered_args))
 
 
 def scatter_atoms_subset(funct_args):

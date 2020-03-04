@@ -7,6 +7,7 @@ import pickle
 import subprocess
 
 
+
 __author__ = "Jan Janssen"
 __copyright__ = (
     "Copyright 2020, Max-Planck-Institut für Eisenforschung GmbH - "
@@ -104,9 +105,6 @@ class LammpsLibrary(object):
     def reset_box(self, *args):
         self._send(command="reset_box", data=list(args))
 
-    def gather_atoms_subset(self, *args):
-        self._send(command="gather_atoms_subset", data=list(args))
-        return self._receive()
 
     def scatter_atoms_subset(self, *args):
         self._send(command="scatter_atoms_subset", data=list(args))
@@ -228,7 +226,8 @@ class LammpsLibrary(object):
         """
         self._send(command="command", data=cmd)
 
-    def gather_atoms(self, *args, concat=True):
+
+    def gather_atoms(self, *args, concat=True, ids=None):
         """
         Gather atoms from the lammps library
 
@@ -240,9 +239,16 @@ class LammpsLibrary(object):
         """
         if concat:
             self._send(command="gather_atoms_concat", data=list(args))
+        elif ids is not None:
+            lenids = len(ids)
+            args = list(args)
+            args.append(len(ids))
+            args.append(ids)
+            self._send(command="gather_atoms_subset", data=args)
         else:
             self._send(command="gather_atoms", data=list(args))
         return self._receive()
+
 
     def scatter_atoms(self, *args):
         """
