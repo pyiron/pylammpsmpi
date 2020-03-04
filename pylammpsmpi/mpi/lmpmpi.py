@@ -107,7 +107,7 @@ def extract_atom(funct_args):
         else:
             data = [val[x] for x in range(int(natoms))]
 
-        return data
+        return np.array(data)
 
 
 def extract_fix(funct_args):
@@ -224,35 +224,25 @@ def scatter_atoms(funct_args):
 def command(funct_args):
     job.command(funct_args)
 
-
 def gather_atoms(funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        #extract atoms return an internal data type
-        #this has to be reformatted
-        name = str(funct_args[0])
-        if not name in atom_properties.keys():
-            return []
+    #extract atoms return an internal data type
+    #this has to be reformatted
+    name = str(funct_args[0])
+    if not name in atom_properties.keys():
+        return []
 
-        #this block prevents error when trying to access values
-        #that do not exist
-        try:
-            val = job.gather_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
-        except ValueError:
-            return []
-        #this is per atom quantity - so get
-        #number of atoms - first dimension
-        natoms = job.get_natoms()
-        #second dim is from dict
-        dim = atom_properties[name]["dim"]
-        data = []
-        if dim > 0:
-            for i in range(int(natoms)):
-                dummy = [val[i][x] for x in range(dim)]
-                data.append(dummy)
-        else:
-            data = [val[x] for x in range(int(natoms))]
-
-        return data
+    #this block prevents error when trying to access values
+    #that do not exist
+    try:
+        val = job.gather_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
+    except ValueError:
+        return []
+    #this is per atom quantity - so get
+    #number of atoms - first dimension
+    natoms = job.get_natoms()
+    dim = atom_properties[name]["dim"]
+    data = [val[x:x+dim] for x in range(0, dim*natoms, dim)]
+    return np.array(data)
 
 
 def select_cmd(argument):
@@ -282,6 +272,8 @@ if __name__ == "__main__":
     while True:
         if MPI.COMM_WORLD.rank == 0:
             input_dict = pickle.load(sys.stdin.buffer)
+            #with open('process.txt', 'a') as file:
+            #     print('Input:', input_dict, file=file)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
@@ -290,5 +282,8 @@ if __name__ == "__main__":
             break
         output = select_cmd(input_dict["c"])(input_dict["d"])
         if MPI.COMM_WORLD.rank == 0 and output is not None:
+            with open('process.txt', 'a') as file:
+                 print('Output:', output, file=file)
+
             pickle.dump(output, sys.stdout.buffer)
             sys.stdout.flush()
