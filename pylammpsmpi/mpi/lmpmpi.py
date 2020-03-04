@@ -184,8 +184,9 @@ def gather_atoms_concat(funct_args):
 def gather_atoms_subset(funct_args):
     #convert to ctypes
     filtered_args = funct_args[:-1]
-    ids = (funct_args[-2]*ctypes.c_int)()
-    for i in range(funct_args[-2]):
+    lenids = int(funct_args[-2])
+    ids = (lenids*c_int)()
+    for i in range(lenids):
         ids[i] = funct_args[-1][i]
     filtered_args.append(ids)
     return np.array(job.gather_atoms_subset(*filtered_args))

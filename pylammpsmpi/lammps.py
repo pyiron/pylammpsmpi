@@ -227,7 +227,7 @@ class LammpsLibrary(object):
         self._send(command="command", data=cmd)
 
 
-    def gather_atoms(self, *args, concat=True, ids=None):
+    def gather_atoms(self, *args, concat=False, ids=None):
         """
         Gather atoms from the lammps library
 
