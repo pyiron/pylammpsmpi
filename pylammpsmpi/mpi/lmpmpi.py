@@ -100,7 +100,7 @@ def extract_atom(funct_args):
         #second dim is from dict
         dim = atom_properties[name]["dim"]
         data = []
-        if dim > 0:
+        if dim > 1:
             for i in range(int(natoms)):
                 dummy = [val[i][x] for x in range(dim)]
                 data.append(dummy)
@@ -344,8 +344,8 @@ if __name__ == "__main__":
     while True:
         if MPI.COMM_WORLD.rank == 0:
             input_dict = pickle.load(sys.stdin.buffer)
-            with open('process.txt', 'a') as file:
-                 print('Input:', input_dict, file=file)
+            #with open('process.txt', 'a') as file:
+            #     print('Input:', input_dict, file=file)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
