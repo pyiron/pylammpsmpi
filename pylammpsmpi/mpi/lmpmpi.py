@@ -120,11 +120,10 @@ def extract_variable(funct_args):
     #which is the type is 1 - a lammps array is returned
     if MPI.COMM_WORLD.rank == 0:
         #if type is 1 - reformat file
-        val = job.extract_variable(*funct_args)
+        data = job.extract_variable(*funct_args)
         if funct_args[2] == 1:
-            natoms = job.get_natoms()
-            val = np.array([val[x] for x in range(natoms)])
-        return val
+            data = np.array(data)
+        return data
 
 def get_natoms(funct_args):
     if MPI.COMM_WORLD.rank == 0:
@@ -245,9 +244,9 @@ def gather_atoms(funct_args):
         return []
     #this is per atom quantity - so get
     #number of atoms - first dimension
-    natoms = job.get_natoms()
+    val = list(val)
     dim = atom_properties[name]["dim"]
-    data = [val[x:x+dim] for x in range(0, dim*natoms, dim)]
+    data = [val[x:x+dim] for x in range(0, len(val), dim)]
     return np.array(data)
 
 
