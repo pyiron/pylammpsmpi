@@ -120,7 +120,10 @@ def extract_variable(funct_args):
     #which is the type is 1 - a lammps array is returned
     if MPI.COMM_WORLD.rank == 0:
         #if type is 1 - reformat file
-        data = job.extract_variable(*funct_args)
+        try:
+            data = job.extract_variable(*funct_args)
+        except ValueError:
+            return []
         if funct_args[2] == 1:
             data = np.array(data)
         return data
