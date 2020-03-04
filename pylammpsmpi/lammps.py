@@ -99,13 +99,6 @@ class LammpsLibrary(object):
         """
         self._send(command="get_file", data=[inputfile])
 
-    #TODO
-    def commands_list(self, *args):
-        self._send(command="commands_list", data=list(args))
-
-    #TODO
-    def commands_string(self, *args):
-        self._send(command="commands_string", data=list(args))
 
     #TODO
     def extract_setting(self, *args):
@@ -409,7 +402,14 @@ class LammpsLibrary(object):
         -------
         None
         """
-        self._send(command="command", data=cmd)
+        if isinstance(cmd, list):
+            self._send(command="commands_list", data=list(cmd))
+        elif len(cmd.split()) > 1:
+            self._send(command="commands_string", data=list(cmd))
+        else:
+            self._send(command="command", data=cmd)
+
+
 
 
     def gather_atoms(self, *args, concat=False, ids=None):
