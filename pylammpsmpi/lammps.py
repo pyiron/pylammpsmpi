@@ -97,6 +97,8 @@ class LammpsLibrary(object):
         -------
         None
         """
+        if not os.path.exists(inputfile):
+            raise FileNotFoundError("Input file does not exist")
         self._send(command="get_file", data=[inputfile])
 
 
@@ -105,7 +107,7 @@ class LammpsLibrary(object):
         self._send(command="extract_setting", data=list(args))
         return self._receive()
 
-    
+
     def extract_global(self, name, type):
         """
         Extract value of global simulation parameters
