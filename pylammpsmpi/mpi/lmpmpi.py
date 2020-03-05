@@ -392,9 +392,4 @@ if __name__ == "__main__":
         if MPI.COMM_WORLD.rank == 0 and output is not None:
             #with open('process.txt', 'a') as file:
             #     print('Output:', output, file=file)
-
-            pickle.dump(output, sys.stdout.buffer)
-            try:
-                sys.stdout.flush()
-            except (BrokenPipeError, IOError):
-                pass
+            sys.stdout.flush()

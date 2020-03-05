@@ -51,12 +51,7 @@ class LammpsLibrary(object):
         None
         """
         pickle.dump({"c": command, "d": data}, self._process.stdin)
-        try:
-            self._process.stdin.flush()
-        except (BrokenPipeError, IOError):
-            pass
-
-        #sys.stderr.close()
+        self._process.stdin.flush()
 
     def _receive(self):
         """
