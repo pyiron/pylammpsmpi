@@ -435,9 +435,11 @@ class LammpsLibrary(object):
         None
         """
         if isinstance(cmd, list):
-            self._send(command="commands_list", data=list(cmd))
+            for c in cmd:
+                self._send(command="command", data=c)
         elif len(cmd.split('\n')) > 1:
-            self._send(command="commands_list", data=cmd.split('\n'))
+            for c in cmd.split('\n'):
+                self._send(command="command", data=c)
         else:
             self._send(command="command", data=cmd)
 
