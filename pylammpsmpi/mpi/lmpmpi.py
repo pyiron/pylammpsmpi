@@ -394,4 +394,7 @@ if __name__ == "__main__":
             #     print('Output:', output, file=file)
 
             pickle.dump(output, sys.stdout.buffer)
-            sys.stdout.flush()
+            try:
+                sys.stdout.flush()
+            except (BrokenPipeError, IOError):
+                pass
