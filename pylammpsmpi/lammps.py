@@ -5,6 +5,7 @@
 import os
 import pickle
 import subprocess
+import sys
 
 
 
@@ -50,7 +51,12 @@ class LammpsLibrary(object):
         None
         """
         pickle.dump({"c": command, "d": data}, self._process.stdin)
-        self._process.stdin.flush()
+        try:
+            self._process.stdin.flush()
+        except (BrokenPipeError, IOError):
+            pass
+
+        #sys.stderr.close()
 
     def _receive(self):
         """
