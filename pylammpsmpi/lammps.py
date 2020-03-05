@@ -7,6 +7,7 @@ import pickle
 import subprocess
 
 
+
 __author__ = "Jan Janssen"
 __copyright__ = (
     "Copyright 2020, Max-Planck-Institut für Eisenforschung GmbH - "
@@ -36,9 +37,17 @@ class LammpsLibrary(object):
         """
         Send a command to the Lammps Library executable
 
-        Args:
-            command (str): command to be send to the
-            data:
+        Parameters
+        ----------
+        command : string
+            command to be send to the
+
+        data: optional, default None
+            data to be sent to the command
+
+        Returns
+        -------
+        None
         """
         pickle.dump({"c": command, "d": data}, self._process.stdin)
         self._process.stdin.flush()
@@ -47,71 +56,263 @@ class LammpsLibrary(object):
         """
         Receive data from the Lammps library
 
-        Returns:
-            data
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        data : string
+            data from the command
         """
         output = pickle.load(self._process.stdout)
         return output
 
+    @property
     def version(self):
+        """
+        Get the version of lammps
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        version: string
+            version string of lammps
+        """
         self._send(command="get_version", data=[])
         return self._receive()
 
-    def file(self, *args):
-        self._send(command="get_file", data=list(args))
+    def file(self, inputfile):
+        """
+        Read script from an input file
 
-    def commands_list(self, *args):
-        self._send(command="commands_list", data=list(args))
+        Parameters
+        ----------
+        inputfile: string
+            name of inputfile
 
-    def commands_string(self, *args):
-        self._send(command="commands_string", data=list(args))
+        Returns
+        -------
+        None
+        """
+        if not os.path.exists(inputfile):
+            raise FileNotFoundError("Input file does not exist")
+        self._send(command="get_file", data=[inputfile])
 
+
+    #TODO
     def extract_setting(self, *args):
         self._send(command="extract_setting", data=list(args))
         return self._receive()
 
-    def extract_global(self, *args):
-        self._send(command="extract_global", data=list(args))
+
+    def extract_global(self, name, type):
+        """
+        Extract value of global simulation parameters
+
+        Parameters
+        ----------
+        name : string
+            see notes for a set of possible options
+
+        type : {0, 1}
+            0 if output value is integer
+            1 if output value is float
+
+        Notes
+        -----
+        The possible options for `name` are-
+        "dt", "boxlo", "boxhi", "boxxlo", "boxxhi",
+        "boxylo", "boxyhi", "boxzlo", "boxzhi", "periodicity",
+        "xy", "xz", "yz", "natoms", "nbonds", "nangles",
+        "ndihedrals", "nimpropers", "nlocal", "nghost",
+        "nmax", "ntypes", "ntimestep", "units", "triclinic",
+        "q_flag", "atime", "atimestep"
+
+        Also global constants defined by units can be accessed-
+        "boltz", "hplanck", "mvv2e", "ftm2v", "mv2d",
+        "nktv2p", "qqr2e", "qe2f", "vxmu2f", "xxt2kmu",
+        "dielectric", "qqr2e", "e_mass", "hhmrr2e",
+        "mvh2r", "angstrom", "femtosecond", "qelectron"
+
+        """
+        self._send(command="extract_global", data=[name, type])
         return self._receive()
 
     def extract_box(self):
+        """
+        Get the simulation box
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        box : list
+            of the form `[boxlo,boxhi,xy,yz,xz,periodicity,box_change]` where
+            `boxlo` and `boxhi` are lower and upper bounds of the box in three dimensions,
+            `xy, yz, xz` are the box tilts, `periodicity` is an array which shows if
+            the box is periodic in three dimensions.
+        """
         self._send(command="extract_box", data=[])
         return self._receive()
 
-    def extract_atom(self, *args):
-        self._send(command="extract_atom", data=list(args))
+    def extract_atom(self, name):
+        """
+        Extract a property of the atoms
+
+        Parameters
+        ----------
+        name : {'x', 'mass', 'id', 'type', 'mask', 'v', 'f',
+                'molecule', 'q', 'mu', 'omega', 'angmom', 'torque', 'radius'}
+            the property of atom to be extracted
+
+        Returns
+        -------
+        val : array of length n_atoms
+            If the requested name has multiple dimensions, output
+            will be a multi-dimensional array.
+
+        Notes
+        -----
+        This method only gathers information from the current processor.
+        Rest of the values would be zero.
+
+        See Also
+        --------
+        scatter_atoms
+        """
+        self._send(command="extract_atom", data=list([name]))
         return self._receive()
 
+
     def extract_fix(self, *args):
+        """
+        Extract a fix value
+
+        Parameters
+        ----------
+        id: string
+            id of the fix
+
+        style: {0, 1, 2}
+            0 - global data
+            1 - per-atom data
+            2 - local data
+
+        type: {0, 1, 2}
+            0 - scalar
+            1 - vector
+            2 - array
+
+        i: int, optional
+            index to select fix output
+
+        j: int, optional
+            index to select fix output
+
+        Returns
+        -------
+        value
+            Fix data corresponding to the requested dimensions
+        """
+
         self._send(command="extract_fix", data=list(args))
         return self._receive()
 
     def extract_variable(self, *args):
+        """
+        Extract the value of a variable
+
+        Parameters
+        ----------
+        name: string
+            name of the variable
+
+        group: string
+            group id (ignored for equal style variables)
+
+        flag: {0, 1}
+            0 - equal style variable
+            1 - atom style variable
+
+        Returns
+        -------
+        data
+            value of variable depending on the requested dimension
+
+        Notes
+        -----
+        Currently only returns the information provided on a single processor
+
+        """
         self._send(command="extract_variable", data=list(args))
         return self._receive()
 
+    @property
+    def natoms(self):
+        return self.get_natoms()
+
     def get_natoms(self):
+        """
+        Get the number of atoms
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        natoms : int
+            number of atoms
+        """
+
         self._send(command="get_natoms", data=[])
         return self._receive()
 
     def set_variable(self, *args):
+        """
+        Set the value of a string style variable
+
+        Parameters
+        ----------
+        name: string
+            name of the variable
+
+        value: string
+            value of the variable
+
+        Returns
+        -------
+        flag : int
+            0 if successfull, -1 otherwise
+        """
         self._send(command="set_variable", data=list(args))
         return self._receive()
 
+
     def reset_box(self, *args):
+        """
+        Reset the simulation box
+
+        Parameters
+        ----------
+        boxlo: array of floats
+            lower bound of box in three dimensions
+
+        boxhi: array of floats
+            upper bound of box in three dimensions
+
+        xy, yz, xz : floats
+            box tilts
+        """
         self._send(command="reset_box", data=list(args))
 
-    def gather_atoms_concat(self, *args):
-        self._send(command="gather_atoms_concat", data=list(args))
-        return self._receive()
-
-    def gather_atoms_subset(self, *args):
-        self._send(command="gather_atoms_subset", data=list(args))
-        return self._receive()
-
-    def scatter_atoms_subset(self, *args):
-        self._send(command="scatter_atoms_subset", data=list(args))
-
+    #TODO
     def create_atoms(self, *args):
         self._send(command="create_atoms", data=list(args))
 
@@ -222,66 +423,163 @@ class LammpsLibrary(object):
 
     def command(self, cmd):
         """
-        Send a command to the lammps library
+        Send a command to the lammps object
 
-        Args:
-            cmd (str):
+        Parameters
+        ----------
+        cmd : string, list of strings
+            command to be sent
+
+        Returns
+        -------
+        None
         """
-        self._send(command="command", data=cmd)
+        if isinstance(cmd, list):
+            for c in cmd:
+                self._send(command="command", data=c)
+        elif len(cmd.split('\n')) > 1:
+            for c in cmd.split('\n'):
+                self._send(command="command", data=c)
+        else:
+            self._send(command="command", data=cmd)
 
-    def gather_atoms(self, *args):
+
+
+
+    def gather_atoms(self, *args, concat=False, ids=None):
         """
-        Gather atoms from the lammps library
+        Gather atom properties
 
-        Args:
-            *args:
+        Parameters
+        ----------
+        name : {'x', 'mass', 'id', 'type', 'mask', 'v', 'f',
+                'molecule', 'q', 'mu', 'omega', 'angmom', 'torque', 'radius'}
+            the property of atom to be extracted
 
-        Returns:
-            np.array
+        concat : bool, optional. Default False
+            If True, gather information from all processors,
+            but not sorted according to Atom ids
+
+        ids : list, optional. Default None
+            If a list of ids are provided, the required information
+            for only those atoms are returned
+
+        Returns
+        -------
+        val : array of length n_atoms sorted by atom ids
+            If the requested name has multiple dimensions, output
+            will be a multi-dimensional array.
+
+        Notes
+        -----
+        This method gathers information from all processors.
+
+        See Also
+        --------
+        extract_atoms
         """
-        self._send(command="gather_atoms", data=list(args))
+        if concat:
+            self._send(command="gather_atoms_concat", data=list(args))
+        elif ids is not None:
+            lenids = len(ids)
+            args = list(args)
+            args.append(len(ids))
+            args.append(ids)
+            self._send(command="gather_atoms_subset", data=args)
+        else:
+            self._send(command="gather_atoms", data=list(args))
         return self._receive()
 
-    def scatter_atoms(self, *args):
+
+    def scatter_atoms(self, *args, ids=None):
         """
         Scatter atoms for the lammps library
 
         Args:
             *args:
         """
-        self._send(command="scatter_atoms", data=list(args))
+        if ids is not None:
+            lenids = len(ids)
+            args = list(args)
+            args.append(len(ids))
+            args.append(ids)
+            self._send(command="scatter_atoms_subset", data=args)
+        else:
+            self._send(command="scatter_atoms", data=list(args))
 
     def get_thermo(self, *args):
         """
-        Get thermo from the lammps library
+        Return current value of thermo keyword
 
-        Args:
-            *args:
+        Parameters
+        ----------
+        name : string
+            name of the thermo keyword
 
-        Returns:
+        Returns
+        -------
+        val
+            value of the thermo keyword
 
         """
         self._send(command="get_thermo", data=list(args))
         return self._receive()
 
-    def extract_compute(self, *args):
+    #TODO
+    def extract_compute(self, id, style, type, length=0, width=0):
         """
-        Extract compute from the lammps library
+        Extract compute value from the lammps library
 
-        Args:
-            *args:
+        Parameters
+        ----------
+        id : string
+            id of the compute
 
-        Returns:
+        style: {0, 1}
+            0 - global data
+            1 - per atom data
+
+        type: {0, 1, 2}
+            0 - scalar
+            1 - vector
+            2 - array
+
+        length: int, optional. Default 0
+            if `style` is 0 and `type` is 1 or 2, then `length` is the length
+            of vector.
+
+        width: int, optional. Default 0
+            if `type` is 2, then `width` is the number of elements in each
+            element along length.
+
+        Returns
+        -------
+        val
+            data computed by the fix depending on the chosen inputs
 
         """
-        self._send(command="extract_compute", data=list(args))
+        args = [id, style, type, length, width]
+        self._send(command="extract_compute", data=args)
         return self._receive()
 
+
     def close(self):
+        """
+        Close the current lammps object
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._send(command="close")
         self._process.kill()
         self._process = None
 
+    #TODO
     def __del__(self):
         if self._process is not None:
             self.close()
