@@ -1,5 +1,6 @@
 # `PyLammpsMPI`
 
+
 ## Example usage
 
 ### Setting up a simulation
