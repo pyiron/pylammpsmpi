@@ -64,13 +64,13 @@ def extract_compute(funct_args):
                 dummy = []
                 for j in range(width):
                     dummy.append(val[i][j])
-                data.append(dummy)
+                data.append(np.array(dummy))
         elif type == 1:
             for i in range(length):
                 data.append(val[i])
         else:
             data = val
-        return data
+        return np.array(data)
 
 
 def get_version(funct_args):
