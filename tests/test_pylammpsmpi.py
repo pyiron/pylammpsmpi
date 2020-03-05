@@ -4,7 +4,7 @@ import numpy as np
 from pylammpsmpi.lammps import LammpsLibrary
 
 lmp = LammpsLibrary(cores=2)
-lmp.file("in.simple")
+lmp.file("tests/in.simple")
 
 def test_extract_atom():
     f = lmp.extract_atom("f")
@@ -32,6 +32,7 @@ def test_extract_box():
     assert np.round(box[1][0], 2) == 6.72
     
     lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
+    box = lmp.extract_box()
     assert box[0][0] == 0.0
     assert np.round(box[1][0], 2) == 8.0
     
