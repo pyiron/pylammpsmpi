@@ -68,6 +68,7 @@ class LammpsLibrary(object):
         output = pickle.load(self._process.stdout)
         return output
 
+    @property
     def version(self):
         """
         Get the version of lammps
