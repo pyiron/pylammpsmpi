@@ -13,6 +13,6 @@ matrix:
         - conda config --set always_yes yes --set changeps1 no
         - conda install -c conda-forge lammps mpi4py openmpi pytest numpy
         - conda update -q conda
-        - pip install . 
+        - pip install -e . 
       script:
         - pytest -q tests/test_pylammpsmpi.py 
