@@ -5,7 +5,7 @@ from pylammpsmpi.lammps import LammpsLibrary
 
 
 def test_extract_atom():
-    lmp = LammpsLibrary(cores=2)
+    lmp = LammpsLibrary(cores=1)
     lmp.file("tests/in.simple")
 
     f = lmp.extract_atom("f")
