@@ -11,7 +11,7 @@ matrix:
         - bash miniconda.sh -b -p $HOME/miniconda
         - conda info -a
         - conda config --set always_yes yes --set changeps1 no
-        - conda install -c conda-forge lammps mpi4py openmpi pytest
+        - conda install -c conda-forge lammps mpi4py openmpi pytest numpy
         - conda update -q conda
         - pip install . 
       script:
