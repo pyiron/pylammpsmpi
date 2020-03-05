@@ -15,4 +15,5 @@ matrix:
         - conda update -q conda
         - pip install -e . 
       script:
+        - mpirun -np 2 lmp_mpi -in in.simple
         - pytest -q tests/test_pylammpsmpi.py 
