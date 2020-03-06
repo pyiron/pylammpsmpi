@@ -6,6 +6,7 @@ import os
 import pickle
 import subprocess
 import sys
+from pylammpsmpi.commands import command_list
 
 
 
@@ -20,7 +21,6 @@ __email__ = "janssen@mpie.de"
 __status__ = "production"
 __date__ = "Feb 28, 2020"
 
-
 class LammpsLibrary(object):
     def __init__(self, cores=1, working_directory="."):
         executable = os.path.join(
@@ -33,6 +33,20 @@ class LammpsLibrary(object):
             stdin=subprocess.PIPE,
             cwd=working_directory,
         )
+
+    def __getattr__(self, name):
+        """
+        Try to run input as a lammps command
+        """
+        def wrapper(*args):
+            args = [name] + list(args)
+            cmd = " ".join([str(x) for x in args])
+            self.command(cmd)
+
+        if name in command_list:
+            return wrapper
+        else:
+            raise AttributeError(name)
 
     def _send(self, command, data=None):
         """
