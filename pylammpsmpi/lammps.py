@@ -6,7 +6,7 @@ import os
 import pickle
 import subprocess
 import sys
-from pylammpsmpi.commands import command_list
+from pylammpsmpi.commands import command_list, thermo_list
 
 
 
@@ -39,14 +39,15 @@ class LammpsLibrary(object):
         Try to run input as a lammps command
         """
         def wrapper(*args):
-            args = [name] + list(args)
-            cmd = " ".join([str(x) for x in args])
-            self.command(cmd)
-
-        if name in command_list:
+            if name in command_list:
+                args = [name] + list(args)
+                cmd = " ".join([str(x) for x in args])
+                self.command(cmd)
+            elif name in thermo_list:
+                self.get_thermo(name)
+            else:
+                raise AttributeError(name)
             return wrapper
-        else:
-            raise AttributeError(name)
 
     def _send(self, command, data=None):
         """
