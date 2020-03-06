@@ -577,8 +577,10 @@ class LammpsLibrary(object):
         None
         """
         self._send(command="close")
-        if self._process is not None:
+        try:
             self._process.kill()
+        except AttributeError:
+            pass
         self._process = None
 
     #TODO
