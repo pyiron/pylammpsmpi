@@ -5,6 +5,7 @@
 import os
 import subprocess
 from pylammpsmpi.communicate import StdCommunicator, SocketHostCommunicator
+from pylammpsmpi.commands import command_list, thermo_list
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -17,7 +18,6 @@ __maintainer__ = "Jan Janssen"
 __email__ = "janssen@mpie.de"
 __status__ = "production"
 __date__ = "Feb 28, 2020"
-
 
 class LammpsLibrary(object):
     def __init__(self, cores=1, working_directory=".", mode='local', port=50000, buffer_len=64):
@@ -60,6 +60,22 @@ class LammpsLibrary(object):
             )
         else:
             raise ValueError
+
+    def __getattr__(self, name):
+        """
+        Try to run input as a lammps command
+        """
+        def command_wrapper(*args):
+            args = [name] + list(args)
+            cmd = " ".join([str(x) for x in args])
+            self.command(cmd)
+
+        if name in command_list:
+            return command_wrapper
+        elif name in thermo_list:
+            return self.get_thermo(name)
+        else:
+            raise AttributeError(name)
 
     def _send(self, command, data=None):
         """
