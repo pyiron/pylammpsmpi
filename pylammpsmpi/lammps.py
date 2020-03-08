@@ -3,10 +3,8 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
-import pickle
 import subprocess
-import sys
-
+from pylammpsmpi.communicate import StdCommunicator, SocketHostCommunicator
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -22,17 +20,46 @@ __date__ = "Feb 28, 2020"
 
 
 class LammpsLibrary(object):
-    def __init__(self, cores=1, working_directory="."):
+    def __init__(self, cores=1, working_directory=".", mode='local', port=50000, buffer_len=64):
         executable = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "mpi", "lmpmpi.py"
         )
-        self._process = subprocess.Popen(
-            ["mpiexec", "-n", str(cores), "python", executable],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            cwd=working_directory,
-        )
+        if mode == 'local':
+            self._process = subprocess.Popen(
+                [
+                    "mpiexec", "-n", str(cores),
+                    "python", executable,
+                    "--local"
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                cwd=working_directory,
+            )
+            self._communicator = StdCommunicator(
+                connect_input=self._process.stdout,
+                connect_output=self._process.stdin
+            )
+        elif mode == 'socket':
+            self._communicator = SocketHostCommunicator(
+                port=port,
+                buffer_len=buffer_len
+            )
+            self._process = subprocess.Popen(
+                [
+                    "mpiexec", "-n", str(cores),
+                    "python", executable,
+                    "--sockethost", str(self._communicator.host),
+                    "--port", str(self._communicator.port),
+                    "--bufferlen", str(buffer_len)
+                 ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                cwd=working_directory,
+            )
+        else:
+            raise ValueError
 
     def _send(self, command, data=None):
         """
@@ -50,8 +77,7 @@ class LammpsLibrary(object):
         -------
         None
         """
-        pickle.dump({"c": command, "d": data}, self._process.stdin)
-        self._process.stdin.flush()
+        self._communicator.send(data={"c": command, "d": data})
 
     def _receive(self):
         """
@@ -66,8 +92,7 @@ class LammpsLibrary(object):
         data : string
             data from the command
         """
-        output = pickle.load(self._process.stdout)
-        return output
+        return self._communicator.receive()
 
     @property
     def version(self):

@@ -5,9 +5,11 @@
 from ctypes import c_double, c_int
 from mpi4py import MPI
 import numpy as np
-import pickle
 import sys
 from lammps import lammps
+import getopt
+from pylammpsmpi.communicate import StdCommunicator, SocketClientCommunicator
+
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -20,24 +22,26 @@ __email__ = "janssen@mpie.de"
 __status__ = "production"
 __date__ = "Feb 28, 2020"
 
-#dict for extract atom methods
-atom_properties = { "x":{"type":3, "gtype":1, "dim":3},
-                    "mass":{"type":2, "gtype":1, "dim":1},
-                    "id":{"type":0, "gtype":0, "dim":1},
-                    "type":{"type":0, "gtype":0, "dim":1},
-                    "mask":{"type":0, "gtype":0, "dim":1},
-                    "v":{"type":3, "gtype":1, "dim":3},
-                    "f":{"type":3, "gtype":1, "dim":3},
-                    "molecule":{"type":0, "gtype":0, "dim":1},
-                    "q":{"type":2, "gtype":1, "dim":1},
-                    "mu":{"type":3, "gtype":1, "dim":3},
-                    "omega":{"type":3, "gtype":1, "dim":3},
-                    "angmom":{"type":3, "gtype":1, "dim":3},
-                    "torque":{"type":3, "gtype":1, "dim":3},
-                    "radius":{"type":2, "gtype":1, "dim":1},
-                    #we can add more quantities as needed
-                    #taken directly from atom.cpp -> extract()
-                  }
+
+# dict for extract atom methods
+atom_properties = {
+    "x": {"type": 3, "gtype": 1, "dim": 3},
+    "mass": {"type": 2, "gtype": 1, "dim": 1},
+    "id": {"type": 0, "gtype": 0, "dim": 1},
+    "type": {"type": 0, "gtype": 0, "dim": 1},
+    "mask": {"type": 0, "gtype": 0, "dim": 1},
+    "v": {"type": 3, "gtype": 1, "dim": 3},
+    "f": {"type": 3, "gtype": 1, "dim": 3},
+    "molecule": {"type": 0, "gtype": 0, "dim": 1},
+    "q": {"type": 2, "gtype": 1, "dim": 1},
+    "mu": {"type": 3, "gtype": 1, "dim": 3},
+    "omega": {"type": 3, "gtype": 1, "dim": 3},
+    "angmom": {"type": 3, "gtype": 1, "dim": 3},
+    "torque": {"type": 3, "gtype": 1, "dim": 3},
+    "radius": {"type": 2, "gtype": 1, "dim": 1},
+    # we can add more quantities as needed
+    # taken directly from atom.cpp -> extract()
+}
 
 # Lammps executable
 job = lammps(cmdargs=["-screen", "none"])
@@ -155,6 +159,7 @@ def extract_variable(funct_args):
             data = np.array(data)
         return data
 
+
 def get_natoms(funct_args):
     if MPI.COMM_WORLD.rank == 0:
         return job.get_natoms()
@@ -166,6 +171,7 @@ def set_variable(funct_args):
 
 def reset_box(funct_args):
     job.reset_box(*funct_args)
+
 
 def gather_atoms(funct_args):
     #extract atoms return an internal data type
@@ -243,7 +249,6 @@ def gather_atoms_subset(funct_args):
     else:
         data = list(val)
     return np.array(data)
-
 
 
 def create_atoms(funct_args):
@@ -348,9 +353,9 @@ def scatter_atoms_subset(funct_args):
 
     job.scatter_atoms_subset(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], lenids, cids, c_vector)
 
+
 def command(funct_args):
     job.command(funct_args)
-
 
 
 def select_cmd(argument):
@@ -376,11 +381,53 @@ def select_cmd(argument):
     return switcher.get(argument)
 
 
+def get_commmunicator(argv):
+    host = None
+    port = None
+    bufferlen = 64
+    local = False
+    try:
+        opts, args = getopt.getopt(
+            argv, "s:p:b:lh", ["sockethost=", "port=", "bufferlen=", "local", "help"]
+        )
+    except getopt.GetoptError:
+        sys.exit()
+    else:
+        for opt, arg in opts:
+            if opt in ("-s", "--sockethost"):
+                host = arg
+            elif opt in ("-p", "--port"):
+                port = arg
+            elif opt in ("-b", "--bufferlen"):
+                bufferlen = arg
+            elif opt in ("-l", "--local"):
+                local = True
+            elif opt in ("-h", "--help"):
+                print("cmd.py help ... coming soon.")
+                sys.exit()
+        if local:
+            return StdCommunicator(
+                    connect_input=sys.stdin.buffer,
+                    connect_output=sys.stdout.buffer
+                )
+        elif host is not None and port is not None:
+            return SocketClientCommunicator(
+                 host=host,
+                 port=port,
+                 buffer_len=bufferlen
+            )
+        else:
+            raise ValueError()
+
+
 if __name__ == "__main__":
+    communicator = None
+    if MPI.COMM_WORLD.rank == 0:
+        communicator = get_commmunicator(sys.argv[1:])
     while True:
         if MPI.COMM_WORLD.rank == 0:
-            input_dict = pickle.load(sys.stdin.buffer)
-            #with open('process.txt', 'a') as file:
+            input_dict = communicator.receive()
+            # with open('process.txt', 'a') as file:
             #     print('Input:', input_dict, file=file)
         else:
             input_dict = None
@@ -390,7 +437,6 @@ if __name__ == "__main__":
             break
         output = select_cmd(input_dict["c"])(input_dict["d"])
         if MPI.COMM_WORLD.rank == 0 and output is not None:
-            #with open('process.txt', 'a') as file:
+            # with open('process.txt', 'a') as file:
             #     print('Output:', output, file=file)
-            pickle.dump(output, sys.stdout.buffer)
-            sys.stdout.flush()
+            communicator.send(output)
