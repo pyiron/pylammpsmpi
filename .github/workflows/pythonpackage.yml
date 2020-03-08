@@ -31,3 +31,10 @@ jobs:
     - run: conda install -c conda-forge lammps mpi4py openmpi pytest numpy
     - run: pip install -e .
     - run: python -m pytest tests/
+    - run: python setup.py sdist
+    - name: publish package on pypi
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+       user: ${{ secrets.pypi_username }}
+       password: ${{ secrets.pypi_password }}
