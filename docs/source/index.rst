@@ -7,18 +7,5 @@ Welcome to pylammpsmpi's documentation!
 =======================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
-.. toctree::
-  :maxdepth: 4
-
-   pylammpsmpi
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    modules  
