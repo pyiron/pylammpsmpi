@@ -1,5 +1,11 @@
 # `PyLammpsMPI`
 
+## Install with pip 
+
+```bash
+pip install pylammpsmpi
+```
+
 ## Example usage
 
 ### Setting up a simulation
