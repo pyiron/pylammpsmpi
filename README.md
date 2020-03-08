@@ -1,6 +1,5 @@
 # `PyLammpsMPI`
 
-
 ## Example usage
 
 ### Setting up a simulation
@@ -14,7 +13,7 @@ Set up a job which runs on 2 cores
 
 
 ```python
-lmp = LammpsLibrary(cores=4)
+lmp = LammpsLibrary(cores=2)
 ```
 
 Read an input file
@@ -64,7 +63,19 @@ lmp.command("run 1")
 lmp.command(["run 1", "run 1"])
 ```
 
-Extract a global property
+Commands can also be direct
+
+
+```python
+lmp.run(10)
+```
+
+
+```python
+lmp.mass(1, 20)
+```
+
+### Extract a global property
 
 
 ```python
@@ -75,6 +86,46 @@ lmp.extract_global("boxxhi", 1)
 
 
     6.718384765530029
+
+
+
+### Access thermo quantities
+
+
+```python
+lmp.get_thermo("temp")
+```
+
+
+
+
+    array(1.12985322)
+
+
+
+Thermo quantities can also be accessed directly,
+
+
+```python
+lmp.temp
+```
+
+
+
+
+    array(1.12985322)
+
+
+
+
+```python
+lmp.press
+```
+
+
+
+
+    array(-2.60581752)
 
 
 
