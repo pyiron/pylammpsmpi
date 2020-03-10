@@ -58,6 +58,7 @@ class LammpsLibrary(object):
                 stdin=subprocess.PIPE,
                 cwd=working_directory,
             )
+            self._communicator.connect()
         else:
             raise ValueError
 
