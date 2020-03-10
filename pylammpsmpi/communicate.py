@@ -82,13 +82,22 @@ class SocketHostCommunicator(SocketCommunicator):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((host, port))
         s.listen(1)  # Accept only one incoming connection
+        super(SocketHostCommunicator).__init__(
+            connect_input=None,
+            connect_output=None,
+            host=host,
+            port=port,
+            buffer_len=buffer_len
+        )
+        
+    def connect(self):
         hostsocket, _ = s.accept()
         super(SocketHostCommunicator).__init__(
             connect_input=hostsocket,
             connect_output=hostsocket,
-            host=host,
-            port=port,
-            buffer_len=buffer_len
+            host=self.host,
+            port=self.port,
+            buffer_len=self.buffer_len
         )
 
 
