@@ -329,7 +329,7 @@ class LammpsLibrary(object):
         """
         self._send(command="reset_box", data=list(args))
 
-    def generate_atoms(self, ids=None, type=None, x=None, v=None, image=False, shrinkexceed=False):
+    def generate_atoms(self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False):
         """
         Create atoms on all procs
 
@@ -337,6 +337,7 @@ class LammpsLibrary(object):
         ----------
         ids : list of ints, optional
             ids of N atoms that need to be created
+            if not specified, ids from 1 to N are assigned
 
         type : list of atom types, optional
             type of N atoms, if not specied, all atoms are assigned as type 1
@@ -347,8 +348,8 @@ class LammpsLibrary(object):
         v: list of velocities
             list of the type `[vx, vy, vz]` for N atoms
 
-        image: bool, optional
-            default False
+        image: list of ints, optional
+            if not specified a list of 0s will be used.
 
         shrinkexceed: bool, optional
             default False
@@ -363,6 +364,10 @@ class LammpsLibrary(object):
             natoms = len(x)
             if type is None:
                 type = [1]*natoms
+            if ids is None:
+                ids = list(range(1, natoms+1))
+            if image is None:
+                image = [0]*natoms
 
             funct_args = [natoms, ids, type, x, v, image, shrinkexceed]
             self._send(command="create_atoms", data=funct_args)
