@@ -362,7 +362,7 @@ class LammpsLibrary(object):
         if x is not None:
             natoms = len(x)
             if type is None:
-                type = np.ones(natoms)
+                type = [1]*natoms
 
             funct_args = [natoms, ids, type, x, v, image, shrinkexceed]
             self._send(command="create_atoms", data=funct_args)
