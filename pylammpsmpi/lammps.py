@@ -329,9 +329,46 @@ class LammpsLibrary(object):
         """
         self._send(command="reset_box", data=list(args))
 
-    #TODO
-    def create_atoms(self, *args):
-        self._send(command="create_atoms", data=list(args))
+    def generate_atoms(self, ids=None, type=None, x=None, v=None, image=False, shrinkexceed=False):
+        """
+        Create atoms on all procs
+
+        Parameters
+        ----------
+        ids : list of ints, optional
+            ids of N atoms that need to be created
+
+        type : list of atom types, optional
+            type of N atoms, if not specied, all atoms are assigned as type 1
+
+        x: list of positions
+            list of the type `[posx, posy, posz]` for N atoms
+
+        v: list of velocities
+            list of the type `[vx, vy, vz]` for N atoms
+
+        image: bool, optional
+            default False
+
+        shrinkexceed: bool, optional
+            default False
+
+        Returns
+        -------
+        None
+
+        """
+
+        if x is not None:
+            natoms = len(x)
+            if type is None:
+                type = np.ones(natoms)
+
+            funct_args = [natoms, ids, type, x, v, image, shrinkexceed]
+            self._send(command="create_atoms", data=funct_args)
+        else:
+            raise TypeError("Value of x cannot be None")
+
 
     @property
     def has_exceptions(self):
