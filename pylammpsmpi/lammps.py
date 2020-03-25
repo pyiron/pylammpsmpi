@@ -118,6 +118,7 @@ class LammpsLibrary(object):
         if not os.path.exists(inputfile):
             raise FileNotFoundError("Input file does not exist")
         self._send(command="get_file", data=[inputfile])
+        a = self._receive()
 
 
     #TODO
@@ -328,6 +329,7 @@ class LammpsLibrary(object):
             box tilts
         """
         self._send(command="reset_box", data=list(args))
+        a = self._receive()
 
     def generate_atoms(self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False):
         """
@@ -371,6 +373,7 @@ class LammpsLibrary(object):
 
             funct_args = [natoms, ids, type, x, v, image, shrinkexceed]
             self._send(command="create_atoms", data=funct_args)
+            a = self._receive()
         else:
             raise TypeError("Value of x cannot be None")
 
@@ -496,11 +499,14 @@ class LammpsLibrary(object):
         if isinstance(cmd, list):
             for c in cmd:
                 self._send(command="command", data=c)
+                a = self._receive()
         elif len(cmd.split('\n')) > 1:
             for c in cmd.split('\n'):
                 self._send(command="command", data=c)
+                a = self._receive()
         else:
             self._send(command="command", data=cmd)
+            a = self._receive()
 
 
 
@@ -563,8 +569,10 @@ class LammpsLibrary(object):
             args.append(len(ids))
             args.append(ids)
             self._send(command="scatter_atoms_subset", data=args)
+            a = self._receive()
         else:
             self._send(command="scatter_atoms", data=list(args))
+            a = self._receive()
 
     def get_thermo(self, *args):
         """
