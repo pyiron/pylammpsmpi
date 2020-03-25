@@ -82,14 +82,17 @@ def get_version(funct_args):
 
 def get_file(funct_args):
     job.file(*funct_args)
+    return 1
 
 
 def commands_list(funct_args):
     job.commands_list(*funct_args)
+    return 1
 
 
 def commands_string(funct_args):
     job.commands_string(*funct_args)
+    return 1
 
 
 def extract_setting(funct_args):
@@ -166,6 +169,8 @@ def set_variable(funct_args):
 
 def reset_box(funct_args):
     job.reset_box(*funct_args)
+    return 1
+
 
 def gather_atoms(funct_args):
     #extract atoms return an internal data type
@@ -268,6 +273,7 @@ def create_atoms(funct_args):
 
     args = [natoms, id_lmp, type_lmp, x, v, image_lmp, shrinkexceed]
     job.create_atoms(*args)
+    return 1
 
 
 def has_exceptions(funct_args):
@@ -345,7 +351,7 @@ def scatter_atoms(funct_args):
         c_vector = (len(py_vector) * c_double)(*py_vector)
 
     job.scatter_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], c_vector)
-
+    return 1
 
 def scatter_atoms_subset(funct_args):
     name = str(funct_args[0])
@@ -367,11 +373,11 @@ def scatter_atoms_subset(funct_args):
         c_vector = (len(py_vector) * c_double)(*py_vector)
 
     job.scatter_atoms_subset(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], lenids, cids, c_vector)
-
+    return 1
+    
 def command(funct_args):
     job.command(funct_args)
-
-
+    return 1
 
 def select_cmd(argument):
     """
