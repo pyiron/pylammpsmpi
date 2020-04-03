@@ -4,8 +4,38 @@ import subprocess
 import sys
 from pylammpsmpi.commands import command_list, thermo_list
 
-class DaskLammps:
+class HigherDaskLammps:
     def __init__(self, cores=8, working_directory=".", client=None):
+        self.cores = cores
+        self.working_directory = working_directory
+        self.client = client
+
+        fut = self.client.submit(DaskLammps, cores=self.cores, actor=True)
+        self.lmp = fut.result()
+
+        fut = self.lmp.start_process()
+        _ = fut.result()
+
+    #route all functions through
+    def __getattr__(self, name):
+        """
+        Try to run input as a lammps command
+        """
+        if name in ['file']:
+            def file_wrapper(filename):
+                fut = self.lmp.file(filename)
+                x = fut.result()
+            return file_wrapper
+
+        elif name in thermo_list:
+            fut = self.lmp.get_thermo(name)
+            return fut.result()
+
+        else:
+            raise AttributeError(name)
+
+class DaskLammps:
+    def __init__(self, cores=8, working_directory="."):
         self.cores = cores
         self.working_directory = working_directory
 
