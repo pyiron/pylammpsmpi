@@ -8,4 +8,4 @@ dependencies:
 - pytest
 - pip:
   - distributed
-  - dask_jobqueue
+  - dask-jobqueue
