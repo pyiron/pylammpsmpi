@@ -39,22 +39,41 @@ class DaskLammps:
         Try to run input as a lammps command
         """
         if name in func_list:
-            def func_wrapper(*args, **kwargs):
-                func = getattr(self.lmp, name)
-                fut = func(*args, **kwargs)
-                return fut.result()
+            if self.mode == 'dask':
+                def func_wrapper(*args, **kwargs):
+                    func = getattr(self.lmp, name)
+                    fut = func(*args, **kwargs)
+                    return fut.result()
+            else:
+                def func_wrapper(*args, **kwargs):
+                    func = getattr(self.lmp, name)
+                    fut = func(*args, **kwargs)
+                    return fut
+
             return func_wrapper
 
         elif name in thermo_list:
-            fut = self.lmp.get_thermo(name)
-            return fut.result()
+            if self.mode == 'dask':
+                fut = self.lmp.get_thermo(name)
+                return fut.result()
+            else:
+                fut = self.lmp.get_thermo(name)
+                return fut
+
 
         elif name in command_list:
-            def command_wrapper(*args):
-                args = [name] + list(args)
-                cmd = " ".join([str(x) for x in args])
-                fut = self.lmp.command(cmd)
-                return fut.result()
+            if self.mode == 'dask':
+                def command_wrapper(*args):
+                    args = [name] + list(args)
+                    cmd = " ".join([str(x) for x in args])
+                    fut = self.lmp.command(cmd)
+                    return fut.result()
+            else:
+                def command_wrapper(*args):
+                    args = [name] + list(args)
+                    cmd = " ".join([str(x) for x in args])
+                    fut = self.lmp.command(cmd)
+                    return fut
             return command_wrapper
 
         elif name in prop_list:
