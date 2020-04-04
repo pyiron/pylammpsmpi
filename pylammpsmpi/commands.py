@@ -1,3 +1,16 @@
+func_list = [ 'file', 'extract_global', 'extract_box', 'extract_atom',
+              'extract_fix', 'extract_variable', 'get_natoms', 'set_variable',
+              'reset_box', 'generate_atoms', 'set_fix_external_callback',
+              'get_neighlist', 'find_pair_neighlist', 'find_fix_neighlist',
+              'find_compute_neighlist', 'get_neighlist_size',
+              'get_neighlist_element_neighbors', 'command', 'gather_atoms',
+              'scatter_atoms', 'get_thermo', 'extract_compute',
+            ]
+
+prop_list = [ 'version', 'natoms', 'has_exceptions', 'has_gzip_support',
+              'has_png_support', 'has_jpeg_support', 'has_ffmpeg_support',
+              'installed_packages',
+            ]
 
 command_list = ['angle_coeff', 'angle_style', 'atom_modify',
                 'atom_style', 'atom_style', 'balance',

@@ -21,34 +21,22 @@ __email__ = "janssen@mpie.de"
 __status__ = "production"
 __date__ = "Feb 28, 2020"
 
-class LammpsLibrary(object):
-    def __init__(self, cores=1, working_directory="."):
+class LammpsLibrary:
+    def __init__(self, cores=8, working_directory="."):
+        self.cores = cores
+        self.working_directory = working_directory
+
+    def start_process(self):
         executable = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "mpi", "lmpmpi.py"
         )
         self._process = subprocess.Popen(
-            ["mpiexec", "-n", str(cores), "python", executable],
+            ["mpiexec", "--oversubscribe", "-n", str(self.cores), "python", executable],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=None,
             stdin=subprocess.PIPE,
-            cwd=working_directory,
+            cwd=self.working_directory,
         )
-
-    def __getattr__(self, name):
-        """
-        Try to run input as a lammps command
-        """
-        def command_wrapper(*args):
-            args = [name] + list(args)
-            cmd = " ".join([str(x) for x in args])
-            self.command(cmd)
-
-        if name in command_list:
-            return command_wrapper
-        elif name in thermo_list:
-            return self.get_thermo(name)
-        else:
-            raise AttributeError(name)
 
     def _send(self, command, data=None):
         """
