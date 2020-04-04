@@ -1,4 +1,4 @@
-from pylammpsmpi.lammps import LammpsLibrary
+from pylammpsmpi.lammps_wrapper import LammpsLibrary
 
 from ._version import get_versions
 __version__ = get_versions()['version']
