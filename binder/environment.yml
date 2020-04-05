@@ -6,3 +6,5 @@ dependencies:
 - numpy
 - lammps
 - pytest
+- distributed
+- dask-jobqueue

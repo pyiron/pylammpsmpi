@@ -1,9 +1,9 @@
 import pytest
 import os
 import numpy as np
-from pylammpsmpi.lammps import LammpsLibrary
+from pylammpsmpi import LammpsLibrary
 
-lmp = LammpsLibrary(cores=2)
+lmp = LammpsLibrary(cores=2, mode='local')
 lmp.file("tests/in.simple")
 
 def test_extract_atom():
