@@ -16,3 +16,16 @@ matrix:
         - pip install -e .
       script:
         - python -m pytest tests/
+      deploy:
+        - provider: pypi
+          user: pyiron
+          password: ${PYPI_UPLOAD_TOKEN}
+          allow_failure: true
+          on:
+            branch: master
+        - provider: pypi
+          user: pyiron
+          password: ${PYPI_UPLOAD_TOKEN}
+          allow_failure: true
+          on:
+            tags: true
