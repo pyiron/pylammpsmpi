@@ -5,9 +5,6 @@
 import os
 import pickle
 import subprocess
-import sys
-from pylammpsmpi.commands import command_list, thermo_list, func_list, prop_list
-
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -26,6 +23,7 @@ class LammpsBase:
     def __init__(self, cores=8, working_directory="."):
         self.cores = cores
         self.working_directory = working_directory
+        self._process = None
 
     def start_process(self):
         executable = os.path.join(
@@ -109,12 +107,10 @@ class LammpsBase:
         self._send(command="get_file", data=[inputfile])
         _ = self._receive()
 
-
     #TODO
     def extract_setting(self, *args):
         self._send(command="extract_setting", data=list(args))
         return self._receive()
-
 
     def extract_global(self, name, type):
         """
@@ -195,7 +191,6 @@ class LammpsBase:
         """
         self._send(command="extract_atom", data=list([name]))
         return self._receive()
-
 
     def extract_fix(self, *args):
         """
@@ -301,7 +296,6 @@ class LammpsBase:
         self._send(command="set_variable", data=list(args))
         return self._receive()
 
-
     def reset_box(self, *args):
         """
         Reset the simulation box
@@ -365,7 +359,6 @@ class LammpsBase:
             _ = self._receive()
         else:
             raise TypeError("Value of x cannot be None")
-
 
     @property
     def has_exceptions(self):
@@ -497,9 +490,6 @@ class LammpsBase:
             self._send(command="command", data=cmd)
             _ = self._receive()
 
-
-
-
     def gather_atoms(self, *args, concat=False, ids=None):
         """
         Gather atom properties
@@ -543,7 +533,6 @@ class LammpsBase:
         else:
             self._send(command="gather_atoms", data=list(args))
         return self._receive()
-
 
     def scatter_atoms(self, *args, ids=None):
         """
@@ -617,7 +606,6 @@ class LammpsBase:
         args = [id, style, type, length, width]
         self._send(command="extract_compute", data=args)
         return self._receive()
-
 
     def close(self):
         """
