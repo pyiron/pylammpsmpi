@@ -46,12 +46,12 @@ job = lammps(cmdargs=["-screen", "none"])
 
 def extract_compute(funct_args):
     # if MPI.COMM_WORLD.rank == 0:
-    compute_id = funct_args[0]
-    style = funct_args[1]
-    atom_type = funct_args[2]
+    id = funct_args[0]
+    style =  funct_args[1]
+    type = funct_args[2]
     length = funct_args[3]
     width = funct_args[4]
-    filtered_args = [compute_id, style, atom_type]
+    filtered_args = [id, style, type]
 
     val = job.extract_compute(*filtered_args)
 
