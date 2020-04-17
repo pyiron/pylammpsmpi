@@ -20,7 +20,7 @@ __email__ = "janssen@mpie.de"
 __status__ = "production"
 __date__ = "Feb 28, 2020"
 
-#dict for extract atom methods
+# dict for extract atom methods
 atom_properties = {
     "x": {"type": 3, "gtype": 1, "dim": 3},
     "mass": {"type": 2, "gtype": 1, "dim": 1},
@@ -178,7 +178,7 @@ def gather_atoms(funct_args):
     # extract atoms return an internal data type
     # this has to be reformatted
     name = str(funct_args[0])
-    if not name in atom_properties.keys():
+    if name not in atom_properties.keys():
         return []
 
     # this block prevents error when trying to access values
@@ -191,7 +191,7 @@ def gather_atoms(funct_args):
     # number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    if dim>1:
+    if dim > 1:
         data = [val[x:x+dim] for x in range(0, len(val), dim)]
     else:
         data = list(val)
