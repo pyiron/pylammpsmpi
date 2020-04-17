@@ -9,7 +9,7 @@ class LammpsLibrary:
     """
     Top level class which manages the lammps library provided by LammpsBase
     """
-    def __init__(self, cores=8, working_directory=".", client=None, mode='socket'):
+    def __init__(self, cores=8, working_directory=".", client=None, mode='local'):
         self.cores = cores
         self.working_directory = working_directory
         self.client = client
