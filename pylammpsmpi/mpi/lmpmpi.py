@@ -355,6 +355,7 @@ def scatter_atoms(funct_args):
     job.scatter_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], c_vector)
     return 1
 
+
 def scatter_atoms_subset(funct_args):
     name = str(funct_args[0])
     lenids = int(funct_args[2])
@@ -412,8 +413,8 @@ if __name__ == "__main__":
     while True:
         if MPI.COMM_WORLD.rank == 0:
             input_dict = pickle.load(sys.stdin.buffer)
-            # with open('process.txt', 'a') as file:
-            #      print('Input:', input_dict, file=file)
+            with open('process.txt', 'a') as file:
+                print('Input:', input_dict, file=file)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
@@ -422,7 +423,7 @@ if __name__ == "__main__":
             break
         output = select_cmd(input_dict["c"])(input_dict["d"])
         if MPI.COMM_WORLD.rank == 0 and output is not None:
-            # with open('process.txt', 'a') as file:
-            #      print('Output:', output, file=file)
+            with open('process.txt', 'a') as file:
+                print('Output:', output, file=file)
             pickle.dump(output, sys.stdout.buffer)
             sys.stdout.flush()
