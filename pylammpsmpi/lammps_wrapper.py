@@ -1,9 +1,6 @@
-import os
-import pickle
-import subprocess
-import sys
 from pylammpsmpi.commands import command_list, thermo_list, func_list, prop_list
 from pylammpsmpi.lammps import LammpsBase
+
 
 class LammpsLibrary:
     """
@@ -28,7 +25,6 @@ class LammpsLibrary:
 
         else:
             raise ValueError("mode should be either dask or local")
-
 
     def __getattr__(self, name):
         """
@@ -55,7 +51,6 @@ class LammpsLibrary:
             else:
                 fut = self.lmp.get_thermo(name)
                 return fut
-
 
         elif name in command_list:
             if self.mode == 'dask':
