@@ -76,4 +76,5 @@ class LammpsLibrary:
 
     def close(self):
         fut = self.lmp.close()
-        return fut.result()
+        if fut is not None:
+            return fut.result()
