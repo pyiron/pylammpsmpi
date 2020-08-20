@@ -1,75 +1,81 @@
-import pytest
+# coding: utf-8
+# Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
+# Distributed under the terms of "New BSD License", see the LICENSE file.
+
+import unittest
 import os
 import numpy as np
 from pylammpsmpi import LammpsLibrary
 from dask.distributed import Client, LocalCluster
 
-cluster = LocalCluster(n_workers=1, threads_per_worker=2)
-client = Client(cluster)
 
-lmp = LammpsLibrary(cores=2, mode='dask', client=client)
-lmp.file("tests/in.simple")
+class TestLocalLammpsLibrary(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        execution_path = os.path.dirname(os.path.abspath(__file__))
+        cluster = LocalCluster(n_workers=1, threads_per_worker=2)
+        client = Client(cluster)
+        cls.lmp = LammpsLibrary(cores=2, mode='dask', client=client)
+        cls.lmp.file(os.path.join(execution_path, "in.simple"))
 
-def test_extract_atom():
+    def test_extract_atom(self):
+        f = self.lmp.extract_atom("f")
+        self.assertEqual(len(f), 256)
+        self.assertEqual(np.round(f[0][0], 2), -0.26)
 
-    f = lmp.extract_atom("f")
-    assert len(f) == 256
-    assert np.round(f[0][0], 2) == -0.26
+        ids = self.lmp.extract_atom("id")
+        self.assertEqual(len(ids), 256)
 
-    ids = lmp.extract_atom("id")
-    assert len(ids) == 256
+    def test_gather_atoms(self):
+        f = self.lmp.gather_atoms("f")
+        self.assertEqual(len(f), 256)
+        # this checks if info was gathered from
+        # all processors
+        self.assertEqual(np.round(f[-22][0], 2), 0.31)
 
-def test_gather_atoms():
+        ids = self.lmp.extract_atom("id")
+        self.assertEqual(len(ids), 256)
 
-    f = lmp.gather_atoms("f")
-    assert len(f) == 256
-    #this checks if info was gathered from
-    #all processors
-    assert np.round(f[-22][0], 2) == 0.31
+    def test_extract_box(self):
+        box = self.lmp.extract_box()
+        self.assertEqual(len(box), 7)
 
-    ids = lmp.extract_atom("id")
-    assert len(ids) == 256
+        self.assertEqual(box[0][0], 0.0)
+        self.assertEqual(np.round(box[1][0], 2), 6.72)
 
-def test_extract_box():
+        self.lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
+        box = self.lmp.extract_box()
+        self.assertEqual(box[0][0], 0.0)
+        self.assertEqual(np.round(box[1][0], 2), 8.0)
 
-    box = lmp.extract_box()
-    assert len(box) == 7
+    def test_extract_fix(self):
+        x = self.lmp.extract_fix("2", 0, 1, 1)
+        self.assertEqual(np.round(x, 2), -2.61)
 
-    assert box[0][0] == 0.0
-    assert np.round(box[1][0], 2) == 6.72
+    def test_extract_variable(self):
+        x = self.lmp.extract_variable("tt", "all", 0)
+        self.assertEqual(np.round(x, 2), 1.13)
 
-    lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
-    box = lmp.extract_box()
-    assert box[0][0] == 0.0
-    assert np.round(box[1][0], 2) == 8.0
+        x = self.lmp.extract_variable("fx", "all", 1)
+        self.assertEqual(len(x), 128)
+        self.assertEqual(np.round(x[0], 2), -0.26)
+
+    def test_scatter_atoms(self):
+        f = self.lmp.gather_atoms("f")
+        val = np.random.randint(0, 100)
+        f[1][0] = val
+        self.lmp.scatter_atoms("f", f)
+        f1 = self.lmp.gather_atoms("f")
+        self.assertEqual(f1[1][0], val)
+
+        f = self.lmp.gather_atoms("f", ids=[1,2])
+        val = np.random.randint(0, 100)
+        f[1][1] = val
+        self.lmp.scatter_atoms("f", f, ids=[1,2])
+        f1 = self.lmp.gather_atoms("f", ids=[1,2])
+        self.assertEqual(f1[1][1], val)
 
 
-def test_extract_fix():
+if __name__ == "__main__":
+    unittest.main()
 
-    x = lmp.extract_fix("2", 0, 1, 1)
-    assert np.round(x, 2) == -2.61
-
-def test_extract_variable():
-
-    x = lmp.extract_variable("tt", "all", 0)
-    assert np.round(x, 2) == 1.13
-
-    x = lmp.extract_variable("fx", "all", 1)
-    assert len(x) == 128
-    assert np.round(x[0], 2) == -0.26
-
-def test_scatter_atoms():
-
-    f = lmp.gather_atoms("f")
-    val = np.random.randint(0, 100)
-    f[1][0] = val
-    lmp.scatter_atoms("f", f)
-    f1 = lmp.gather_atoms("f")
-    assert f1[1][0] == val
-
-    f = lmp.gather_atoms("f", ids=[1,2])
-    val = np.random.randint(0, 100)
-    f[1][1] = val
-    lmp.scatter_atoms("f", f, ids=[1,2])
-    f1 = lmp.gather_atoms("f", ids=[1,2])
-    assert f1[1][1] == val
