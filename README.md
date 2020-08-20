@@ -1,4 +1,5 @@
 # `PyLammpsMPI`
+[![Build Status](https://travis-ci.org/pyiron/pylammpsmpi.svg?branch=master)](https://travis-ci.org/pyiron/pylammpsmpi)
 
 ## Install with pip 
 
