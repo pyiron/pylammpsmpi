@@ -621,6 +621,7 @@ class LammpsBase:
         """
         self._send(command="close")
         try:
+            self._process.close()
             self._process.kill()
         except AttributeError:
             pass
