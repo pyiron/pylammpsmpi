@@ -620,8 +620,10 @@ class LammpsBase:
         None
         """
         self._send(command="close")
-        if self._process is not None:
-            self._process.terminate()
+        try:
+            self._process.kill()
+        except AttributeError:
+            pass
         self._process = None
 
     #TODO
