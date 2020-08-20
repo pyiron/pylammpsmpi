@@ -28,9 +28,9 @@ jobs:
     - run: conda --version
     - run: which python
     - run: conda config --set always_yes yes --set changeps1 no
-    - run: conda install -c conda-forge lammps mpi4py openmpi pytest numpy distributed dask-jobqueue
+    - run: conda install -c conda-forge lammps mpi4py openmpi coveralls codacy-coverage coverage numpy distributed dask-jobqueue
     - run: pip install -e .
-    - run: python -m pytest tests/
+    - run: coverage run -m unittest discover tests
     - run: python setup.py sdist
     - name: publish package on pypi
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
