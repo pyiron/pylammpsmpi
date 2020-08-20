@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -31,10 +31,3 @@ jobs:
     - run: conda install -c conda-forge lammps mpi4py openmpi coveralls codacy-coverage coverage numpy distributed dask-jobqueue
     - run: pip install -e .
     - run: coverage run -m unittest discover tests
-    - run: python setup.py sdist
-    - name: publish package on pypi
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-       user: ${{ secrets.pypi_username }}
-       password: ${{ secrets.pypi_password }}
