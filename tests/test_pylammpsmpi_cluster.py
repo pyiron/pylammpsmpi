@@ -18,6 +18,10 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         cls.lmp = LammpsLibrary(cores=2, mode='dask', client=client)
         cls.lmp.file(os.path.join(execution_path, "in.simple"))
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.lmp.close()
+
     def test_extract_atom(self):
         f = self.lmp.extract_atom("f")
         self.assertEqual(len(f), 256)
