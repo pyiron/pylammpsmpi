@@ -1,3 +1,19 @@
+# coding: utf-8
+# Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
+# Distributed under the terms of "New BSD License", see the LICENSE file.
+
+__author__ = "Sarath Menon, Jan Janssen"
+__copyright__ = (
+    "Copyright 2020, Max-Planck-Institut für Eisenforschung GmbH - "
+    "Computational Materials Design (CM) Department"
+)
+__version__ = "1.0"
+__maintainer__ = "Jan Janssen"
+__email__ = "janssen@mpie.de"
+__status__ = "production"
+__date__ = "Feb 28, 2020"
+
+
 func_list = [
     'file', 'extract_global', 'extract_box', 'extract_atom',
     'extract_fix', 'extract_variable', 'get_natoms', 'set_variable',

@@ -27,7 +27,7 @@ class LammpsBase:
 
     def start_process(self):
         executable = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "mpi", "lmpmpi.py"
+            os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
         )
         self._process = subprocess.Popen(
             ["mpiexec", "--oversubscribe", "-n", str(self.cores), "python", executable],
