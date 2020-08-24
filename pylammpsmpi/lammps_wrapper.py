@@ -1,5 +1,20 @@
-from pylammpsmpi.commands import command_list, thermo_list, func_list, prop_list
-from pylammpsmpi.lammps import LammpsBase
+# coding: utf-8
+# Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
+# Distributed under the terms of "New BSD License", see the LICENSE file.
+
+from pylammpsmpi.utils.commands import command_list, thermo_list, func_list, prop_list
+from pylammpsmpi.utils.lammps import LammpsBase
+
+__author__ = "Sarath Menon, Jan Janssen"
+__copyright__ = (
+    "Copyright 2020, Max-Planck-Institut für Eisenforschung GmbH - "
+    "Computational Materials Design (CM) Department"
+)
+__version__ = "1.0"
+__maintainer__ = "Jan Janssen"
+__email__ = "janssen@mpie.de"
+__status__ = "production"
+__date__ = "Feb 28, 2020"
 
 
 class LammpsLibrary:

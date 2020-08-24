@@ -12,7 +12,7 @@ pip install pylammpsmpi
 
 
 ```python
-from pylammpsmpi.lammps import LammpsLibrary
+from pylammpsmpi import LammpsLibrary
 ```
 
 Set up a job which runs on 2 cores
