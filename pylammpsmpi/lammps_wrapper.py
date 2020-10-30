@@ -28,14 +28,14 @@ class LammpsLibrary:
         self.mode = mode
 
         if self.mode == 'dask':
-            fut = self.client.submit(LammpsBase, cores=self.cores, actor=True)
+            fut = self.client.submit(LammpsBase, cores=self.cores, working_directory=self.working_directory, actor=True)
             self.lmp = fut.result()
 
             fut = self.lmp.start_process()
             _ = fut.result()
 
         elif self.mode == 'local':
-            self.lmp = LammpsBase(cores=self.cores)
+            self.lmp = LammpsBase(cores=self.cores, working_directory=self.working_directory)
             self.lmp.start_process()
 
         else:
