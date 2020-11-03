@@ -1,5 +1,6 @@
 # `PyLammpsMPI`
-[![Build Status](https://travis-ci.org/pyiron/pylammpsmpi.svg?branch=master)](https://travis-ci.org/pyiron/pylammpsmpi)
+[![Coverage Status](https://coveralls.io/repos/github/pyiron/pylammpsmpi/badge.svg)](https://coveralls.io/github/pyiron/pylammpsmpi)
+[![Actions Status](https://github.com/pyiron/pylammpsmpi/workflows/unittests/badge.svg)](https://github.com/pyiron/pylammpsmpi/actions)
 
 ## Install with pip 
 
