@@ -30,4 +30,3 @@ jobs:
     - run: coverage combine
     - run: coveralls
     - run: coverage xml
-    - run: python-codacy-coverage -r coverage.xml
