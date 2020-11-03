@@ -30,4 +30,4 @@ jobs:
     - run: conda config --set always_yes yes --set changeps1 no
     - run: conda install -c conda-forge lammps mpi4py openmpi coveralls codacy-coverage coverage numpy distributed dask-jobqueue
     - run: pip install -e .
-    - run: coverage run -m unittest discover tests
+    - run: coverage run --omit pyiron/_version.py -m unittest discover tests
