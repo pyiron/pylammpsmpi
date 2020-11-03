@@ -1,6 +1,7 @@
 matrix:
   include:
     - stage: test
+      if: branch = master
       name: test_linux_3_7
       os: linux
       language: python
