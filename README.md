@@ -1,6 +1,6 @@
 # `PyLammpsMPI`
 [![Coverage Status](https://coveralls.io/repos/github/pyiron/pylammpsmpi/badge.svg)](https://coveralls.io/github/pyiron/pylammpsmpi)
-[![Actions Status](https://github.com/pyiron/pylammpsmpi/workflows/Python package/badge.svg)](https://github.com/pyiron/pylammpsmpi/actions)
+[![Python package](https://github.com/pyiron/pylammpsmpi/workflows/Python%20package/badge.svg)](https://github.com/pyiron/pylammpsmpi/actions)
 
 ## Install with pip 
 
