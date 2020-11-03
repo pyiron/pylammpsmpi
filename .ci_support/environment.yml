@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+dependencies:
+  - coveralls
+  - coverage
+  - codacy-coverage
+  - lammps
+  - mpi4py
+  - openmpi
+  - numpy
+  - distributed 
+  - dask-jobqueue
