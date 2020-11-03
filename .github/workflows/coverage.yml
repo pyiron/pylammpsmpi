@@ -1,0 +1,31 @@
+name: Coverage
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup conda
+      uses: s-weigand/setup-conda@v1
+      with:
+        update-conda: true
+        python-version: 3.8
+        conda-channels: anaconda, conda-forge
+    - run: conda --version
+    - run: which python
+    - run: conda config --set always_yes yes --set changeps1 no
+    - run: conda install -c conda-forge lammps mpi4py openmpi coveralls codacy-coverage coverage numpy distributed dask-jobqueue
+    - run: pip install -e .
+    - run: coverage run --omit pyiron/_version.py -m unittest discover tests
+    - run: coverage combine
+    - run: coveralls
+    - run: coverage xml
+    - run: python-codacy-coverage -r coverage.xml
