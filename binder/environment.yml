@@ -4,7 +4,7 @@ dependencies:
 - openmpi
 - mpi4py
 - numpy
-- lammps
+- lammps >=2020.12.24
 - pytest
 - distributed
 - dask-jobqueue
