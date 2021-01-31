@@ -4,8 +4,8 @@ dependencies:
   - coveralls
   - coverage
   - codacy-coverage
-  - lammps  >=2020.12.24
-  - mpi4py
+  - lammps >=2020.12.24
+  - mpi4py >=3.0.3
   - openmpi
   - numpy
   - distributed 
