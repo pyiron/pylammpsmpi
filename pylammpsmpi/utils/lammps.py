@@ -112,7 +112,7 @@ class LammpsBase:
         self._send(command="extract_setting", data=list(args))
         return self._receive()
 
-    def extract_global(self, name, type):
+    def extract_global(self, name):
         """
         Extract value of global simulation parameters
 
@@ -120,10 +120,6 @@ class LammpsBase:
         ----------
         name : string
             see notes for a set of possible options
-
-        type : {0, 1}
-            0 if output value is integer
-            1 if output value is float
 
         Notes
         -----
@@ -142,7 +138,7 @@ class LammpsBase:
         "mvh2r", "angstrom", "femtosecond", "qelectron"
 
         """
-        self._send(command="extract_global", data=[name, type])
+        self._send(command="extract_global", data=[name])
         return self._receive()
 
     def extract_box(self):
