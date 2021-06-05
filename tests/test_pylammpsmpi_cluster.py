@@ -40,18 +40,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         ids = self.lmp.extract_atom("id")
         self.assertEqual(len(ids), 256)
 
-    def test_extract_box(self):
-        box = self.lmp.extract_box()
-        self.assertEqual(len(box), 7)
-
-        self.assertEqual(box[0][0], 0.0)
-        self.assertEqual(np.round(box[1][0], 2), 6.72)
-
-        self.lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
-        box = self.lmp.extract_box()
-        self.assertEqual(box[0][0], 0.0)
-        self.assertEqual(np.round(box[1][0], 2), 8.0)
-
     def test_extract_fix(self):
         x = self.lmp.extract_fix("2", 0, 1, 1)
         self.assertEqual(np.round(x, 2), -2.61)
@@ -78,6 +66,19 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.lmp.scatter_atoms("f", f, ids=[1,2])
         f1 = self.lmp.gather_atoms("f", ids=[1,2])
         self.assertEqual(f1[1][1], val)
+
+    def test_extract_box(self):
+        box = self.lmp.extract_box()
+        self.assertEqual(len(box), 7)
+
+        self.assertEqual(box[0][0], 0.0)
+        self.assertEqual(np.round(box[1][0], 2), 6.72)
+
+        self.lmp.delete_atoms("group", "all")
+        self.lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
+        box = self.lmp.extract_box()
+        self.assertEqual(box[0][0], 0.0)
+        self.assertEqual(np.round(box[1][0], 2), 8.0)
 
 
 if __name__ == "__main__":
