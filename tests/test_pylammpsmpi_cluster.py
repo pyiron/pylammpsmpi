@@ -12,11 +12,11 @@ from dask.distributed import Client, LocalCluster
 class TestLocalLammpsLibrary(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        execution_path = os.path.dirname(os.path.abspath(__file__))
+        cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cluster = LocalCluster(n_workers=1, threads_per_worker=2)
         client = Client(cluster)
         cls.lmp = LammpsLibrary(cores=2, mode='dask', client=client)
-        cls.lmp.file(os.path.join(execution_path, "in.simple"))
+        cls.lmp.file(os.path.join(cls.execution_path, "in.simple"))
 
     @classmethod
     def tearDownClass(cls):
