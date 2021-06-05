@@ -72,7 +72,7 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 6.72)
 
-        self.delete_atoms("group", "all")
+        self.lmp.delete_atoms("group", "all")
         self.lmp.reset_box([0.0, 0.0, 0.0], [8.0, 8.0, 8.0], 0.0, 0.0, 0.0)
         box = self.lmp.extract_box()
         self.assertEqual(box[0][0], 0.0)
