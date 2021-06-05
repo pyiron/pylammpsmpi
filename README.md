@@ -87,7 +87,7 @@ lmp.mass(1, 20)
 
 
 ```python
-lmp.extract_global("boxxhi", 1)
+lmp.extract_global("boxxhi")
 ```
 
 
