@@ -11,9 +11,9 @@ from pylammpsmpi import LammpsLibrary
 class TestLocalLammpsLibrary(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        execution_path = os.path.dirname(os.path.abspath(__file__))
+        cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cls.lmp = LammpsLibrary(cores=2, mode='local')
-        cls.lmp.file(os.path.join(execution_path, "in.simple"))
+        cls.lmp.file(os.path.join(cls.execution_path, "in.simple"))
 
     @classmethod
     def tearDownClass(cls):
@@ -77,6 +77,9 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         box = self.lmp.extract_box()
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 8.0)
+        self.lmp.clear()
+        self.lmp.file(os.path.join(self.execution_path, "in.simple"))
+
 
 if __name__ == "__main__":
     unittest.main()
