@@ -79,6 +79,8 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         box = self.lmp.extract_box()
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 8.0)
+        self.lmp.clear()
+        self.lmp.file(os.path.join(self.execution_path, "in.simple"))
 
 
 if __name__ == "__main__":
