@@ -107,7 +107,7 @@ class LammpsBase:
         self._send(command="get_file", data=[inputfile])
         _ = self._receive()
 
-    #TODO
+    # TODO
     def extract_setting(self, *args):
         self._send(command="extract_setting", data=list(args))
         return self._receive()
@@ -310,7 +310,9 @@ class LammpsBase:
         self._send(command="reset_box", data=list(args))
         _ = self._receive()
 
-    def generate_atoms(self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False):
+    def generate_atoms(
+        self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
+    ):
         """
         Create atoms on all procs
 
@@ -344,11 +346,11 @@ class LammpsBase:
         if x is not None:
             natoms = len(x)
             if type is None:
-                type = [1]*natoms
+                type = [1] * natoms
             if ids is None:
-                ids = list(range(1, natoms+1))
+                ids = list(range(1, natoms + 1))
             if image is None:
-                image = [0]*natoms
+                image = [0] * natoms
 
             funct_args = [natoms, ids, type, x, v, image, shrinkexceed]
             self._send(command="create_atoms", data=funct_args)
@@ -358,7 +360,7 @@ class LammpsBase:
 
     @property
     def has_exceptions(self):
-        """ Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled """
+        """Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled"""
         self._send(command="has_exceptions", data=[])
         return self._receive()
 
@@ -419,7 +421,7 @@ class LammpsBase:
         :type  request:   int, optional
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
-         """
+        """
         self._send(command="find_pair_neighlist", data=list(args))
         return self._receive()
 
@@ -431,7 +433,7 @@ class LammpsBase:
         :type  request:   int, optional
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
-         """
+        """
         self._send(command="find_fix_neighlist", data=list(args))
         return self._receive()
 
@@ -443,7 +445,7 @@ class LammpsBase:
         :type  request:   int, optional
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
-         """
+        """
         self._send(command="find_compute_neighlist", data=list(args))
         return self._receive()
 
@@ -453,7 +455,7 @@ class LammpsBase:
         :type  idx: int
         :return: number of elements in neighbor list with index idx
         :rtype:  int
-         """
+        """
         self._send(command="get_neighlist_size", data=list(args))
         return self._receive()
 
@@ -478,8 +480,8 @@ class LammpsBase:
             for c in cmd:
                 self._send(command="command", data=c)
                 _ = self._receive()
-        elif len(cmd.split('\n')) > 1:
-            for c in cmd.split('\n'):
+        elif len(cmd.split("\n")) > 1:
+            for c in cmd.split("\n"):
                 self._send(command="command", data=c)
                 _ = self._receive()
         else:
@@ -566,7 +568,7 @@ class LammpsBase:
         self._send(command="get_thermo", data=list(args))
         return self._receive()
 
-    #TODO
+    # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
         """
         Extract compute value from the lammps library
@@ -622,7 +624,7 @@ class LammpsBase:
             pass
         self._process = None
 
-    #TODO
+    # TODO
     def __del__(self):
         if self._process is not None:
             self.close()

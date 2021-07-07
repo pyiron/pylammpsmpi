@@ -47,7 +47,7 @@ job = lammps(cmdargs=["-screen", "none"])
 def extract_compute(funct_args):
     # if MPI.COMM_WORLD.rank == 0:
     id = funct_args[0]
-    style =  funct_args[1]
+    style = funct_args[1]
     type = funct_args[2]
     length = funct_args[3]
     width = funct_args[4]
@@ -184,7 +184,9 @@ def gather_atoms(funct_args):
     # this block prevents error when trying to access values
     # that do not exist
     try:
-        val = job.gather_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
+        val = job.gather_atoms(
+            name, atom_properties[name]["gtype"], atom_properties[name]["dim"]
+        )
     except ValueError:
         return []
     # this is per atom quantity - so get
@@ -192,7 +194,7 @@ def gather_atoms(funct_args):
     val = list(val)
     dim = atom_properties[name]["dim"]
     if dim > 1:
-        data = [val[x:x+dim] for x in range(0, len(val), dim)]
+        data = [val[x : x + dim] for x in range(0, len(val), dim)]
     else:
         data = list(val)
     return np.array(data)
@@ -208,7 +210,9 @@ def gather_atoms_concat(funct_args):
     # this block prevents error when trying to access values
     # that do not exist
     try:
-        val = job.gather_atoms_concat(name, atom_properties[name]["gtype"], atom_properties[name]["dim"])
+        val = job.gather_atoms_concat(
+            name, atom_properties[name]["gtype"], atom_properties[name]["dim"]
+        )
     except ValueError:
         return []
     # this is per atom quantity - so get
@@ -216,7 +220,7 @@ def gather_atoms_concat(funct_args):
     val = list(val)
     dim = atom_properties[name]["dim"]
     if dim > 1:
-        data = [val[x:x+dim] for x in range(0, len(val), dim)]
+        data = [val[x : x + dim] for x in range(0, len(val), dim)]
     else:
         data = list(val)
     return np.array(data)
@@ -229,7 +233,7 @@ def gather_atoms_subset(funct_args):
     ids = funct_args[2]
 
     # prep ids
-    cids = (lenids*c_int)()
+    cids = (lenids * c_int)()
     for i in range(lenids):
         cids[i] = ids[i]
 
@@ -239,15 +243,21 @@ def gather_atoms_subset(funct_args):
     # this block prevents error when trying to access values
     # that do not exist
     try:
-        val = job.gather_atoms_subset(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], lenids, cids)
+        val = job.gather_atoms_subset(
+            name,
+            atom_properties[name]["gtype"],
+            atom_properties[name]["dim"],
+            lenids,
+            cids,
+        )
     except ValueError:
         return []
     # this is per atom quantity - so get
     # number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    if dim>1:
-        data = [val[x:x+dim] for x in range(0, len(val), dim)]
+    if dim > 1:
+        data = [val[x : x + dim] for x in range(0, len(val), dim)]
     else:
         data = list(val)
     return np.array(data)
@@ -352,7 +362,9 @@ def scatter_atoms(funct_args):
     else:
         c_vector = (len(py_vector) * c_double)(*py_vector)
 
-    job.scatter_atoms(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], c_vector)
+    job.scatter_atoms(
+        name, atom_properties[name]["gtype"], atom_properties[name]["dim"], c_vector
+    )
     return 1
 
 
@@ -362,7 +374,7 @@ def scatter_atoms_subset(funct_args):
     ids = funct_args[3]
 
     # prep ids
-    cids = (lenids*c_int)()
+    cids = (lenids * c_int)()
     for i in range(lenids):
         cids[i] = ids[i]
 
@@ -375,7 +387,14 @@ def scatter_atoms_subset(funct_args):
     else:
         c_vector = (len(py_vector) * c_double)(*py_vector)
 
-    job.scatter_atoms_subset(name, atom_properties[name]["gtype"], atom_properties[name]["dim"], lenids, cids, c_vector)
+    job.scatter_atoms_subset(
+        name,
+        atom_properties[name]["gtype"],
+        atom_properties[name]["dim"],
+        lenids,
+        cids,
+        c_vector,
+    )
     return 1
 
 
@@ -397,13 +416,41 @@ def select_cmd(argument):
     switcher = {
         f.__name__: f
         for f in [
-            extract_compute, get_version, get_file, commands_list, commands_string,
-            extract_setting, extract_global, extract_box, extract_atom, extract_fix, extract_variable,
-            get_natoms, set_variable, reset_box, gather_atoms_concat, gather_atoms_subset,
-            scatter_atoms_subset, create_atoms, has_exceptions, has_gzip_support, has_png_support,
-            has_jpeg_support, has_ffmpeg_support, installed_packages, set_fix_external_callback,
-            get_neighlist, find_pair_neighlist, find_fix_neighlist, find_compute_neighlist, get_neighlist_size,
-            get_neighlist_element_neighbors, get_thermo, scatter_atoms, command, gather_atoms
+            extract_compute,
+            get_version,
+            get_file,
+            commands_list,
+            commands_string,
+            extract_setting,
+            extract_global,
+            extract_box,
+            extract_atom,
+            extract_fix,
+            extract_variable,
+            get_natoms,
+            set_variable,
+            reset_box,
+            gather_atoms_concat,
+            gather_atoms_subset,
+            scatter_atoms_subset,
+            create_atoms,
+            has_exceptions,
+            has_gzip_support,
+            has_png_support,
+            has_jpeg_support,
+            has_ffmpeg_support,
+            installed_packages,
+            set_fix_external_callback,
+            get_neighlist,
+            find_pair_neighlist,
+            find_fix_neighlist,
+            find_compute_neighlist,
+            get_neighlist_size,
+            get_neighlist_element_neighbors,
+            get_thermo,
+            scatter_atoms,
+            command,
+            gather_atoms,
         ]
     }
     return switcher.get(argument)

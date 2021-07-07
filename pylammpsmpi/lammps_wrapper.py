@@ -21,21 +21,29 @@ class LammpsLibrary:
     """
     Top level class which manages the lammps library provided by LammpsBase
     """
-    def __init__(self, cores=1, working_directory=".", client=None, mode='local'):
+
+    def __init__(self, cores=1, working_directory=".", client=None, mode="local"):
         self.cores = cores
         self.working_directory = working_directory
         self.client = client
         self.mode = mode
 
-        if self.mode == 'dask':
-            fut = self.client.submit(LammpsBase, cores=self.cores, working_directory=self.working_directory, actor=True)
+        if self.mode == "dask":
+            fut = self.client.submit(
+                LammpsBase,
+                cores=self.cores,
+                working_directory=self.working_directory,
+                actor=True,
+            )
             self.lmp = fut.result()
 
             fut = self.lmp.start_process()
             _ = fut.result()
 
-        elif self.mode == 'local':
-            self.lmp = LammpsBase(cores=self.cores, working_directory=self.working_directory)
+        elif self.mode == "local":
+            self.lmp = LammpsBase(
+                cores=self.cores, working_directory=self.working_directory
+            )
             self.lmp.start_process()
 
         else:
@@ -46,12 +54,15 @@ class LammpsLibrary:
         Try to run input as a lammps command
         """
         if name in func_list:
-            if self.mode == 'dask':
+            if self.mode == "dask":
+
                 def func_wrapper(*args, **kwargs):
                     func = getattr(self.lmp, name)
                     fut = func(*args, **kwargs)
                     return fut.result()
+
             else:
+
                 def func_wrapper(*args, **kwargs):
                     func = getattr(self.lmp, name)
                     fut = func(*args, **kwargs)
@@ -60,7 +71,7 @@ class LammpsLibrary:
             return func_wrapper
 
         elif name in thermo_list:
-            if self.mode == 'dask':
+            if self.mode == "dask":
                 fut = self.lmp.get_thermo(name)
                 return fut.result()
             else:
@@ -68,18 +79,22 @@ class LammpsLibrary:
                 return fut
 
         elif name in command_list:
-            if self.mode == 'dask':
+            if self.mode == "dask":
+
                 def command_wrapper(*args):
                     args = [name] + list(args)
                     cmd = " ".join([str(x) for x in args])
                     fut = self.lmp.command(cmd)
                     return fut.result()
+
             else:
+
                 def command_wrapper(*args):
                     args = [name] + list(args)
                     cmd = " ".join([str(x) for x in args])
                     fut = self.lmp.command(cmd)
                     return fut
+
             return command_wrapper
 
         elif name in prop_list:
