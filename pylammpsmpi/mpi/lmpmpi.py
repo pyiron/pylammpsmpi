@@ -36,6 +36,7 @@ atom_properties = {
     "angmom": {"type": 3, "gtype": 1, "dim": 3},
     "torque": {"type": 3, "gtype": 1, "dim": 3},
     "radius": {"type": 2, "gtype": 1, "dim": 1},
+    "image": {"type": 2, "gtype": 0, "dim": 3},
     # we can add more quantities as needed
     # taken directly from atom.cpp -> extract()
 }
