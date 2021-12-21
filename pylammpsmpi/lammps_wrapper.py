@@ -33,6 +33,7 @@ class LammpsLibrary:
                 LammpsBase,
                 cores=self.cores,
                 working_directory=self.working_directory,
+                local=False,
                 actor=True,
             )
             self.lmp = fut.result()

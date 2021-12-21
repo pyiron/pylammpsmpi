@@ -20,17 +20,22 @@ __date__ = "Feb 28, 2020"
 
 
 class LammpsBase:
-    def __init__(self, cores=8, working_directory="."):
+    def __init__(self, cores=8, working_directory=".", local=True):
         self.cores = cores
         self.working_directory = working_directory
         self._process = None
+        self.local = local
 
     def start_process(self):
         executable = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
         )
+        if self.local:
+            command_array = ["mpiexec", "-n", str(self.cores), "python", executable]
+        else:
+            command_array = ["mpiexec", "--oversubscribe", "-n", str(self.cores), "python", executable] 
         self._process = subprocess.Popen(
-            ["mpiexec", "--oversubscribe", "-n", str(self.cores), "python", executable],
+            command_array,
             stdout=subprocess.PIPE,
             stderr=None,
             stdin=subprocess.PIPE,
