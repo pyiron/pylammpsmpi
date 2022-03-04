@@ -33,7 +33,14 @@ class LammpsBase:
         if self.local:
             command_array = ["mpiexec", "-n", str(self.cores), "python", executable]
         else:
-            command_array = ["mpiexec", "--oversubscribe", "-n", str(self.cores), "python", executable] 
+            command_array = [
+                "mpiexec",
+                "--oversubscribe",
+                "-n",
+                str(self.cores),
+                "python",
+                executable,
+            ]
         self._process = subprocess.Popen(
             command_array,
             stdout=subprocess.PIPE,
