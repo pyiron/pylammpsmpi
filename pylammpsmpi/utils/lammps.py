@@ -342,6 +342,42 @@ class LammpsBase:
         None
 
         """
+        self.create_atoms(
+            ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+        )
+
+    def create_atoms(
+        self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
+    ):
+        """
+        Create atoms on all procs
+
+        Parameters
+        ----------
+        ids : list of ints, optional
+            ids of N atoms that need to be created
+            if not specified, ids from 1 to N are assigned
+
+        type : list of atom types, optional
+            type of N atoms, if not specied, all atoms are assigned as type 1
+
+        x: list of positions
+            list of the type `[posx, posy, posz]` for N atoms
+
+        v: list of velocities
+            list of the type `[vx, vy, vz]` for N atoms
+
+        image: list of ints, optional
+            if not specified a list of 0s will be used.
+
+        shrinkexceed: bool, optional
+            default False
+
+        Returns
+        -------
+        None
+
+        """
 
         if x is not None:
             natoms = len(x)
