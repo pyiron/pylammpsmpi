@@ -345,7 +345,7 @@ class LammpsBase:
         self.create_atoms(
             ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
-        
+
     def create_atoms(
         self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
     ):
