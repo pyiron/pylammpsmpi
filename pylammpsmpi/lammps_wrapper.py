@@ -22,7 +22,9 @@ class LammpsLibrary:
     Top level class which manages the lammps library provided by LammpsBase
     """
 
-    def __init__(self, cores=1, working_directory=".", client=None, mode="local", cmdargs=None):
+    def __init__(
+        self, cores=1, working_directory=".", client=None, mode="local", cmdargs=None
+    ):
         self.cores = cores
         self.working_directory = working_directory
         self.client = client
@@ -42,7 +44,9 @@ class LammpsLibrary:
 
         elif self.mode == "local":
             self.lmp = LammpsBase(
-                cores=self.cores, working_directory=self.working_directory, cmdargs=cmdargs
+                cores=self.cores,
+                working_directory=self.working_directory,
+                cmdargs=cmdargs,
             )
             self.lmp.start_process()
 

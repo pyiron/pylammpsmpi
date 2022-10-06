@@ -30,7 +30,14 @@ class LammpsBase:
         executable = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
         )
-        cmds = ["mpiexec", "--oversubscribe", "-n", str(self.cores), "python", executable]
+        cmds = [
+            "mpiexec",
+            "--oversubscribe",
+            "-n",
+            str(self.cores),
+            "python",
+            executable,
+        ]
         if self._cmdargs is not None:
             cmds.extend(self._cmdargs)
         self._process = subprocess.Popen(
