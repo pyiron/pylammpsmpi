@@ -81,5 +81,10 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.lmp.file(os.path.join(self.execution_path, "in.simple"))
 
 
+    def test_cmdarg_options(self):
+        self.lmp2 = LammpsLibrary(cores=2, mode='local', cmdargs=["-cite", "citations.txt"])
+        self.lmp2.file(os.path.join(self.execution_path, "in.simple"))
+        assert os.path.isfile(os.path.join(self.execution_path, "citations.txt"))
+
 if __name__ == "__main__":
     unittest.main()

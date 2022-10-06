@@ -44,7 +44,7 @@ atom_properties = {
 # Lammps executable
 args = ["-screen", "none"]
 if len(sys.argv) > 1:
-    args.extend(sys.argv[0:])
+    args.extend(sys.argv[1:])
 job = lammps(cmdargs=args)
 
 
