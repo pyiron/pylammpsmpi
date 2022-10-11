@@ -85,5 +85,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.lmp.file(os.path.join(self.execution_path, "in.simple"))
         self.assertTrue(os.path.isfile(os.path.join(self.execution_path, "citations.txt")))
 
+
 if __name__ == "__main__":
     unittest.main()
