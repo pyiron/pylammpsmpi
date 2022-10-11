@@ -83,8 +83,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.lmp.file(self.lammps_file)
 
     def test_cmdarg_options(self):
-        self.lmp.clear()
-        self.lmp.file(self.lammps_file)
         self.assertTrue(os.path.isfile(self.citation_file))
 
 
