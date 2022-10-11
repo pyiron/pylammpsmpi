@@ -13,10 +13,20 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
-        cluster = LocalCluster(n_workers=1, threads_per_worker=2)
+        cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
+        cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
+        cluster = LocalCluster(
+            n_workers=1,
+            threads_per_worker=2
+        )
         client = Client(cluster)
-        cls.lmp = LammpsLibrary(cores=2, mode='dask', client=client)
-        cls.lmp.file(os.path.join(cls.execution_path, "in.simple"))
+        cls.lmp = LammpsLibrary(
+            cores=2,
+            mode='dask',
+            cmdargs=["-cite", cls.citation_file],
+            client=client
+        )
+        cls.lmp.file(cls.lammps_file)
 
     @classmethod
     def tearDownClass(cls):
@@ -60,11 +70,11 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         f1 = self.lmp.gather_atoms("f")
         self.assertEqual(f1[1][0], val)
 
-        f = self.lmp.gather_atoms("f", ids=[1,2])
+        f = self.lmp.gather_atoms("f", ids=[1, 2])
         val = np.random.randint(0, 100)
         f[1][1] = val
-        self.lmp.scatter_atoms("f", f, ids=[1,2])
-        f1 = self.lmp.gather_atoms("f", ids=[1,2])
+        self.lmp.scatter_atoms("f", f, ids=[1, 2])
+        f1 = self.lmp.gather_atoms("f", ids=[1, 2])
         self.assertEqual(f1[1][1], val)
 
     def test_extract_box(self):
@@ -75,12 +85,15 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(np.round(box[1][0], 2), 6.72)
 
         self.lmp.delete_atoms("group", "all")
-        self.lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
+        self.lmp.reset_box([0.0, 0.0, 0.0], [8.0, 8.0, 8.0], 0.0, 0.0, 0.0)
         box = self.lmp.extract_box()
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 8.0)
         self.lmp.clear()
-        self.lmp.file(os.path.join(self.execution_path, "in.simple"))
+        self.lmp.file(self.lammps_file)
+
+    def test_cmdarg_options(self):
+        self.assertTrue(os.path.isfile(self.citation_file))
 
 
 if __name__ == "__main__":
