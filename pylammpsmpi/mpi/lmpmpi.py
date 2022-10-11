@@ -42,7 +42,10 @@ atom_properties = {
 }
 
 # Lammps executable
-job = lammps(cmdargs=["-screen", "none"])
+args = ["-screen", "none"]
+if len(sys.argv) > 1:
+    args.extend(sys.argv[1:])
+job = lammps(cmdargs=args)
 
 
 def extract_compute(funct_args):

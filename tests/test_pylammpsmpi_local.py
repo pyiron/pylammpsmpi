@@ -12,8 +12,10 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
-        cls.lmp = LammpsLibrary(cores=2, mode='local')
-        cls.lmp.file(os.path.join(cls.execution_path, "in.simple"))
+        cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
+        cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
+        cls.lmp = LammpsLibrary(cores=2, mode='local', cmdargs=["-cite", cls.citation_file])
+        cls.lmp.file(cls.lammps_file)
 
     @classmethod
     def tearDownClass(cls):
@@ -78,7 +80,10 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 8.0)
         self.lmp.clear()
-        self.lmp.file(os.path.join(self.execution_path, "in.simple"))
+        self.lmp.file(self.lammps_file)
+
+    def test_cmdarg_options(self):
+        self.assertTrue(os.path.isfile(self.citation_file))
 
 
 if __name__ == "__main__":
