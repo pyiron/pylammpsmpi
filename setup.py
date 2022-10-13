@@ -5,6 +5,7 @@ setup(
     name="pylammpsmpi",
     version=versioneer.get_version(),
     description="Parallel Lammps Python interface",
+    long_description="PylammpsMPI couples a serial python process to an MPI parallel LAMMPS libary.",
     url='https://github.com/pyiron/pylammpsmpi',
     author='Jan Janssen',
     author_email='janssen@mpie.de',
