@@ -1,12 +1,12 @@
 channels:
   - conda-forge
 dependencies:
-  # - coveralls
-  # - coverage
-  # - codacy-coverage
+  - coveralls
+  - coverage
+  - codacy-coverage
   - lammps >=2021.05.27
   - mpi4py =3.1.4
   - openmpi
   - numpy
-  - distributed 
-  - dask-jobqueue
+  # - distributed 
+  # - dask-jobqueue
