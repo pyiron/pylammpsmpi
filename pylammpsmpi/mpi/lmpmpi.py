@@ -49,35 +49,42 @@ job = lammps(cmdargs=args)
 
 
 def extract_compute(funct_args):
-    # if MPI.COMM_WORLD.rank == 0:
     id = funct_args[0]
     style = funct_args[1]
     type = funct_args[2]
-    length = funct_args[3]
-    width = funct_args[4]
     filtered_args = [id, style, type]
+    val = job.numpy.extract_compute(*filtered_args)
+    val_gather = MPI.COMM_WORLD.gather(val, root=0)
+    if MPI.COMM_WORLD.rank == 0:
+        # val_gather.shape [number of cores, atoms on specific core]
+        # the number of atoms on specific cores can vary 
+        val = []
+        for vl in val_gather:
+            for v in vl:
+                val.append(v)
+        
+        length = funct_args[3]
+        width = funct_args[4]
 
-    val = job.extract_compute(*filtered_args)
-
-    # now process
-    # length should be set
-    data = []
-    if style == 1:
-        length = job.get_natoms()
-    if type == 2:
-        for i in range(length):
-            dummy = []
-            for j in range(width):
-                dummy.append(val[i][j])
-            data.append(np.array(dummy))
-        data = np.array(data)
-    elif type == 1:
-        for i in range(length):
-            data.append(val[i])
-        data = np.array(data)
-    else:
-        data = val
-    return data
+        # now process
+        # length should be set
+        data = []
+        if style == 1:
+            length = job.get_natoms()
+        if type == 2:
+            for i in range(length):
+                dummy = []
+                for j in range(width):
+                    dummy.append(val[i][j])
+                data.append(np.array(dummy))
+            data = np.array(data)
+        elif type == 1:
+            for i in range(length):
+                data.append(val[i])
+            data = np.array(data)
+        else:
+            data = val
+        return data
 
 
 def get_version(funct_args):
