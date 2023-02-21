@@ -66,13 +66,12 @@ def extract_compute(funct_args):
             data = val
         return data
 
-
     id = funct_args[0]
     style = funct_args[1]
     type = funct_args[2]
     length = funct_args[3]
     width = funct_args[4]
-    
+
     filtered_args = [id, style, type]
     if style == 0:
         if MPI.COMM_WORLD.rank == 0:
@@ -90,7 +89,7 @@ def extract_compute(funct_args):
                     val.append(v)
             length = job.get_natoms()
             return convert_data(val=val, type=type, length=length, width=width)
-    else:  # Todo 
+    else:  # Todo
         raise ValueError("Local style is currently not supported")
 
 
