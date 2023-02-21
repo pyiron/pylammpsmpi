@@ -29,6 +29,14 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         ids = self.lmp.extract_atom("id")
         self.assertEqual(len(ids), 256)
 
+    def test_extract_compute_global(self):
+        compute_temp = self.lmp.extract_compute("1", 0, 0)
+        self.assertEqual(len(compute_temp), 1)
+        
+    def test_extract_compute_per_atom(self):
+        compute_ke_atom = self.lmp.extract_compute("ke", 1, 1)
+        self.assertEqual(len(compute_ke_atom), 256)
+        
     def test_gather_atoms(self):
         f = self.lmp.gather_atoms("f")
         self.assertEqual(len(f), 256)
