@@ -49,35 +49,47 @@ job = lammps(cmdargs=args)
 
 
 def extract_compute(funct_args):
-    # if MPI.COMM_WORLD.rank == 0:
+    def convert_data(val, type, length, width):
+        data = []
+        if type == 2:
+            for i in range(length):
+                dummy = []
+                for j in range(width):
+                    dummy.append(val[i][j])
+                data.append(np.array(dummy))
+            data = np.array(data)
+        elif type == 1:
+            for i in range(length):
+                data.append(val[i])
+            data = np.array(data)
+        else:
+            data = val
+        return data
+
     id = funct_args[0]
     style = funct_args[1]
     type = funct_args[2]
     length = funct_args[3]
     width = funct_args[4]
+
     filtered_args = [id, style, type]
-
-    val = job.extract_compute(*filtered_args)
-
-    # now process
-    # length should be set
-    data = []
-    if style == 1:
-        length = job.get_natoms()
-    if type == 2:
-        for i in range(length):
-            dummy = []
-            for j in range(width):
-                dummy.append(val[i][j])
-            data.append(np.array(dummy))
-        data = np.array(data)
-    elif type == 1:
-        for i in range(length):
-            data.append(val[i])
-        data = np.array(data)
-    else:
-        data = val
-    return data
+    if style == 0:
+        val = job.extract_compute(*filtered_args)
+        return convert_data(val=val, type=type, length=length, width=width)
+    elif style == 1:  # per atom property
+        val = job.numpy.extract_compute(*filtered_args)
+        val_gather = MPI.COMM_WORLD.gather(val, root=0)
+        if MPI.COMM_WORLD.rank == 0:
+            # val_gather.shape [number of cores, atoms on specific core]
+            # the number of atoms on specific cores can vary
+            val = []
+            for vl in val_gather:
+                for v in vl:
+                    val.append(v)
+            length = job.get_natoms()
+            return convert_data(val=val, type=type, length=length, width=width)
+    else:  # Todo
+        raise ValueError("Local style is currently not supported")
 
 
 def get_version(funct_args):
