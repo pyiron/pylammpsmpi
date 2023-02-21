@@ -74,9 +74,8 @@ def extract_compute(funct_args):
 
     filtered_args = [id, style, type]
     if style == 0:
-        if MPI.COMM_WORLD.rank == 0:
-            val = job.extract_compute(*filtered_args)
-            return convert_data(val=val, type=type, length=length, width=width)
+        val = job.extract_compute(*filtered_args)
+        return convert_data(val=val, type=type, length=length, width=width)
     elif style == 1:  # per atom property
         val = job.numpy.extract_compute(*filtered_args)
         val_gather = MPI.COMM_WORLD.gather(val, root=0)
