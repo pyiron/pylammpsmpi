@@ -31,7 +31,7 @@ class TestLocalLammpsLibrary(unittest.TestCase):
 
     def test_extract_compute_global(self):
         compute_temp = self.lmp.extract_compute("1", 0, 0)
-        self.assertEqual(len(compute_temp), 1)
+        self.assertIsInstance(compute_temp, float)
         
     def test_extract_compute_per_atom(self):
         compute_ke_atom = self.lmp.extract_compute("ke", 1, 1)
