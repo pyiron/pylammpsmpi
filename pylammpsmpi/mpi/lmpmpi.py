@@ -165,15 +165,25 @@ def extract_fix(funct_args):
 def extract_variable(funct_args):
     # in the args - if the third one,
     # which is the type is 1 - a lammps array is returned
-    if MPI.COMM_WORLD.rank == 0:
-        # if type is 1 - reformat file
-        try:
-            data = job.extract_variable(*funct_args)
-        except ValueError:
-            return []
-        if funct_args[2] == 1:
-            data = np.array(data)
-        return data
+    if funct_args[2] == 1:
+        data = job.numpy.extract_variable(*funct_args)
+        data_gather = MPI.COMM_WORLD.gather(data, root=0)
+        if MPI.COMM_WORLD.rank == 0:
+            data = []
+            for vl in data_gather:
+                for v in vl:
+                    data.append(v)
+            if funct_args[2] == 1:
+                data = np.array(data)
+            return data
+    else:
+        if MPI.COMM_WORLD.rank == 0:
+            # if type is 1 - reformat file
+            try:
+                data = job.extract_variable(*funct_args)
+            except ValueError:
+                return []
+            return data
 
 
 def get_natoms(funct_args):
