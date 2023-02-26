@@ -7,6 +7,7 @@ from mpi4py import MPI
 import numpy as np
 import pickle
 import sys
+import zmq
 from lammps import lammps
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -43,8 +44,8 @@ atom_properties = {
 
 # Lammps executable
 args = ["-screen", "none"]
-if len(sys.argv) > 1:
-    args.extend(sys.argv[1:])
+if len(sys.argv) > 3:
+    args.extend(sys.argv[3:])
 job = lammps(cmdargs=args)
 
 
@@ -483,9 +484,15 @@ def _gather_data_from_all_processors(data):
 
 
 if __name__ == "__main__":
+    if MPI.COMM_WORLD.rank == 0:
+        context = zmq.Context()
+        socket = context.socket(zmq.PAIR)
+        argument_lst = sys.argv
+        port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
+        socket.connect("tcp://localhost:" + port_selected)
     while True:
         if MPI.COMM_WORLD.rank == 0:
-            input_dict = pickle.load(sys.stdin.buffer)
+            input_dict = pickle.loads(socket.recv())
             # with open('process.txt', 'a') as file:
             #     print('Input:', input_dict, file=file)
         else:
@@ -498,5 +505,4 @@ if __name__ == "__main__":
         if MPI.COMM_WORLD.rank == 0 and output is not None:
             # with open('process.txt', 'a') as file:
             #     print('Output:', output, file=file)
-            pickle.dump(output, sys.stdout.buffer)
-            sys.stdout.flush()
+            socket.send(pickle.dumps(output))

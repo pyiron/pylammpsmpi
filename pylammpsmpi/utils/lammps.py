@@ -5,6 +5,7 @@
 import os
 import pickle
 import subprocess
+import zmq
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -20,23 +21,33 @@ __date__ = "Feb 28, 2020"
 
 
 class LammpsBase:
-    def __init__(self, cores=8, working_directory=".", cmdargs=None):
+    def __init__(
+        self, cores=8, oversubscribe=False, working_directory=".", cmdargs=None
+    ):
         self.cores = cores
         self.working_directory = working_directory
         self._process = None
+        self._oversubscribe = oversubscribe
         self._cmdargs = cmdargs
+        self._socket = None
 
     def start_process(self):
         executable = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
         )
-        cmds = [
-            "mpiexec",
-            "--oversubscribe",
+        context = zmq.Context()
+        self._socket = context.socket(zmq.PAIR)
+        port_selected = self._socket.bind_to_random_port("tcp://*")
+        cmds = ["mpiexec"]
+        if self._oversubscribe:
+            cmds += ["--oversubscribe"]
+        cmds += [
             "-n",
             str(self.cores),
             "python",
             executable,
+            "--zmqport",
+            str(port_selected),
         ]
         if self._cmdargs is not None:
             cmds.extend(self._cmdargs)
@@ -64,8 +75,7 @@ class LammpsBase:
         -------
         None
         """
-        pickle.dump({"c": command, "d": data}, self._process.stdin)
-        self._process.stdin.flush()
+        self._socket.send(pickle.dumps({"c": command, "d": data}))
 
     def _receive(self):
         """
@@ -80,7 +90,7 @@ class LammpsBase:
         data : string
             data from the command
         """
-        output = pickle.load(self._process.stdout)
+        output = pickle.loads(self._socket.recv())
         return output
 
     @property
@@ -670,6 +680,7 @@ class LammpsBase:
         except AttributeError:
             pass
         self._process = None
+        self._socket = None
 
     # TODO
     def __del__(self):
