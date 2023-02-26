@@ -18,7 +18,7 @@ jobs:
         channels: conda-forge
         channel-priority: strict
         use-mamba: true
-        environment-file: .ci_support/environment.yml
+        environment-file: .ci_support/environment-openmpi.yml
     - name: Setup
       shell: bash -l {0}
       run: |
