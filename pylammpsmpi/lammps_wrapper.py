@@ -23,7 +23,13 @@ class LammpsLibrary:
     """
 
     def __init__(
-        self, cores=1, oversubscribe=False, working_directory=".", client=None, mode="local", cmdargs=None
+        self,
+        cores=1,
+        oversubscribe=False,
+        working_directory=".",
+        client=None,
+        mode="local",
+        cmdargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
