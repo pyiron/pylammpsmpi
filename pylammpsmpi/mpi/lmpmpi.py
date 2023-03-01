@@ -499,6 +499,9 @@ if __name__ == "__main__":
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
         if input_dict["c"] == "close":
+            if MPI.COMM_WORLD.rank == 0:
+                socket.close()
+                context.term()
             job.close()
             break
         output = select_cmd(input_dict["c"])(input_dict["d"])
