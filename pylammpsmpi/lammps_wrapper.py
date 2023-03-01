@@ -23,10 +23,17 @@ class LammpsLibrary:
     """
 
     def __init__(
-        self, cores=1, working_directory=".", client=None, mode="local", cmdargs=None
+        self,
+        cores=1,
+        oversubscribe=False,
+        working_directory=".",
+        client=None,
+        mode="local",
+        cmdargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
+        self.oversubscribe = oversubscribe
         self.client = client
         self.mode = mode
 
@@ -34,6 +41,7 @@ class LammpsLibrary:
             fut = self.client.submit(
                 LammpsBase,
                 cores=self.cores,
+                oversubscribe=self.oversubscribe,
                 working_directory=self.working_directory,
                 cmdargs=cmdargs,
                 actor=True,
@@ -46,6 +54,7 @@ class LammpsLibrary:
         elif self.mode == "local":
             self.lmp = LammpsBase(
                 cores=self.cores,
+                oversubscribe=self.oversubscribe,
                 working_directory=self.working_directory,
                 cmdargs=cmdargs,
             )
