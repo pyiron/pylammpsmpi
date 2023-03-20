@@ -26,7 +26,7 @@ setup(
     keywords='lammps, mpi4py',
     packages=find_packages(exclude=["*tests*"]),
     install_requires=[
-        'mpi4py==3.1.4', "pyzmq==25.0.0"
+        'mpi4py==3.1.4', "pyzmq==25.0.1"
     ],
     cmdclass=versioneer.get_cmdclass(),
 )
