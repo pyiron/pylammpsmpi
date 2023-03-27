@@ -10,4 +10,4 @@ dependencies:
   - numpy
   - distributed 
   - dask-jobqueue
-  - pyzmq =25.0.1
+  - pyzmq =25.0.2
