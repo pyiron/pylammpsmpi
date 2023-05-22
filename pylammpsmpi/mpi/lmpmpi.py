@@ -300,7 +300,16 @@ def create_atoms(funct_args):
     image_lmp = (c_int * natoms)()
     image_lmp[:] = image
 
-    args = [natoms, id_lmp, type_lmp, x, v, image_lmp, shrinkexceed]
+    x_lmp = (c_double * (natoms * 3))()
+    x_lmp[:] = x
+
+    if v is not None:
+        v_lmp = (c_double * (natoms * 3))()
+        v_lmp[:] = v
+    else:
+        v_lmp = None
+
+    args = [natoms, id_lmp, type_lmp, x_lmp, v_lmp, image_lmp, shrinkexceed]
     job.create_atoms(*args)
     return 1
 

@@ -402,7 +402,7 @@ class LammpsBase:
         """
 
         if x is not None:
-            natoms = len(x)
+            natoms = int(len(x)/3)
             if type is None:
                 type = [1] * natoms
             if ids is None:
