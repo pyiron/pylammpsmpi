@@ -1,7 +1,6 @@
 channels:
   - conda-forge
 dependencies:
-  - cloudpickle =2.2.1
   - coveralls
   - coverage
   - codacy-coverage

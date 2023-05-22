@@ -3,7 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
-import cloudpickle
+import pickle
 import subprocess
 import zmq
 
@@ -76,7 +76,7 @@ class LammpsBase:
         -------
         None
         """
-        self._socket.send(cloudpickle.dumps({"c": command, "d": data}))
+        self._socket.send(pickle.dumps({"c": command, "d": data}))
 
     def _receive(self):
         """
@@ -91,7 +91,7 @@ class LammpsBase:
         data : string
             data from the command
         """
-        output = cloudpickle.loads(self._socket.recv())
+        output = pickle.loads(self._socket.recv())
         return output
 
     @property
