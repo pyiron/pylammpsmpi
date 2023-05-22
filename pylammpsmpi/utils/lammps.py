@@ -368,9 +368,7 @@ class LammpsBase:
             ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
 
-    def create_atoms(
-        self, n, id, type, x, v=None, image=None, shrinkexceed=False
-    ):
+    def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False):
         """
         Create atoms on all procs
 
