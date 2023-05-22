@@ -405,13 +405,6 @@ class LammpsBase:
         """
 
         if x is not None:
-            if type is None:
-                type = [1] * n
-            if id is None:
-                id = list(range(1, n + 1))
-            if image is None:
-                image = [0] * n
-
             funct_args = [n, id, type, x, v, image, shrinkexceed]
             self._send(command="create_atoms", data=funct_args)
             _ = self._receive()
