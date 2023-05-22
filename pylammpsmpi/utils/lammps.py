@@ -30,13 +30,14 @@ class LammpsBase:
         self._oversubscribe = oversubscribe
         self._cmdargs = cmdargs
         self._socket = None
+        self._context = None
 
     def start_process(self):
         executable = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
         )
-        context = zmq.Context()
-        self._socket = context.socket(zmq.PAIR)
+        self._context = zmq.Context()
+        self._socket = self._context.socket(zmq.PAIR)
         port_selected = self._socket.bind_to_random_port("tcp://*")
         cmds = ["mpiexec"]
         if self._oversubscribe:
@@ -677,10 +678,16 @@ class LammpsBase:
         self._send(command="close")
         try:
             self._process.kill()
+            self._process.stdout.close()
+            self._process.stdin.close()
+            self._process.wait()
+            self._socket.close()
+            self._context.term()
         except AttributeError:
             pass
         self._process = None
         self._socket = None
+        self._context = None
 
     # TODO
     def __del__(self):
