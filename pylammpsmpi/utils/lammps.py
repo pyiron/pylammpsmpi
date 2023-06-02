@@ -368,15 +368,16 @@ class LammpsBase:
             ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
 
-    def create_atoms(
-        self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
-    ):
+    def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False):
         """
         Create atoms on all procs
 
         Parameters
         ----------
-        ids : list of ints, optional
+        n : int
+            number of atoms
+
+        id : list of ints, optional
             ids of N atoms that need to be created
             if not specified, ids from 1 to N are assigned
 
@@ -402,15 +403,7 @@ class LammpsBase:
         """
 
         if x is not None:
-            natoms = len(x)
-            if type is None:
-                type = [1] * natoms
-            if ids is None:
-                ids = list(range(1, natoms + 1))
-            if image is None:
-                image = [0] * natoms
-
-            funct_args = [natoms, ids, type, x, v, image, shrinkexceed]
+            funct_args = [n, id, type, x, v, image, shrinkexceed]
             self._send(command="create_atoms", data=funct_args)
             _ = self._receive()
         else:
