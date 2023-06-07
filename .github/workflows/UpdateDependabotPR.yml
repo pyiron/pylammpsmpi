@@ -15,11 +15,13 @@ jobs:
           fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
           token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
       - name: UpdateEnvironmentFile
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         shell: bash -l {0}
         run: |
-          package=$(echo "${{ github.event.pull_request.title }}" | awk '{print $2}')
-          from=$(echo "${{ github.event.pull_request.title }}" | awk '{print $4}')
-          to=$(echo "${{ github.event.pull_request.title }}" | awk '{print $6}')
+          package=$(echo "$PR_TITLE" | awk '{print $2}')
+          from=$(echo "$PR_TITLE" | awk '{print $4}')
+          to=$(echo "$PR_TITLE" | awk '{print $6}')
           sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-openmpi.yml
           sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-mpich.yml
       - name: UpdateDependabotPR commit
