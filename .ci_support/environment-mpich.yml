@@ -9,4 +9,7 @@ dependencies:
   - numpy
   - distributed
   - dask-jobqueue
+  - cloudpickle =2.2.1
+  - mpi4py =3.1.4
   - pympipool =0.4.2
+  - pyzmq =25.1.0
