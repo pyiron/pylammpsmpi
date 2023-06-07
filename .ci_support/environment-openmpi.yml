@@ -5,9 +5,8 @@ dependencies:
   - coverage
   - codacy-coverage
   - lammps >=2022.06.23
-  - mpi4py =3.1.4
   - openmpi
   - numpy
   - distributed 
   - dask-jobqueue
-  - pyzmq =25.1.0
+  - pympipool =0.4.1

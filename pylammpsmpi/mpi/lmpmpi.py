@@ -311,6 +311,7 @@ def installed_packages(funct_args):
 
 def set_fix_external_callback(funct_args):
     job.set_fix_external_callback(*funct_args)
+    return 1
 
 
 def get_neighlist(funct_args):
