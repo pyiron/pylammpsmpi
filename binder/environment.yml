@@ -8,4 +8,4 @@ dependencies:
 - pytest
 - distributed
 - dask-jobqueue
-- pympipool =0.4.1
+- pympipool =0.4.2
