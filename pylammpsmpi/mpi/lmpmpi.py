@@ -275,27 +275,7 @@ def gather_atoms_subset(job, funct_args):
 
 
 def create_atoms(job, funct_args):
-    # we have to process the input items
-    # args are natoms, ids, type, x, v, image, shrinkexceed
-    natoms = funct_args[0]
-    ids = funct_args[1]
-    type = funct_args[2]
-    x = funct_args[3]
-    v = funct_args[4]
-    image = funct_args[5]
-    shrinkexceed = funct_args[6]
-
-    id_lmp = (c_int * natoms)()
-    id_lmp[:] = ids
-
-    type_lmp = (c_int * natoms)()
-    type_lmp[:] = type
-
-    image_lmp = (c_int * natoms)()
-    image_lmp[:] = image
-
-    args = [natoms, id_lmp, type_lmp, x, v, image_lmp, shrinkexceed]
-    job.create_atoms(*args)
+    job.create_atoms(*funct_args)
     return 1
 
 

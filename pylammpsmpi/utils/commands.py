@@ -37,6 +37,7 @@ func_list = [
     "scatter_atoms",
     "get_thermo",
     "extract_compute",
+    "create_atoms",
 ]
 
 prop_list = [
