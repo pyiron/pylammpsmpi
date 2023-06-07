@@ -5,7 +5,7 @@
 from ctypes import c_double, c_int
 from mpi4py import MPI
 import numpy as np
-import pickle
+import cloudpickle
 import sys
 import zmq
 from lammps import lammps
@@ -305,6 +305,7 @@ def installed_packages(job, funct_args):
 
 def set_fix_external_callback(job, funct_args):
     job.set_fix_external_callback(*funct_args)
+    return 1
 
 
 def get_neighlist(job, funct_args):
@@ -472,7 +473,7 @@ def _run_lammps_mpi(argument_lst):
     job = lammps(cmdargs=args)
     while True:
         if MPI.COMM_WORLD.rank == 0:
-            input_dict = pickle.loads(socket.recv())
+            input_dict = cloudpickle.loads(socket.recv())
             # with open('process.txt', 'a') as file:
             #     print('Input:', input_dict, file=file)
         else:
@@ -488,7 +489,7 @@ def _run_lammps_mpi(argument_lst):
         if MPI.COMM_WORLD.rank == 0 and output is not None:
             # with open('process.txt', 'a') as file:
             #     print('Output:', output, file=file)
-            socket.send(pickle.dumps(output))
+            socket.send(cloudpickle.dumps({"r": output}))
 
 
 if __name__ == "__main__":
