@@ -479,7 +479,7 @@ def _run_lammps_mpi(argument_lst):
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
-        if input_dict["shutdown"]:
+        if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             if MPI.COMM_WORLD.rank == 0:
                 socket.close()
                 context.term()
