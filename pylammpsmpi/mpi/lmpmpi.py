@@ -479,17 +479,19 @@ def _run_lammps_mpi(argument_lst):
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
-        if input_dict["c"] == "close":
+        if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             if MPI.COMM_WORLD.rank == 0:
                 socket.close()
                 context.term()
             job.close()
             break
-        output = select_cmd(input_dict["c"])(job=job, funct_args=input_dict["d"])
+        output = select_cmd(input_dict["command"])(
+            job=job, funct_args=input_dict["args"]
+        )
         if MPI.COMM_WORLD.rank == 0 and output is not None:
             # with open('process.txt', 'a') as file:
             #     print('Output:', output, file=file)
-            socket.send(cloudpickle.dumps({"r": output}))
+            socket.send(cloudpickle.dumps({"result": output}))
 
 
 if __name__ == "__main__":

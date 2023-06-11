@@ -51,7 +51,7 @@ class LammpsBase:
 
     def _send_and_receive_dict(self, command, data=None):
         return self._interface.send_and_receive_dict(
-            input_dict={"c": command, "d": data}
+            input_dict={"command": command, "args": data}
         )
 
     def _send(self, command, data=None):
@@ -70,7 +70,7 @@ class LammpsBase:
         -------
         None
         """
-        self._interface.send_dict({"c": command, "d": data})
+        self._interface.send_dict({"command": command, "args": data})
 
     def _receive(self):
         """
