@@ -485,7 +485,9 @@ def _run_lammps_mpi(argument_lst):
                 context.term()
             job.close()
             break
-        output = select_cmd(input_dict["command"])(job=job, funct_args=input_dict["args"])
+        output = select_cmd(input_dict["command"])(
+            job=job, funct_args=input_dict["args"]
+        )
         if MPI.COMM_WORLD.rank == 0 and output is not None:
             # with open('process.txt', 'a') as file:
             #     print('Output:', output, file=file)
