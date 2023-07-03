@@ -481,6 +481,7 @@ def _run_lammps_mpi(argument_lst):
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
         if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             if MPI.COMM_WORLD.rank == 0:
+                socket.send(cloudpickle.dumps({"result": True}))
                 socket.close()
                 context.term()
             job.close()
