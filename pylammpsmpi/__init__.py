@@ -1,4 +1,6 @@
-from pylammpsmpi.lammps_wrapper import LammpsLibrary
+from pylammpsmpi.wrapper.extended import LammpsLibrary
+from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
+from pylammpsmpi.wrapper.base import LammpsBase
 
 from ._version import get_versions
 
