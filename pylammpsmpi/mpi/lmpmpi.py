@@ -463,7 +463,11 @@ def _run_lammps_mpi(argument_lst):
         context = zmq.Context()
         socket = context.socket(zmq.PAIR)
         port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
-        socket.connect("tcp://localhost:" + port_selected)
+        if "--host" in argument_lst:
+            host = argument_lst[argument_lst.index("--host") + 1]
+        else:
+            host = "localhost"
+        socket.connect("tcp://" + host + ":" + port_selected)
     else:
         context, socket = None, None
     # Lammps executable
