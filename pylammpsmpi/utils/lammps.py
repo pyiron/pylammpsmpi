@@ -49,7 +49,14 @@ def _initialize_socket(
     return interface
 
 
-def execute_async(future_queue, cmdargs, cores, oversubscribe=False, enable_flux_backend=False, cwd=None):
+def execute_async(
+    future_queue,
+    cmdargs,
+    cores,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    cwd=None,
+):
     interface = _initialize_socket(
         interface=SocketInterface(),
         cmdargs=cmdargs,
