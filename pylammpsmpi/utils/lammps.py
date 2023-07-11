@@ -44,15 +44,13 @@ def _initialize_socket(interface, cmdargs, cwd, cores, oversubscribe=False):
     return interface
 
 
-def execute_async(
-    future_queue, cmdargs, cores, oversubscribe=False, cwd=None
-):
+def execute_async(future_queue, cmdargs, cores, oversubscribe=False, cwd=None):
     interface = _initialize_socket(
         interface=SocketInterface(),
         cmdargs=cmdargs,
         cwd=cwd,
         cores=cores,
-        oversubscribe=oversubscribe
+        oversubscribe=oversubscribe,
     )
     while True:
         task_dict = future_queue.get()
@@ -80,7 +78,13 @@ class LammpsConcurrent:
     def start_process(self):
         self._process = Thread(
             target=execute_async,
-            args=(self._future_queue, self._cmdargs, self.cores, self._oversubscribe, self.working_directory),
+            args=(
+                self._future_queue,
+                self._cmdargs,
+                self.cores,
+                self._oversubscribe,
+                self.working_directory,
+            ),
         )
         self._process.start()
 
@@ -509,7 +513,9 @@ class LammpsConcurrent:
         None
         """
         if isinstance(cmd, list):
-            return self._send_and_receive_dict(command="commands_string", data="\n".join(cmd))
+            return self._send_and_receive_dict(
+                command="commands_string", data="\n".join(cmd)
+            )
         elif len(cmd.split("\n")) > 1:
             return self._send_and_receive_dict(command="commands_string", data=cmd)
         else:
@@ -572,7 +578,9 @@ class LammpsConcurrent:
             args = list(args)
             args.append(len(ids))
             args.append(ids)
-            return self._send_and_receive_dict(command="scatter_atoms_subset", data=args)
+            return self._send_and_receive_dict(
+                command="scatter_atoms_subset", data=args
+            )
         else:
             return self._send_and_receive_dict(command="scatter_atoms", data=list(args))
 
@@ -908,7 +916,13 @@ class LammpsBase(LammpsConcurrent):
         None
 
         """
-        return super().generate_atoms(ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed).result()
+        return (
+            super()
+            .generate_atoms(
+                ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            )
+            .result()
+        )
 
     def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False):
         """
@@ -943,7 +957,13 @@ class LammpsBase(LammpsConcurrent):
         None
 
         """
-        _ = super().create_atoms(n=n, id=id, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed).result()
+        _ = (
+            super()
+            .create_atoms(
+                n=n, id=id, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            )
+            .result()
+        )
 
     @property
     def has_exceptions(self):
@@ -1146,4 +1166,8 @@ class LammpsBase(LammpsConcurrent):
             data computed by the fix depending on the chosen inputs
 
         """
-        return super().extract_compute(id=id, style=style, type=type, length=length, width=width).result()
+        return (
+            super()
+            .extract_compute(id=id, style=style, type=type, length=length, width=width)
+            .result()
+        )
