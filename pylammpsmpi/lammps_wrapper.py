@@ -26,6 +26,7 @@ class LammpsLibrary:
         self,
         cores=1,
         oversubscribe=False,
+        enable_flux_backend=False,
         working_directory=".",
         client=None,
         mode="local",
@@ -34,6 +35,7 @@ class LammpsLibrary:
         self.cores = cores
         self.working_directory = working_directory
         self.oversubscribe = oversubscribe
+        self.enable_flux_backend = enable_flux_backend
         self.client = client
         self.mode = mode
 
@@ -55,6 +57,7 @@ class LammpsLibrary:
             self.lmp = LammpsBase(
                 cores=self.cores,
                 oversubscribe=self.oversubscribe,
+                enable_flux_backend=self.enable_flux_backend,
                 working_directory=self.working_directory,
                 cmdargs=cmdargs,
             )
