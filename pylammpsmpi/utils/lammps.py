@@ -642,7 +642,7 @@ class LammpsBase:
         None
         """
         self._interface.shutdown(wait=True)
-        self._interface = None 
+        self._interface = None
 
     # TODO
     def __del__(self):
