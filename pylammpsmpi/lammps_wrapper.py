@@ -68,6 +68,7 @@ class LammpsLibrary:
         Try to run input as a lammps command
         """
         if name in func_list:
+
             def func_wrapper(*args, **kwargs):
                 func = getattr(self.lmp, name)
                 fut = func(*args, **kwargs)
@@ -80,6 +81,7 @@ class LammpsLibrary:
             return fut.result()
 
         elif name in command_list:
+
             def command_wrapper(*args):
                 args = [name] + list(args)
                 cmd = " ".join([str(x) for x in args])
