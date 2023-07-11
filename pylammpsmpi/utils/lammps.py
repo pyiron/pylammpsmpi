@@ -916,14 +916,13 @@ class LammpsBase(LammpsConcurrent):
         None
 
         """
-        _ = super().generate_atoms(
-            ids=ids,
-            type=type,
-            x=x,
-            v=v,
-            image=image,
-            shrinkexceed=shrinkexceed
-        ).result()
+        _ = (
+            super()
+            .generate_atoms(
+                ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            )
+            .result()
+        )
 
     def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False):
         """
