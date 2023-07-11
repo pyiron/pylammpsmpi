@@ -54,39 +54,6 @@ class LammpsBase:
             input_dict={"command": command, "args": data}
         )
 
-    def _send(self, command, data=None):
-        """
-        Send a command to the Lammps Library executable
-
-        Parameters
-        ----------
-        command : string
-            command to be send to the
-
-        data: optional, default None
-            data to be sent to the command
-
-        Returns
-        -------
-        None
-        """
-        self._interface.send_dict({"command": command, "args": data})
-
-    def _receive(self):
-        """
-        Receive data from the Lammps library
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        data : string
-            data from the command
-        """
-        return self._interface.receive_dict()
-
     @property
     def version(self):
         """
