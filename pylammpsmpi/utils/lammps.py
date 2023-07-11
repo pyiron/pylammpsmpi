@@ -57,7 +57,7 @@ class LammpsBase:
             cmdargs=self._cmdargs,
             cwd=self.working_directory,
             cores=self.cores,
-            oversubscribe=self._oversubscribe
+            oversubscribe=self._oversubscribe,
         )
 
     def _send_and_receive_dict(self, command, data=None):
