@@ -122,3 +122,8 @@ class LammpsLibrary:
         fut = self.lmp.close()
         if fut is not None:
             return fut.result()
+
+    def __dir__(self):
+        return (
+            list(super().__dir__()) + func_list + thermo_list + command_list + prop_list
+        )
