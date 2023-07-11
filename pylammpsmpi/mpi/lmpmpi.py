@@ -7,8 +7,8 @@ from mpi4py import MPI
 import numpy as np
 import cloudpickle
 import sys
-import zmq
 from lammps import lammps
+from pympipool.share.parallel import initialize_zmq as init_socket_interface
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -460,14 +460,12 @@ def _gather_data_from_all_processors(data):
 
 def _run_lammps_mpi(argument_lst):
     if MPI.COMM_WORLD.rank == 0:
-        context = zmq.Context()
-        socket = context.socket(zmq.PAIR)
         port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
         if "--host" in argument_lst:
             host = argument_lst[argument_lst.index("--host") + 1]
         else:
             host = "localhost"
-        socket.connect("tcp://" + host + ":" + port_selected)
+        context, socket = init_socket_interface(host=host, port=port_selected)
     else:
         context, socket = None, None
     # Lammps executable
