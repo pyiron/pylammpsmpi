@@ -3,7 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 from pylammpsmpi.utils.commands import command_list, thermo_list, func_list, prop_list
-from pylammpsmpi.utils.lammps import LammpsBase
+from pylammpsmpi.utils.lammps import LammpsBase, LammpsConcurrent
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -52,7 +52,7 @@ class LammpsLibrary:
             _ = fut.result()
 
         elif self.mode == "local":
-            self.lmp = LammpsBase(
+            self.lmp = LammpsConcurrent(
                 cores=self.cores,
                 oversubscribe=self.oversubscribe,
                 working_directory=self.working_directory,
@@ -68,52 +68,29 @@ class LammpsLibrary:
         Try to run input as a lammps command
         """
         if name in func_list:
-            if self.mode == "dask":
-
-                def func_wrapper(*args, **kwargs):
-                    func = getattr(self.lmp, name)
-                    fut = func(*args, **kwargs)
-                    return fut.result()
-
-            else:
-
-                def func_wrapper(*args, **kwargs):
-                    func = getattr(self.lmp, name)
-                    fut = func(*args, **kwargs)
-                    return fut
+            def func_wrapper(*args, **kwargs):
+                func = getattr(self.lmp, name)
+                fut = func(*args, **kwargs)
+                return fut.result()
 
             return func_wrapper
 
         elif name in thermo_list:
-            if self.mode == "dask":
-                fut = self.lmp.get_thermo(name)
-                return fut.result()
-            else:
-                fut = self.lmp.get_thermo(name)
-                return fut
+            fut = self.lmp.get_thermo(name)
+            return fut.result()
 
         elif name in command_list:
-            if self.mode == "dask":
-
-                def command_wrapper(*args):
-                    args = [name] + list(args)
-                    cmd = " ".join([str(x) for x in args])
-                    fut = self.lmp.command(cmd)
-                    return fut.result()
-
-            else:
-
-                def command_wrapper(*args):
-                    args = [name] + list(args)
-                    cmd = " ".join([str(x) for x in args])
-                    fut = self.lmp.command(cmd)
-                    return fut
+            def command_wrapper(*args):
+                args = [name] + list(args)
+                cmd = " ".join([str(x) for x in args])
+                fut = self.lmp.command(cmd)
+                return fut.result()
 
             return command_wrapper
 
         elif name in prop_list:
             fut = getattr(self.lmp, name)
-            return fut
+            return fut.result()
 
         else:
             raise AttributeError(name)
