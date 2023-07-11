@@ -642,8 +642,9 @@ class LammpsBase:
         None
         """
         self._interface.shutdown(wait=True)
+        self._interface = None 
 
     # TODO
     def __del__(self):
-        if self._process is not None:
+        if self._interface is not None:
             self.close()
