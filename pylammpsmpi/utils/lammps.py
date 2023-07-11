@@ -22,12 +22,17 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 
-def _initialize_socket(interface, cmdargs, cwd, cores, oversubscribe=False):
+def _initialize_socket(
+    interface, cmdargs, cwd, cores, oversubscribe=False, enable_flux_backend=False
+):
     port_selected = interface.bind_to_random_port()
     executable = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
     )
-    cmds = ["mpiexec"]
+    if enable_flux_backend:
+        cmds = ["flux", "run"]
+    else:
+        cmds = ["mpiexec"]
     if oversubscribe:
         cmds += ["--oversubscribe"]
     cmds += [
@@ -44,12 +49,13 @@ def _initialize_socket(interface, cmdargs, cwd, cores, oversubscribe=False):
     return interface
 
 
-def execute_async(future_queue, cmdargs, cores, oversubscribe=False, cwd=None):
+def execute_async(future_queue, cmdargs, cores, oversubscribe=False, enable_flux_backend=False, cwd=None):
     interface = _initialize_socket(
         interface=SocketInterface(),
         cmdargs=cmdargs,
         cwd=cwd,
         cores=cores,
+        enable_flux_backend=enable_flux_backend,
         oversubscribe=oversubscribe,
     )
     while True:
@@ -65,7 +71,12 @@ def execute_async(future_queue, cmdargs, cores, oversubscribe=False, cwd=None):
 
 class LammpsConcurrent:
     def __init__(
-        self, cores=8, oversubscribe=False, working_directory=".", cmdargs=None
+        self,
+        cores=8,
+        oversubscribe=False,
+        enable_flux_backend=False,
+        working_directory=".",
+        cmdargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
@@ -73,6 +84,7 @@ class LammpsConcurrent:
         self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
+        self._enable_flux_backend = enable_flux_backend
         self._cmdargs = cmdargs
 
     def start_process(self):
@@ -83,6 +95,7 @@ class LammpsConcurrent:
                 self._cmdargs,
                 self.cores,
                 self._oversubscribe,
+                self._enable_flux_backend,
                 self.working_directory,
             ),
         )
