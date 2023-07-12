@@ -9,4 +9,4 @@ dependencies:
 - distributed
 - dask-jobqueue
 - mpi4py =3.1.4
-- pympipool =0.5.1
+- pympipool =0.5.2
