@@ -99,7 +99,6 @@ class LammpsConcurrent:
     ):
         self.cores = cores
         self.working_directory = working_directory
-        self._interface = SocketInterface()
         self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
