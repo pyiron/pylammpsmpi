@@ -3,6 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
+import socket
 from concurrent.futures import Future
 from queue import Queue
 from threading import Thread
@@ -43,6 +44,11 @@ def _initialize_socket(
         "--zmqport",
         str(port_selected),
     ]
+    if enable_flux_backend:
+        cmds += [
+            "--host",
+            socket.gethostname(),
+        ]
     if cmdargs is not None:
         cmds.extend(cmdargs)
     interface.bootup(command_lst=cmds, cwd=cwd)
