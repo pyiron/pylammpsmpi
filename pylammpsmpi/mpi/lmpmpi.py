@@ -8,7 +8,7 @@ import numpy as np
 import cloudpickle
 import sys
 from lammps import lammps
-from pympipool.share.parallel import initialize_zmq as init_socket_interface
+from pympipool.share.parallel import initialize_zmq as connect_to_socket_interface
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -465,7 +465,7 @@ def _run_lammps_mpi(argument_lst):
             host = argument_lst[argument_lst.index("--host") + 1]
         else:
             host = "localhost"
-        context, socket = init_socket_interface(host=host, port=port_selected)
+        context, socket = connect_to_socket_interface(host=host, port=port_selected)
     else:
         context, socket = None, None
     # Lammps executable
