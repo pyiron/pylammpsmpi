@@ -7,7 +7,7 @@ from mpi4py import MPI
 import numpy as np
 import sys
 from lammps import lammps
-from pympipool.share.communication import (
+from pympipool import (
     connect_to_socket_interface,
     send_result,
     close_connection,
