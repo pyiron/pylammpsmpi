@@ -5,10 +5,14 @@
 from ctypes import c_double, c_int
 from mpi4py import MPI
 import numpy as np
-import cloudpickle
 import sys
-import zmq
 from lammps import lammps
+from pympipool.share.communication import (
+    connect_to_socket_interface,
+    send_result,
+    close_connection,
+    receive_instruction,
+)
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -460,14 +464,12 @@ def _gather_data_from_all_processors(data):
 
 def _run_lammps_mpi(argument_lst):
     if MPI.COMM_WORLD.rank == 0:
-        context = zmq.Context()
-        socket = context.socket(zmq.PAIR)
         port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
         if "--host" in argument_lst:
             host = argument_lst[argument_lst.index("--host") + 1]
         else:
             host = "localhost"
-        socket.connect("tcp://" + host + ":" + port_selected)
+        context, socket = connect_to_socket_interface(host=host, port=port_selected)
     else:
         context, socket = None, None
     # Lammps executable
@@ -477,26 +479,21 @@ def _run_lammps_mpi(argument_lst):
     job = lammps(cmdargs=args)
     while True:
         if MPI.COMM_WORLD.rank == 0:
-            input_dict = cloudpickle.loads(socket.recv())
-            # with open('process.txt', 'a') as file:
-            #     print('Input:', input_dict, file=file)
+            input_dict = receive_instruction(socket=socket)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
         if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
-            if MPI.COMM_WORLD.rank == 0:
-                socket.send(cloudpickle.dumps({"result": True}))
-                socket.close()
-                context.term()
             job.close()
+            if MPI.COMM_WORLD.rank == 0:
+                send_result(socket=socket, result_dict={"result": True})
+                close_connection(socket=socket, context=context)
             break
         output = select_cmd(input_dict["command"])(
             job=job, funct_args=input_dict["args"]
         )
         if MPI.COMM_WORLD.rank == 0 and output is not None:
-            # with open('process.txt', 'a') as file:
-            #     print('Output:', output, file=file)
-            socket.send(cloudpickle.dumps({"result": output}))
+            send_result(socket=socket, result_dict={"result": output})
 
 
 if __name__ == "__main__":
