@@ -8,13 +8,20 @@ import os
 from pylammpsmpi import LammpsBase
 
 
-class TestLocalLammpsLibrary(unittest.TestCase):
+class TestLammpsBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
         cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
-        cls.lmp = LammpsBase(cores=2, cmdargs=["-cite", cls.citation_file])
+        cls.lmp = LammpsBase(
+            cores=1,
+            oversubscribe=False,
+            enable_flux_backend=False,
+            working_directory=".",
+            cmdargs=["-cite", cls.citation_file]
+        )
+        cls.lmp.start_process()
         cls.lmp.file(cls.lammps_file)
 
     @classmethod
@@ -80,12 +87,12 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 6.72)
 
-        self.lmp.delete_atoms("group", "all")
+        self.lmp.command("delete_atoms group all")
         self.lmp.reset_box([0.0, 0.0, 0.0], [8.0, 8.0, 8.0], 0.0, 0.0, 0.0)
         box = self.lmp.extract_box()
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 8.0)
-        self.lmp.clear()
+        self.lmp.command("clear")
         self.lmp.file(self.lammps_file)
 
     def test_cmdarg_options(self):

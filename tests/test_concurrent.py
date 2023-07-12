@@ -10,7 +10,14 @@ class TestLammpsConcurrent(unittest.TestCase):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
         cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
-        cls.lmp = LammpsConcurrent(cores=1, cmdargs=["-cite", cls.citation_file])
+        cls.lmp = LammpsConcurrent(
+            cores=1,
+            oversubscribe=False,
+            enable_flux_backend=False,
+            working_directory=".",
+            cmdargs=["-cite", cls.citation_file]
+        )
+        cls.lmp.start_process()
         cls.lmp.file(cls.lammps_file).result()
 
     @classmethod
@@ -76,13 +83,13 @@ class TestLammpsConcurrent(unittest.TestCase):
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 6.72)
 
-        self.lmp.delete_atoms("group", "all").result()
+        self.lmp.command("delete_atoms group all").result()
         self.lmp.reset_box([0.0, 0.0, 0.0], [8.0, 8.0, 8.0], 0.0, 0.0, 0.0).result()
         box = self.lmp.extract_box().result()
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 8.0)
-        self.lmp.clear()
-        self.lmp.file(self.lammps_file)
+        self.lmp.command("clear")
+        self.lmp.file(self.lammps_file).result()
 
     def test_cmdarg_options(self):
         self.assertTrue(os.path.isfile(self.citation_file))
