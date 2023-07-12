@@ -2,7 +2,7 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-from pylammpsmpi.wrapper.base import LammpsBase, LammpsConcurrent
+from pylammpsmpi.wrapper.base import LammpsConcurrent
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -249,6 +249,8 @@ class LammpsLibrary:
         client=None,
         mode="local",
         cmdargs=None,
+        queue_adapter=None,
+        queue_adapter_kwargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
@@ -256,33 +258,16 @@ class LammpsLibrary:
         self.enable_flux_backend = enable_flux_backend
         self.client = client
         self.mode = mode
-
-        if self.mode == "dask":
-            fut = self.client.submit(
-                LammpsBase,
-                cores=self.cores,
-                oversubscribe=self.oversubscribe,
-                working_directory=self.working_directory,
-                cmdargs=cmdargs,
-                actor=True,
-            )
-            self.lmp = fut.result()
-
-            fut = self.lmp.start_process()
-            _ = fut.result()
-
-        elif self.mode == "local":
-            self.lmp = LammpsConcurrent(
-                cores=self.cores,
-                oversubscribe=self.oversubscribe,
-                enable_flux_backend=self.enable_flux_backend,
-                working_directory=self.working_directory,
-                cmdargs=cmdargs,
-            )
-            self.lmp.start_process()
-
-        else:
-            raise ValueError("mode should be either dask or local")
+        self.lmp = LammpsConcurrent(
+            cores=self.cores,
+            oversubscribe=self.oversubscribe,
+            enable_flux_backend=self.enable_flux_backend,
+            working_directory=self.working_directory,
+            cmdargs=cmdargs,
+            queue_adapter=queue_adapter,
+            queue_adapter_kwargs=queue_adapter_kwargs,
+        )
+        self.lmp.start_process()
 
     def __getattr__(self, name):
         """
@@ -319,9 +304,7 @@ class LammpsLibrary:
             raise AttributeError(name)
 
     def close(self):
-        fut = self.lmp.close()
-        if fut is not None:
-            return fut.result()
+        self.lmp.close()
 
     def __dir__(self):
         return (

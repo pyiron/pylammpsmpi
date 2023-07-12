@@ -62,9 +62,13 @@ def execute_async(
     oversubscribe=False,
     enable_flux_backend=False,
     cwd=None,
+    queue_adapter=None,
+    queue_adapter_kwargs=None,
 ):
     interface = _initialize_socket(
-        interface=SocketInterface(),
+        interface=SocketInterface(
+            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+        ),
         cmdargs=cmdargs,
         cwd=cwd,
         cores=cores,
@@ -90,6 +94,8 @@ class LammpsConcurrent:
         enable_flux_backend=False,
         working_directory=".",
         cmdargs=None,
+        queue_adapter=None,
+        queue_adapter_kwargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
@@ -99,6 +105,8 @@ class LammpsConcurrent:
         self._oversubscribe = oversubscribe
         self._enable_flux_backend = enable_flux_backend
         self._cmdargs = cmdargs
+        self._queue_adapter = queue_adapter
+        self._queue_adapter_kwargs = queue_adapter_kwargs
 
     def start_process(self):
         self._process = Thread(
@@ -110,6 +118,8 @@ class LammpsConcurrent:
                 self._oversubscribe,
                 self._enable_flux_backend,
                 self.working_directory,
+                self._queue_adapter,
+                self._queue_adapter_kwargs,
             ),
         )
         self._process.start()
