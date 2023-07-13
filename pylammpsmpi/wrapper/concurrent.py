@@ -110,16 +110,16 @@ class LammpsConcurrent:
     def start_process(self):
         self._process = Thread(
             target=execute_async,
-            args=(
-                self._future_queue,
-                self._cmdargs,
-                self.cores,
-                self._oversubscribe,
-                self._enable_flux_backend,
-                self.working_directory,
-                self._queue_adapter,
-                self._queue_adapter_kwargs,
-            ),
+            kwargs={
+                "future_queue": self._future_queue,
+                "cmdargs": self._cmdargs,
+                "cores": self.cores,
+                "oversubscribe": self._oversubscribe,
+                "enable_flux_backend": self._enable_flux_backend,
+                "cwd": self.working_directory,
+                "queue_adapter": self._queue_adapter,
+                "queue_adapter_kwargs": self._queue_adapter_kwargs,
+            },
         )
         self._process.start()
 
