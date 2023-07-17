@@ -7,8 +7,7 @@ import socket
 from concurrent.futures import Future
 from queue import Queue
 from threading import Thread
-from pympipool import SocketInterface
-from pympipool.share.serial import cancel_items_in_queue
+from pympipool import SocketInterface, cancel_items_in_queue
 
 
 __author__ = "Sarath Menon, Jan Janssen"
