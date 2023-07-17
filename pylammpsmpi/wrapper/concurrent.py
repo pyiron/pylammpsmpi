@@ -4,7 +4,10 @@
 
 import os
 import socket
-from pympipool import SocketInterface
+from concurrent.futures import Future
+from queue import Queue
+from threading import Thread
+from pympipool import SocketInterface, cancel_items_in_queue
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -51,7 +54,38 @@ def _initialize_socket(
     return interface
 
 
-class LammpsBase:
+def execute_async(
+    future_queue,
+    cmdargs,
+    cores,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    cwd=None,
+    queue_adapter=None,
+    queue_adapter_kwargs=None,
+):
+    interface = _initialize_socket(
+        interface=SocketInterface(
+            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+        ),
+        cmdargs=cmdargs,
+        cwd=cwd,
+        cores=cores,
+        enable_flux_backend=enable_flux_backend,
+        oversubscribe=oversubscribe,
+    )
+    while True:
+        task_dict = future_queue.get()
+        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+            interface.shutdown(wait=task_dict["wait"])
+            break
+        elif "command" in task_dict.keys() and "future" in task_dict.keys():
+            f = task_dict.pop("future")
+            if f.set_running_or_notify_cancel():
+                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+
+
+class LammpsConcurrent:
     def __init__(
         self,
         cores=8,
@@ -59,29 +93,39 @@ class LammpsBase:
         enable_flux_backend=False,
         working_directory=".",
         cmdargs=None,
+        queue_adapter=None,
+        queue_adapter_kwargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
-        self._interface = SocketInterface()
+        self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
         self._enable_flux_backend = enable_flux_backend
         self._cmdargs = cmdargs
+        self._queue_adapter = queue_adapter
+        self._queue_adapter_kwargs = queue_adapter_kwargs
 
     def start_process(self):
-        self._interface = _initialize_socket(
-            interface=self._interface,
-            cmdargs=self._cmdargs,
-            cwd=self.working_directory,
-            cores=self.cores,
-            oversubscribe=self._oversubscribe,
-            enable_flux_backend=self._enable_flux_backend,
+        self._process = Thread(
+            target=execute_async,
+            kwargs={
+                "future_queue": self._future_queue,
+                "cmdargs": self._cmdargs,
+                "cores": self.cores,
+                "oversubscribe": self._oversubscribe,
+                "enable_flux_backend": self._enable_flux_backend,
+                "cwd": self.working_directory,
+                "queue_adapter": self._queue_adapter,
+                "queue_adapter_kwargs": self._queue_adapter_kwargs,
+            },
         )
+        self._process.start()
 
     def _send_and_receive_dict(self, command, data=None):
-        return self._interface.send_and_receive_dict(
-            input_dict={"command": command, "args": data}
-        )
+        f = Future()
+        self._future_queue.put({"command": command, "args": data, "future": f})
+        return f
 
     @property
     def version(self):
@@ -114,7 +158,7 @@ class LammpsBase:
         """
         if not os.path.exists(inputfile):
             raise FileNotFoundError("Input file does not exist")
-        _ = self._send_and_receive_dict(command="get_file", data=[inputfile])
+        return self._send_and_receive_dict(command="get_file", data=[inputfile])
 
     # TODO
     def extract_setting(self, *args):
@@ -306,7 +350,7 @@ class LammpsBase:
         xy, yz, xz : floats
             box tilts
         """
-        _ = self._send_and_receive_dict(command="reset_box", data=list(args))
+        return self._send_and_receive_dict(command="reset_box", data=list(args))
 
     def generate_atoms(
         self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
@@ -340,7 +384,7 @@ class LammpsBase:
         None
 
         """
-        self.create_atoms(
+        return self.create_atoms(
             ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
 
@@ -380,7 +424,7 @@ class LammpsBase:
 
         if x is not None:
             funct_args = [n, id, type, x, v, image, shrinkexceed]
-            _ = self._send_and_receive_dict(command="create_atoms", data=funct_args)
+            return self._send_and_receive_dict(command="create_atoms", data=funct_args)
         else:
             raise TypeError("Value of x cannot be None")
 
@@ -410,7 +454,7 @@ class LammpsBase:
         return self._send_and_receive_dict(command="get_installed_packages", data=[])
 
     def set_fix_external_callback(self, *args):
-        _ = self._send_and_receive_dict(
+        return self._send_and_receive_dict(
             command="set_fix_external_callback", data=list(args)
         )
 
@@ -503,13 +547,13 @@ class LammpsBase:
         None
         """
         if isinstance(cmd, list):
-            for c in cmd:
-                _ = self._send_and_receive_dict(command="command", data=c)
+            return self._send_and_receive_dict(
+                command="commands_string", data="\n".join(cmd)
+            )
         elif len(cmd.split("\n")) > 1:
-            for c in cmd.split("\n"):
-                _ = self._send_and_receive_dict(command="command", data=c)
+            return self._send_and_receive_dict(command="commands_string", data=cmd)
         else:
-            _ = self._send_and_receive_dict(command="command", data=cmd)
+            return self._send_and_receive_dict(command="command", data=cmd)
 
     def gather_atoms(self, *args, concat=False, ids=None):
         """
@@ -568,9 +612,11 @@ class LammpsBase:
             args = list(args)
             args.append(len(ids))
             args.append(ids)
-            _ = self._send_and_receive_dict(command="scatter_atoms_subset", data=args)
+            return self._send_and_receive_dict(
+                command="scatter_atoms_subset", data=args
+            )
         else:
-            _ = self._send_and_receive_dict(command="scatter_atoms", data=list(args))
+            return self._send_and_receive_dict(command="scatter_atoms", data=list(args))
 
     def get_thermo(self, *args):
         """
@@ -637,7 +683,10 @@ class LammpsBase:
         -------
         None
         """
-        self._interface.shutdown(wait=True)
+        cancel_items_in_queue(que=self._future_queue)
+        self._future_queue.put({"shutdown": True, "wait": True})
+        self._process.join()
+        self._process = None
 
     # TODO
     def __del__(self):
