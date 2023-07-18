@@ -6,8 +6,7 @@ import os
 import socket
 from concurrent.futures import Future
 from queue import Queue
-from threading import Thread
-from pympipool import SocketInterface, cancel_items_in_queue
+from pympipool import RaisingThread, SocketInterface, cancel_items_in_queue
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -107,7 +106,7 @@ class LammpsConcurrent:
         self._queue_adapter_kwargs = queue_adapter_kwargs
 
     def start_process(self):
-        self._process = Thread(
+        self._process = RaisingThread(
             target=execute_async,
             kwargs={
                 "future_queue": self._future_queue,
