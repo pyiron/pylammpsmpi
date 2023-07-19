@@ -42,7 +42,10 @@ Documentation
 -------------
 
 .. toctree::
+    :maxdepth: 2
 
     installation
     interfaces
     development
+
+* :ref:`modindex`

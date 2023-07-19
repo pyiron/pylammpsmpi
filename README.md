@@ -33,7 +33,14 @@ implement. Still internally all three interfaces are based on the `pylammpsmpi.L
 an additional thread to connect the `mpi4py` parallel LAMMPS instance to the serial python process or Jupyter notebook.
 
 # Documentation
-
+* [Installation](https://pylammpsmpi.readthedocs.io/en/latest/installation.html)
+  * [conda-based installation](https://pylammpsmpi.readthedocs.io/en/latest/installation.html#conda-based-installation)
+  * [pypi-based installation](https://pylammpsmpi.readthedocs.io/en/latest/installation.html#pypi-based-installation)
+* [Interfaces](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html) 
+  * [LammpsBase](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html#lammpsbase)
+  * [LammpsConcurrent](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html#lammpsconcurrent)
+  * [LammpsLibrary](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html#lammpslibrary)
+* [Development](https://pylammpsmpi.readthedocs.io/en/latest/development.html) 
 
 # License
 `pylammpsmpi` is released under the BSD license https://github.com/pyiron/pympipool/blob/main/LICENSE . It is a spin-off
