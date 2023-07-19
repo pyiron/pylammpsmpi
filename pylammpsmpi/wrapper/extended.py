@@ -267,7 +267,6 @@ class LammpsLibrary:
             queue_adapter=queue_adapter,
             queue_adapter_kwargs=queue_adapter_kwargs,
         )
-        self.lmp.start_process()
 
     def __getattr__(self, name):
         """
