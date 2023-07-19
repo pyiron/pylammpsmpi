@@ -3,29 +3,25 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import unittest
-import os
 import numpy as np
-from pylammpsmpi import LammpsLibrary
-from dask.distributed import Client, LocalCluster
+import os
+from pylammpsmpi import LammpsBase
 
 
-class TestLocalLammpsLibrary(unittest.TestCase):
+class TestLammpsBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
         cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
-        cluster = LocalCluster(
-            n_workers=1,
-            threads_per_worker=2
+        cls.lmp = LammpsBase(
+            cores=1,
+            oversubscribe=False,
+            enable_flux_backend=False,
+            working_directory=".",
+            cmdargs=["-cite", cls.citation_file]
         )
-        client = Client(cluster)
-        cls.lmp = LammpsLibrary(
-            cores=2,
-            mode='dask',
-            cmdargs=["-cite", cls.citation_file],
-            client=client
-        )
+        cls.lmp.start_process()
         cls.lmp.file(cls.lammps_file)
 
     @classmethod
@@ -39,6 +35,14 @@ class TestLocalLammpsLibrary(unittest.TestCase):
 
         ids = self.lmp.extract_atom("id")
         self.assertEqual(len(ids), 256)
+
+    def test_extract_compute_global(self):
+        compute_temp = self.lmp.extract_compute("1", 0, 0)
+        self.assertIsInstance(compute_temp, float)
+
+    def test_extract_compute_per_atom(self):
+        compute_ke_atom = self.lmp.extract_compute("ke", 1, 1)
+        self.assertEqual(len(compute_ke_atom), 256)
 
     def test_gather_atoms(self):
         f = self.lmp.gather_atoms("f")
@@ -57,7 +61,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     def test_extract_variable(self):
         x = self.lmp.extract_variable("tt", "all", 0)
         self.assertEqual(np.round(x, 2), 1.13)
-
         x = self.lmp.extract_variable("fx", "all", 1)
         self.assertEqual(len(x), 256)
         self.assertEqual(np.round(x[0], 2), -0.26)
@@ -84,12 +87,12 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 6.72)
 
-        self.lmp.delete_atoms("group", "all")
+        self.lmp.command("delete_atoms group all")
         self.lmp.reset_box([0.0, 0.0, 0.0], [8.0, 8.0, 8.0], 0.0, 0.0, 0.0)
         box = self.lmp.extract_box()
         self.assertEqual(box[0][0], 0.0)
         self.assertEqual(np.round(box[1][0], 2), 8.0)
-        self.lmp.clear()
+        self.lmp.command("clear")
         self.lmp.file(self.lammps_file)
 
     def test_cmdarg_options(self):
@@ -98,4 +101,3 @@ class TestLocalLammpsLibrary(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

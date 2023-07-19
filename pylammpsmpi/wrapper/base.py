@@ -2,9 +2,7 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-import os
-import socket
-from pympipool import SocketInterface
+from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -19,70 +17,7 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 
-def _initialize_socket(
-    interface, cmdargs, cwd, cores, oversubscribe=False, enable_flux_backend=False
-):
-    port_selected = interface.bind_to_random_port()
-    executable = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
-    )
-    if enable_flux_backend:
-        cmds = ["flux", "run"]
-    else:
-        cmds = ["mpiexec"]
-    if oversubscribe:
-        cmds += ["--oversubscribe"]
-    cmds += [
-        "-n",
-        str(cores),
-        "python",
-        executable,
-        "--zmqport",
-        str(port_selected),
-    ]
-    if enable_flux_backend:
-        cmds += [
-            "--host",
-            socket.gethostname(),
-        ]
-    if cmdargs is not None:
-        cmds.extend(cmdargs)
-    interface.bootup(command_lst=cmds, cwd=cwd)
-    return interface
-
-
-class LammpsBase:
-    def __init__(
-        self,
-        cores=8,
-        oversubscribe=False,
-        enable_flux_backend=False,
-        working_directory=".",
-        cmdargs=None,
-    ):
-        self.cores = cores
-        self.working_directory = working_directory
-        self._interface = SocketInterface()
-        self._process = None
-        self._oversubscribe = oversubscribe
-        self._enable_flux_backend = enable_flux_backend
-        self._cmdargs = cmdargs
-
-    def start_process(self):
-        self._interface = _initialize_socket(
-            interface=self._interface,
-            cmdargs=self._cmdargs,
-            cwd=self.working_directory,
-            cores=self.cores,
-            oversubscribe=self._oversubscribe,
-            enable_flux_backend=self._enable_flux_backend,
-        )
-
-    def _send_and_receive_dict(self, command, data=None):
-        return self._interface.send_and_receive_dict(
-            input_dict={"command": command, "args": data}
-        )
-
+class LammpsBase(LammpsConcurrent):
     @property
     def version(self):
         """
@@ -97,7 +32,7 @@ class LammpsBase:
         version: string
             version string of lammps
         """
-        return self._send_and_receive_dict(command="get_version", data=[])
+        return super().version.result()
 
     def file(self, inputfile):
         """
@@ -112,13 +47,11 @@ class LammpsBase:
         -------
         None
         """
-        if not os.path.exists(inputfile):
-            raise FileNotFoundError("Input file does not exist")
-        _ = self._send_and_receive_dict(command="get_file", data=[inputfile])
+        _ = super().file(inputfile=inputfile).result()
 
     # TODO
     def extract_setting(self, *args):
-        return self._send_and_receive_dict(command="extract_setting", data=list(args))
+        return super().extract_setting(*args).result()
 
     def extract_global(self, name):
         """
@@ -146,7 +79,7 @@ class LammpsBase:
         "mvh2r", "angstrom", "femtosecond", "qelectron"
 
         """
-        return self._send_and_receive_dict(command="extract_global", data=[name])
+        return super().extract_global(name=name).result()
 
     def extract_box(self):
         """
@@ -164,7 +97,7 @@ class LammpsBase:
             `xy, yz, xz` are the box tilts, `periodicity` is an array which shows if
             the box is periodic in three dimensions.
         """
-        return self._send_and_receive_dict(command="extract_box", data=[])
+        return super().extract_box().result()
 
     def extract_atom(self, name):
         """
@@ -191,7 +124,7 @@ class LammpsBase:
         --------
         scatter_atoms
         """
-        return self._send_and_receive_dict(command="extract_atom", data=list([name]))
+        return super().extract_atom(name=name).result()
 
     def extract_fix(self, *args):
         """
@@ -223,7 +156,7 @@ class LammpsBase:
         value
             Fix data corresponding to the requested dimensions
         """
-        return self._send_and_receive_dict(command="extract_fix", data=list(args))
+        return super().extract_fix(*args).result()
 
     def extract_variable(self, *args):
         """
@@ -251,7 +184,7 @@ class LammpsBase:
         Currently only returns the information provided on a single processor
 
         """
-        return self._send_and_receive_dict(command="extract_variable", data=list(args))
+        return super().extract_variable(*args).result()
 
     @property
     def natoms(self):
@@ -270,7 +203,7 @@ class LammpsBase:
         natoms : int
             number of atoms
         """
-        return self._send_and_receive_dict(command="get_natoms", data=[])
+        return super().get_natoms().result()
 
     def set_variable(self, *args):
         """
@@ -289,7 +222,7 @@ class LammpsBase:
         flag : int
             0 if successfull, -1 otherwise
         """
-        return self._send_and_receive_dict(command="set_variable", data=list(args))
+        return super().set_variable(*args).result()
 
     def reset_box(self, *args):
         """
@@ -306,7 +239,7 @@ class LammpsBase:
         xy, yz, xz : floats
             box tilts
         """
-        _ = self._send_and_receive_dict(command="reset_box", data=list(args))
+        _ = super().reset_box(*args).result()
 
     def generate_atoms(
         self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
@@ -340,8 +273,12 @@ class LammpsBase:
         None
 
         """
-        self.create_atoms(
-            ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+        _ = (
+            super()
+            .generate_atoms(
+                ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            )
+            .result()
         )
 
     def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False):
@@ -377,42 +314,41 @@ class LammpsBase:
         None
 
         """
-
-        if x is not None:
-            funct_args = [n, id, type, x, v, image, shrinkexceed]
-            _ = self._send_and_receive_dict(command="create_atoms", data=funct_args)
-        else:
-            raise TypeError("Value of x cannot be None")
+        _ = (
+            super()
+            .create_atoms(
+                n=n, id=id, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            )
+            .result()
+        )
 
     @property
     def has_exceptions(self):
         """Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled"""
-        return self._send_and_receive_dict(command="has_exceptions", data=[])
+        return super().has_exceptions.result()
 
     @property
     def has_gzip_support(self):
-        return self._send_and_receive_dict(command="has_gzip_support", data=[])
+        return super().has_gzip_support.result()
 
     @property
     def has_png_support(self):
-        return self._send_and_receive_dict(command="has_png_support", data=[])
+        return super().has_png_support.result()
 
     @property
     def has_jpeg_support(self):
-        return self._send_and_receive_dict(command="has_jpeg_support", data=[])
+        return super().has_jpeg_support.result()
 
     @property
     def has_ffmpeg_support(self):
-        return self._send_and_receive_dict(command="has_ffmpeg_support", data=[])
+        return super().has_ffmpeg_support.result()
 
     @property
     def installed_packages(self):
-        return self._send_and_receive_dict(command="get_installed_packages", data=[])
+        return super().installed_packages.result()
 
     def set_fix_external_callback(self, *args):
-        _ = self._send_and_receive_dict(
-            command="set_fix_external_callback", data=list(args)
-        )
+        _ = super().set_fix_external_callback(*args).result()
 
     def get_neighlist(self, *args):
         """Returns an instance of :class:`NeighList` which wraps access to the neighbor list with the given index
@@ -421,7 +357,7 @@ class LammpsBase:
         :return: an instance of :class:`NeighList` wrapping access to neighbor list data
         :rtype:  NeighList
         """
-        return self._send_and_receive_dict(command="get_neighlist", data=list(args))
+        return super().get_neighlist(*args).result()
 
     def find_pair_neighlist(self, *args):
         """Find neighbor list index of pair style neighbor list
@@ -443,9 +379,7 @@ class LammpsBase:
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        return self._send_and_receive_dict(
-            command="find_pair_neighlist", data=list(args)
-        )
+        return super().find_pair_neighlist(*args).result()
 
     def find_fix_neighlist(self, *args):
         """Find neighbor list index of fix neighbor list
@@ -456,9 +390,7 @@ class LammpsBase:
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        return self._send_and_receive_dict(
-            command="find_fix_neighlist", data=list(args)
-        )
+        return super().find_fix_neighlist(*args).result()
 
     def find_compute_neighlist(self, *args):
         """Find neighbor list index of compute neighbor list
@@ -469,9 +401,7 @@ class LammpsBase:
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        return self._send_and_receive_dict(
-            command="find_compute_neighlist", data=list(args)
-        )
+        return super().find_compute_neighlist(*args).result()
 
     def get_neighlist_size(self, *args):
         """Return the number of elements in neighbor list with the given index
@@ -480,14 +410,10 @@ class LammpsBase:
         :return: number of elements in neighbor list with index idx
         :rtype:  int
         """
-        return self._send_and_receive_dict(
-            command="get_neighlist_size", data=list(args)
-        )
+        return super().get_neighlist_size(*args).result()
 
     def get_neighlist_element_neighbors(self, *args):
-        return self._send_and_receive_dict(
-            command="get_neighlist_element_neighbors", data=list(args)
-        )
+        return super().get_neighlist_element_neighbors(*args).result()
 
     def command(self, cmd):
         """
@@ -502,14 +428,7 @@ class LammpsBase:
         -------
         None
         """
-        if isinstance(cmd, list):
-            for c in cmd:
-                _ = self._send_and_receive_dict(command="command", data=c)
-        elif len(cmd.split("\n")) > 1:
-            for c in cmd.split("\n"):
-                _ = self._send_and_receive_dict(command="command", data=c)
-        else:
-            _ = self._send_and_receive_dict(command="command", data=cmd)
+        _ = super().command(cmd=cmd).result()
 
     def gather_atoms(self, *args, concat=False, ids=None):
         """
@@ -543,18 +462,7 @@ class LammpsBase:
         --------
         extract_atoms
         """
-        if concat:
-            return self._send_and_receive_dict(
-                command="gather_atoms_concat", data=list(args)
-            )
-        elif ids is not None:
-            lenids = len(ids)
-            args = list(args)
-            args.append(len(ids))
-            args.append(ids)
-            return self._send_and_receive_dict(command="gather_atoms_subset", data=args)
-        else:
-            return self._send_and_receive_dict(command="gather_atoms", data=list(args))
+        return super().gather_atoms(*args, concat=concat, ids=ids).result()
 
     def scatter_atoms(self, *args, ids=None):
         """
@@ -563,14 +471,7 @@ class LammpsBase:
         Args:
             *args:
         """
-        if ids is not None:
-            lenids = len(ids)
-            args = list(args)
-            args.append(len(ids))
-            args.append(ids)
-            _ = self._send_and_receive_dict(command="scatter_atoms_subset", data=args)
-        else:
-            _ = self._send_and_receive_dict(command="scatter_atoms", data=list(args))
+        _ = super().scatter_atoms(*args, ids=ids).result()
 
     def get_thermo(self, *args):
         """
@@ -587,7 +488,7 @@ class LammpsBase:
             value of the thermo keyword
 
         """
-        return self._send_and_receive_dict(command="get_thermo", data=list(args))
+        return super().get_thermo(*args).result()
 
     # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
@@ -622,24 +523,8 @@ class LammpsBase:
             data computed by the fix depending on the chosen inputs
 
         """
-        args = [id, style, type, length, width]
-        return self._send_and_receive_dict(command="extract_compute", data=args)
-
-    def close(self):
-        """
-        Close the current lammps object
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-        """
-        self._interface.shutdown(wait=True)
-
-    # TODO
-    def __del__(self):
-        if self._process is not None:
-            self.close()
+        return (
+            super()
+            .extract_compute(id=id, style=style, type=type, length=length, width=width)
+            .result()
+        )

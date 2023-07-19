@@ -2,11 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - openmpi
-- mpi4py
-- numpy
+- numpy =1.23.5
 - lammps >=2021.05.27
-- pytest
-- distributed
-- dask-jobqueue
 - mpi4py =3.1.4
-- pympipool =0.5.2
+- pympipool =0.5.5
