@@ -4,3 +4,6 @@ dependencies:
   - nbsphinx
   - sphinx
   - myst-parser
+  - numpy
+  - mpi4py
+  - pympipool
