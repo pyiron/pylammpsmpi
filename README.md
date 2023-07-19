@@ -1,291 +1,61 @@
-# `PyLammpsMPI`
+# pylammpsmpi - Parallel Lammps Python interface
 [![Coverage Status](https://coveralls.io/repos/github/pyiron/pylammpsmpi/badge.svg)](https://coveralls.io/github/pyiron/pylammpsmpi)
 [![Python package](https://github.com/pyiron/pylammpsmpi/workflows/Python%20package/badge.svg)](https://github.com/pyiron/pylammpsmpi/actions)
 
-## Install with pip 
-
-```bash
-pip install pylammpsmpi
-```
-
-## Example usage
-
-### Setting up a simulation
-
-
-```python
-from pylammpsmpi import LammpsLibrary
-```
-
-Set up a job which runs on 2 cores
-
-
-```python
-lmp = LammpsLibrary(cores=2)
-```
-
-Read an input file
-
-
-```python
-lmp.file("tests/in.simple")
-```
-
-Check version of lammps
-
-
-```python
-lmp.version
-```
-
-
-
-
-    20190807
-
-
-
-Check number of atoms
-
-
-```python
-lmp.natoms
-```
-
-
-
-
-    256
-
-
-
-### Run commands
-
-
-```python
-lmp.command("run 1")
-```
-
-
-```python
-lmp.command(["run 1", "run 1"])
-```
-
-Commands can also be direct
-
-
-```python
-lmp.run(10)
-```
-
-
-```python
-lmp.mass(1, 20)
-```
-
-### Extract a global property
-
-
-```python
-lmp.extract_global("boxxhi")
-```
-
-
-
-
-    6.718384765530029
-
-
-
-### Access thermo quantities
-
-
-```python
-lmp.get_thermo("temp")
-```
-
-
-
-
-    array(1.12985322)
-
-
-
-Thermo quantities can also be accessed directly,
-
-
-```python
-lmp.temp
-```
-
-
-
-
-    array(1.12985322)
-
-
-
-
-```python
-lmp.press
-```
-
-
-
-
-    array(-2.60581752)
-
-
-
-### Accessing simulation box
-
-
-```python
-lmp.extract_box()
-```
-
-
-
-
-    ([0.0, 0.0, 0.0],
-     [6.718384765530029, 6.718384765530029, 6.718384765530029],
-     0.0,
-     0.0,
-     0.0,
-     [1, 1, 1],
-     0)
-
-
-
-### Accessing and changing atom properties
-
-Get individual atom properties, for example force on each atoms
-
-
-```python
-ff = lmp.gather_atoms("f")
-print(type(ff))
-print(len(ff))
-```
-
-    <class 'numpy.ndarray'>
-    256
-
-
-Get atom properties by their ids
-
-
-```python
-ids = lmp.gather_atoms("id")
-```
-
-
-```python
-ff = lmp.gather_atoms("f", ids=ids[:10])
-len(ff)
-```
-
-
-
-
-    10
-
-
-
-Change atom properties
-
-
-```python
-ff = ff*0.5
-lmp.scatter_atoms("f", ff, ids=ids[:10])
-```
-
-### Access value of variables
-
-
-```python
-temp = lmp.extract_variable("tt", "all", 0)
-temp
-```
-
-
-
-
-    0.8846341461467611
-
-
-
-### Access value of computes
-
-
-```python
-ke = lmp.extract_compute("ke", 1, 1)
-len(ke)
-```
-
-
-
-
-    256
-
-
-
-
-```python
-v = lmp.extract_compute("v", 1, 2, width=3)
-v.shape
-```
-
-
-
-
-    (256, 3)
-
-
-
-
-```python
-lmp.extract_compute("1", 0, 0)
-```
-
-
-
-
-    0.8846341461467611
-
-
-
-
-```python
-msd = lmp.extract_compute("msd", 0, 1, length=4)
-msd[0]
-```
-
-
-
-
-    0.005507481618069701
-
-
-
-### Access values from fix
-
-
-```python
-x = lmp.extract_fix("2", 0, 1, 1)
-x
-```
-
-
-
-
-    -2.605817524153117
-
-
-
-### Change the simulation box
-
-
-```python
-lmp.reset_box([0.0,0.0,0.0], [8.0,8.0,8.0], 0.0,0.0,0.0)
-```
+With `pylammpsmpi` you can control a `mpi4py` parallel LAMMPS instance from a serial python process or a Jupyter 
+notebook. Internally `pylammpsmpi` leverages the `pympipool` communication interface to connect the serial python 
+process the user interacts with, with the `mpi4py` parallel LAMMPS instance. The advantage of separating the `mpi4py` 
+parallel LAMMPS instance from the rest of the workflow is that the workflow can be written as serial python code, while
+still benefiting from the parallel performance of LAMMPS. Still this comes at the cost of additional data transfer, as 
+the LAMMPS pointers cannot be transferred this way and the linked data has to be copied instead. So copying large 
+atomistic structures can decrease the performance of the `pylammpsmpi` interface in comparison to writing your own fully
+`mpi4py` parallel LAMMPS workflows.
+
+# Interfaces
+The `pylammpsmpi` module implements three different interfaces for different use cases:
+
+* `pylammpsmpi.LammpsBase`: The most basic interface is the `LammpsBase`, it implements the same commands like the 
+  default `lammps.lammps` interface and returns the same datatypes. With this API compatibility to the standard 
+  interface, this interface is commonly the easiest way to accelerate a serial LAMMPS based workflow by leveraging 
+  `mpi4py` parallel LAMMPS instances.
+* `pylammpsmpi.LammpsConcurrent`: Inspired by the `concurrent.futures` module in the standard python library the 
+  `pylammpsmpi.LammpsConcurrent` interface implements the same API as the `pylammpsmpi.LammpsBase` class but rather than 
+  holding the controlling process until the `mpi4py` parallel LAMMPS instance finishes the execution of a given set of
+  commands, the `pylammpsmpi.LammpsConcurrent` interface returns a `concurrent.futures.Future` object. This enables the 
+  development of asynchronous / concurrent workflows.
+* `pylammpsmpi.LammpsLibrary`: Finally, the `pylammpsmpi.LammpsLibrary` interface adds a higher level interface on top 
+  of the default `lammps.lammps` interface. This higher level interface provides direct access to the commands and 
+  thermodynamic properties used in the LAMMPS input files. Especially for experienced LAMMPS users who are familiar with
+  the LAMMPS input files this interface simplifies switching from file based input to using the python interface.
+
+The choice of interface depends on the users background, experience and the simulation protocol the user wants to
+implement. Still internally all three interfaces are based on the `pylammpsmpi.LammpsConcurrent` interface, so they use 
+an additional thread to connect the `mpi4py` parallel LAMMPS instance to the serial python process or Jupyter notebook.
+
+# Documentation
+* [Installation](https://pylammpsmpi.readthedocs.io/en/latest/installation.html)
+  * [conda-based installation](https://pylammpsmpi.readthedocs.io/en/latest/installation.html#conda-based-installation)
+  * [pypi-based installation](https://pylammpsmpi.readthedocs.io/en/latest/installation.html#pypi-based-installation)
+* [Interfaces](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html) 
+  * [LammpsBase](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html#lammpsbase)
+  * [LammpsConcurrent](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html#lammpsconcurrent)
+  * [LammpsLibrary](https://pylammpsmpi.readthedocs.io/en/latest/interfaces.html#lammpslibrary)
+* [Development](https://pylammpsmpi.readthedocs.io/en/latest/development.html) 
+
+# License
+`pylammpsmpi` is released under the BSD license https://github.com/pyiron/pympipool/blob/main/LICENSE . It is a spin-off
+of the `pyiron` project https://github.com/pyiron/pyiron therefore if you use `pylammpsmpi` for calculation which result
+in a scientific publication, please cite: 
+
+    @article{pyiron-paper,
+      title = {pyiron: An integrated development environment for computational materials science},
+      journal = {Computational Materials Science},
+      volume = {163},
+      pages = {24 - 36},
+      year = {2019},
+      issn = {0927-0256},
+      doi = {https://doi.org/10.1016/j.commatsci.2018.07.043},
+      url = {http://www.sciencedirect.com/science/article/pii/S0927025618304786},
+      author = {Jan Janssen and Sudarsan Surendralal and Yury Lysogorskiy and Mira Todorova and Tilmann Hickel and Ralf Drautz and Jörg Neugebauer},
+      keywords = {Modelling workflow, Integrated development environment, Complex simulation protocols},
+    }
