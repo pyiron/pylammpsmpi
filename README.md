@@ -43,9 +43,9 @@ an additional thread to connect the `mpi4py` parallel LAMMPS instance to the ser
 * [Development](https://pylammpsmpi.readthedocs.io/en/latest/development.html) 
 
 # License
-`pylammpsmpi` is released under the BSD license https://github.com/pyiron/pympipool/blob/main/LICENSE . It is a spin-off
-of the `pyiron` project https://github.com/pyiron/pyiron therefore if you use `pylammpsmpi` for calculation which result
-in a scientific publication, please cite: 
+`pylammpsmpi` is released under the BSD license https://github.com/pyiron/pylammpsmpi/blob/main/LICENSE . It is a 
+spin-off of the `pyiron` project https://github.com/pyiron/pyiron therefore if you use `pylammpsmpi` for calculation 
+which result in a scientific publication, please cite: 
 
     @article{pyiron-paper,
       title = {pyiron: An integrated development environment for computational materials science},
