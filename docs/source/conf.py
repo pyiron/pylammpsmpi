@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'pympipool'
+project = 'pylammpsmpi'
 copyright = '2020, Jan Janssen, Sarath Menon'
 author = 'Jan Janssen, Sarath Menon'
 
