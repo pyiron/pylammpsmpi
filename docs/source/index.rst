@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Parallel Lammps Python interface
-================================
+pylammpsmpi - Parallel Lammps Python interface
+==============================================
 With :code:`pylammpsmpi` you can control a :code:`mpi4py` parallel LAMMPS instance from a serial python process or a
 Jupyter notebook. Internally :code:`pylammpsmpi` leverages the :code:`pympipool` communication interface to connect the
 serial python process the user interacts with, with the :code:`mpi4py` parallel LAMMPS instance. The advantage of

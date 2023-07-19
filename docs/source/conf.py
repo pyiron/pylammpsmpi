@@ -31,4 +31,4 @@ html_static_path = ['_static']
 # https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
 
 from sphinx.ext.apidoc import main
-main(['-e', '-o', 'apidoc', '../../pympipool/', '--force'])
+main(['-e', '-o', 'apidoc', '../../pylammpsmpi/', '--force'])
