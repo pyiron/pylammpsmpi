@@ -104,8 +104,9 @@ class LammpsConcurrent:
         self._cmdargs = cmdargs
         self._queue_adapter = queue_adapter
         self._queue_adapter_kwargs = queue_adapter_kwargs
+        self._start_process()
 
-    def start_process(self):
+    def _start_process(self):
         self._process = RaisingThread(
             target=execute_async,
             kwargs={
