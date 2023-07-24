@@ -5,4 +5,4 @@ dependencies:
 - numpy =1.23.5
 - lammps >=2021.05.27
 - mpi4py =3.1.4
-- pympipool =0.5.5
+- pympipool =0.5.6
