@@ -22,7 +22,13 @@ __date__ = "Feb 28, 2020"
 
 
 def _initialize_socket(
-    interface, cmdargs, cwd, cores, oversubscribe=False, enable_flux_backend=False, enable_slurm_backend=False,
+    interface,
+    cmdargs,
+    cwd,
+    cores,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    enable_slurm_backend=False,
 ):
     port_selected = interface.bind_to_random_port()
     executable = os.path.join(
