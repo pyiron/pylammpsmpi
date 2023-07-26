@@ -245,6 +245,7 @@ class LammpsLibrary:
         cores=1,
         oversubscribe=False,
         enable_flux_backend=False,
+        enable_slurm_backend=False,
         working_directory=".",
         client=None,
         mode="local",
@@ -256,12 +257,14 @@ class LammpsLibrary:
         self.working_directory = working_directory
         self.oversubscribe = oversubscribe
         self.enable_flux_backend = enable_flux_backend
+        self.enable_slurm_backend = enable_slurm_backend
         self.client = client
         self.mode = mode
         self.lmp = LammpsConcurrent(
             cores=self.cores,
             oversubscribe=self.oversubscribe,
             enable_flux_backend=self.enable_flux_backend,
+            enable_slurm_backend=self.enable_slurm_backend,
             working_directory=self.working_directory,
             cmdargs=cmdargs,
             queue_adapter=queue_adapter,
