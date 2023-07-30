@@ -21,46 +21,6 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 
-def _initialize_socket(
-    interface,
-    cmdargs,
-    cwd,
-    cores,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
-):
-    port_selected = interface.bind_to_random_port()
-    executable = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
-    )
-    if enable_flux_backend:
-        cmds = ["flux", "run"]
-    elif enable_slurm_backend:
-        cmds = ["srun"]
-    else:
-        cmds = ["mpiexec"]
-    if oversubscribe:
-        cmds += ["--oversubscribe"]
-    cmds += [
-        "-n",
-        str(cores),
-        "python",
-        executable,
-        "--zmqport",
-        str(port_selected),
-    ]
-    if enable_flux_backend or enable_slurm_backend:
-        cmds += [
-            "--host",
-            socket.gethostname(),
-        ]
-    if cmdargs is not None:
-        cmds.extend(cmdargs)
-    interface.bootup(command_lst=cmds, cwd=cwd)
-    return interface
-
-
 def execute_async(
     future_queue,
     cmdargs=None,
