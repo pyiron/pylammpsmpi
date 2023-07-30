@@ -4,5 +4,11 @@ from pylammpsmpi.wrapper.base import LammpsBase
 
 from ._version import get_versions
 
+try:
+    from pylammpsmpi.wrapper.ase import LammpsASELibrary
+except ImportError:
+    pass
+
+
 __version__ = get_versions()["version"]
 del get_versions

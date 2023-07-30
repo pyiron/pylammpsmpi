@@ -21,7 +21,6 @@ class TestLammpsBase(unittest.TestCase):
             working_directory=".",
             cmdargs=["-cite", cls.citation_file]
         )
-        cls.lmp.start_process()
         cls.lmp.file(cls.lammps_file)
 
     @classmethod

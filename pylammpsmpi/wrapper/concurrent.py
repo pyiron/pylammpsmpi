@@ -22,7 +22,13 @@ __date__ = "Feb 28, 2020"
 
 
 def _initialize_socket(
-    interface, cmdargs, cwd, cores, oversubscribe=False, enable_flux_backend=False
+    interface,
+    cmdargs,
+    cwd,
+    cores,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    enable_slurm_backend=False,
 ):
     port_selected = interface.bind_to_random_port()
     executable = os.path.join(
@@ -30,6 +36,8 @@ def _initialize_socket(
     )
     if enable_flux_backend:
         cmds = ["flux", "run"]
+    elif enable_slurm_backend:
+        cmds = ["srun"]
     else:
         cmds = ["mpiexec"]
     if oversubscribe:
@@ -42,7 +50,7 @@ def _initialize_socket(
         "--zmqport",
         str(port_selected),
     ]
-    if enable_flux_backend:
+    if enable_flux_backend or enable_slurm_backend:
         cmds += [
             "--host",
             socket.gethostname(),
@@ -59,6 +67,7 @@ def execute_async(
     cores=1,
     oversubscribe=False,
     enable_flux_backend=False,
+    enable_slurm_backend=False,
     cwd=None,
     queue_adapter=None,
     queue_adapter_kwargs=None,
@@ -77,7 +86,7 @@ def execute_async(
         gpus_per_core=0,
         oversubscribe=oversubscribe,
         enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=False,
+        enable_slurm_backend=enable_slurm_backend,
         queue_adapter=queue_adapter,
         queue_type=None,
         queue_adapter_kwargs=queue_adapter_kwargs,
@@ -99,6 +108,7 @@ class LammpsConcurrent:
         cores=8,
         oversubscribe=False,
         enable_flux_backend=False,
+        enable_slurm_backend=False,
         working_directory=".",
         cmdargs=None,
         queue_adapter=None,
@@ -110,11 +120,13 @@ class LammpsConcurrent:
         self._process = None
         self._oversubscribe = oversubscribe
         self._enable_flux_backend = enable_flux_backend
+        self._enable_slurm_backend = enable_slurm_backend
         self._cmdargs = cmdargs
         self._queue_adapter = queue_adapter
         self._queue_adapter_kwargs = queue_adapter_kwargs
+        self._start_process()
 
-    def start_process(self):
+    def _start_process(self):
         self._process = RaisingThread(
             target=execute_async,
             kwargs={
@@ -123,6 +135,7 @@ class LammpsConcurrent:
                 "cores": self.cores,
                 "oversubscribe": self._oversubscribe,
                 "enable_flux_backend": self._enable_flux_backend,
+                "enable_slurm_backend": self._enable_slurm_backend,
                 "cwd": self.working_directory,
                 "queue_adapter": self._queue_adapter,
                 "queue_adapter_kwargs": self._queue_adapter_kwargs,
