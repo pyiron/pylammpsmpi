@@ -6,7 +6,7 @@ import os
 import socket
 from concurrent.futures import Future
 from queue import Queue
-from pympipool import RaisingThread, SocketInterface, cancel_items_in_queue
+from pympipool import RaisingThread, cancel_items_in_queue, interface_bootup
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -55,23 +55,32 @@ def _initialize_socket(
 
 def execute_async(
     future_queue,
-    cmdargs,
-    cores,
+    cmdargs=None,
+    cores=1,
     oversubscribe=False,
     enable_flux_backend=False,
     cwd=None,
     queue_adapter=None,
     queue_adapter_kwargs=None,
 ):
-    interface = _initialize_socket(
-        interface=SocketInterface(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
-        ),
-        cmdargs=cmdargs,
+    executable = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
+    )
+    if cmdargs is not None:
+        command_lst = ["python", executable, cmdargs]
+    else:
+        command_lst = ["python", executable]
+    interface = interface_bootup(
+        command_lst=command_lst,
         cwd=cwd,
         cores=cores,
-        enable_flux_backend=enable_flux_backend,
+        gpus_per_core=0,
         oversubscribe=oversubscribe,
+        enable_flux_backend=enable_flux_backend,
+        enable_slurm_backend=False,
+        queue_adapter=queue_adapter,
+        queue_type=None,
+        queue_adapter_kwargs=queue_adapter_kwargs,
     )
     while True:
         task_dict = future_queue.get()

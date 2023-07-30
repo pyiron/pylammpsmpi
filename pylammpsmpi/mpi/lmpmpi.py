@@ -8,10 +8,10 @@ import numpy as np
 import sys
 from lammps import lammps
 from pympipool import (
-    connect_to_socket_interface,
-    send_result,
-    close_connection,
-    receive_instruction,
+    interface_connect,
+    interface_send,
+    interface_shutdown,
+    interface_receive,
 )
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -463,37 +463,40 @@ def _gather_data_from_all_processors(data):
 
 
 def _run_lammps_mpi(argument_lst):
+    index_selected = argument_lst.index("--zmqport")
+    port_selected = argument_lst[index_selected + 1]
+    if "--host" in argument_lst:
+        index_selected = argument_lst.index("--host")
+        host = argument_lst[index_selected + 1]
+    else:
+        host = "localhost"
+    argument_red_lst = argument_lst[:index_selected - 1]
     if MPI.COMM_WORLD.rank == 0:
-        port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
-        if "--host" in argument_lst:
-            host = argument_lst[argument_lst.index("--host") + 1]
-        else:
-            host = "localhost"
-        context, socket = connect_to_socket_interface(host=host, port=port_selected)
+        context, socket = interface_connect(host=host, port=port_selected)
     else:
         context, socket = None, None
     # Lammps executable
     args = ["-screen", "none"]
-    if len(argument_lst) > 3:
-        args.extend(argument_lst[3:])
+    if len(argument_red_lst) > 1:
+        args.extend(argument_red_lst[1:])
     job = lammps(cmdargs=args)
     while True:
         if MPI.COMM_WORLD.rank == 0:
-            input_dict = receive_instruction(socket=socket)
+            input_dict = interface_receive(socket=socket)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
         if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             job.close()
             if MPI.COMM_WORLD.rank == 0:
-                send_result(socket=socket, result_dict={"result": True})
-                close_connection(socket=socket, context=context)
+                interface_send(socket=socket, result_dict={"result": True})
+                interface_shutdown(socket=socket, context=context)
             break
         output = select_cmd(input_dict["command"])(
             job=job, funct_args=input_dict["args"]
         )
         if MPI.COMM_WORLD.rank == 0 and output is not None:
-            send_result(socket=socket, result_dict={"result": output})
+            interface_send(socket=socket, result_dict={"result": output})
 
 
 if __name__ == "__main__":
