@@ -470,7 +470,7 @@ def _run_lammps_mpi(argument_lst):
         host = argument_lst[index_selected + 1]
     else:
         host = "localhost"
-    argument_red_lst = argument_lst[:index_selected - 1]
+    argument_red_lst = argument_lst[: index_selected - 1]
     if MPI.COMM_WORLD.rank == 0:
         context, socket = interface_connect(host=host, port=port_selected)
     else:
