@@ -76,7 +76,7 @@ def execute_async(
         os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
     )
     if cmdargs is not None:
-        command_lst = ["python", executable, cmdargs]
+        command_lst = ["python", executable] + cmdargs
     else:
         command_lst = ["python", executable]
     interface = interface_bootup(
