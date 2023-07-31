@@ -6,7 +6,7 @@ dependencies:
   - codacy-coverage
   - lammps =2023.03.28
   - openmpi
-  - numpy =1.23.5
+  - numpy =1.24.3
   - mpi4py =3.1.4
   - pympipool =0.6.1
   - ase =3.22.1
