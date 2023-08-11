@@ -22,8 +22,8 @@ __date__ = "Feb 28, 2020"
 
 def execute_async(
     future_queue,
-    cmdargs,
-    cores,
+    cmdargs=None,
+    cores=1,
     oversubscribe=False,
     cwd=None,
 ):

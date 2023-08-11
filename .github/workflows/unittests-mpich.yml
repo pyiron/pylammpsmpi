@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.9', '3.10', '3.11']
 
     steps:
     - uses: actions/checkout@v2
@@ -33,4 +33,5 @@ jobs:
         pip install --no-deps .
     - name: Test
       shell: bash -l {0}
+      timeout-minutes: 5
       run: coverage run --omit pylammpsmpi/_version.py -m unittest discover tests

@@ -463,19 +463,22 @@ def _gather_data_from_all_processors(data):
 
 
 def _run_lammps_mpi(argument_lst):
+    index_selected = argument_lst.index("--zmqport")
+    port_selected = argument_lst[index_selected + 1]
+    if "--host" in argument_lst:
+        index_selected = argument_lst.index("--host")
+        host = argument_lst[index_selected + 1]
+    else:
+        host = "localhost"
+    argument_red_lst = argument_lst[:index_selected]
     if MPI.COMM_WORLD.rank == 0:
-        port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
-        if "--host" in argument_lst:
-            host = argument_lst[argument_lst.index("--host") + 1]
-        else:
-            host = "localhost"
         context, socket = interface_connect(host=host, port=port_selected)
     else:
         context, socket = None, None
     # Lammps executable
     args = ["-screen", "none"]
-    if len(argument_lst) > 5:
-        args.extend(argument_lst[5:])
+    if len(argument_red_lst) > 1:
+        args.extend(argument_red_lst[1:])
     job = lammps(cmdargs=args)
     while True:
         if MPI.COMM_WORLD.rank == 0:
