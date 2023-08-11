@@ -20,22 +20,6 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 
-def _initialize_socket(
-    connections,
-    cmdargs,
-):
-    executable = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
-    )
-    cmds = ["python", executable]
-    if cmdargs is not None:
-        cmds.extend(cmdargs)
-    return interface_bootup(
-        command_lst=cmds,
-        connections=connections,
-    )
-
-
 def execute_async(
     future_queue,
     cmdargs,
@@ -43,7 +27,14 @@ def execute_async(
     oversubscribe=False,
     cwd=None,
 ):
-    interface = _initialize_socket(
+    executable = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
+    )
+    cmds = ["python", executable]
+    if cmdargs is not None:
+        cmds.extend(cmdargs)
+    interface = interface_bootup(
+        command_lst=cmds,
         connections=MpiExecInterface(
             cwd=cwd,
             cores=cores,
@@ -51,7 +42,6 @@ def execute_async(
             gpus_per_core=0,
             oversubscribe=oversubscribe,
         ),
-        cmdargs=cmdargs,
     )
     while True:
         task_dict = future_queue.get()
