@@ -3,10 +3,9 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
-import socket
 from concurrent.futures import Future
 from queue import Queue
-from pympipool import RaisingThread, SocketInterface, cancel_items_in_queue
+from pympipool.shared import RaisingThread, interface_bootup, cancel_items_in_queue, MpiExecInterface
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -22,35 +21,20 @@ __date__ = "Feb 28, 2020"
 
 
 def _initialize_socket(
-    interface, cmdargs, cwd, cores, oversubscribe=False, enable_flux_backend=False
+    connections,
+    cmdargs,
 ):
-    port_selected = interface.bind_to_random_port()
     executable = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
+        os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
     )
-    if enable_flux_backend:
-        cmds = ["flux", "run"]
-    else:
-        cmds = ["mpiexec"]
-    if oversubscribe:
-        cmds += ["--oversubscribe"]
-    cmds += [
-        "-n",
-        str(cores),
-        "python",
-        executable,
-        "--zmqport",
-        str(port_selected),
-    ]
-    if enable_flux_backend:
-        cmds += [
-            "--host",
-            socket.gethostname(),
-        ]
+    cmds = ["python", executable]
     if cmdargs is not None:
         cmds.extend(cmdargs)
-    interface.bootup(command_lst=cmds, cwd=cwd)
-    return interface
+    print("commands:", cmds, file=open("/Users/janssen/PycharmProjects/pylammpsmpi/state.log", "a"))
+    return interface_bootup(
+        command_lst=cmds,
+        connections=connections,
+    )
 
 
 def execute_async(
@@ -58,20 +42,17 @@ def execute_async(
     cmdargs,
     cores,
     oversubscribe=False,
-    enable_flux_backend=False,
     cwd=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
 ):
     interface = _initialize_socket(
-        interface=SocketInterface(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+        connections=MpiExecInterface(
+            cwd=cwd,
+            cores=cores,
+            threads_per_core=1,
+            gpus_per_core=0,
+            oversubscribe=oversubscribe,
         ),
         cmdargs=cmdargs,
-        cwd=cwd,
-        cores=cores,
-        enable_flux_backend=enable_flux_backend,
-        oversubscribe=oversubscribe,
     )
     while True:
         task_dict = future_queue.get()
@@ -89,21 +70,15 @@ class LammpsConcurrent:
         self,
         cores=8,
         oversubscribe=False,
-        enable_flux_backend=False,
         working_directory=".",
         cmdargs=None,
-        queue_adapter=None,
-        queue_adapter_kwargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
         self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
-        self._enable_flux_backend = enable_flux_backend
         self._cmdargs = cmdargs
-        self._queue_adapter = queue_adapter
-        self._queue_adapter_kwargs = queue_adapter_kwargs
         self._start_process()
 
     def _start_process(self):
@@ -114,10 +89,7 @@ class LammpsConcurrent:
                 "cmdargs": self._cmdargs,
                 "cores": self.cores,
                 "oversubscribe": self._oversubscribe,
-                "enable_flux_backend": self._enable_flux_backend,
                 "cwd": self.working_directory,
-                "queue_adapter": self._queue_adapter,
-                "queue_adapter_kwargs": self._queue_adapter_kwargs,
             },
         )
         self._process.start()
