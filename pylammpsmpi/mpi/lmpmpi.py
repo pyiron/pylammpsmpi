@@ -469,7 +469,6 @@ def _run_lammps_mpi(argument_lst):
             host = argument_lst[argument_lst.index("--host") + 1]
         else:
             host = "localhost"
-        print("commands:", host, port_selected, argument_lst, file=open("/Users/janssen/PycharmProjects/pylammpsmpi/cmd.log", "a"))
         context, socket = interface_connect(host=host, port=port_selected)
     else:
         context, socket = None, None

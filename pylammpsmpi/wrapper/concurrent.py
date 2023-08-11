@@ -30,7 +30,6 @@ def _initialize_socket(
     cmds = ["python", executable]
     if cmdargs is not None:
         cmds.extend(cmdargs)
-    print("commands:", cmds, file=open("/Users/janssen/PycharmProjects/pylammpsmpi/state.log", "a"))
     return interface_bootup(
         command_lst=cmds,
         connections=connections,
