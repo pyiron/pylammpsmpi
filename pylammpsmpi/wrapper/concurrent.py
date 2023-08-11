@@ -5,7 +5,12 @@
 import os
 from concurrent.futures import Future
 from queue import Queue
-from pympipool.shared import RaisingThread, interface_bootup, cancel_items_in_queue, MpiExecInterface
+from pympipool.shared import (
+    RaisingThread,
+    interface_bootup,
+    cancel_items_in_queue,
+    MpiExecInterface,
+)
 
 
 __author__ = "Sarath Menon, Jan Janssen"
