@@ -3,10 +3,14 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
-import socket
 from concurrent.futures import Future
 from queue import Queue
-from pympipool import RaisingThread, cancel_items_in_queue, interface_bootup
+from pympipool.shared import (
+    RaisingThread,
+    interface_bootup,
+    cancel_items_in_queue,
+    MpiExecInterface,
+)
 
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -26,30 +30,23 @@ def execute_async(
     cmdargs=None,
     cores=1,
     oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
     cwd=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
 ):
     executable = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "../mpi", "lmpmpi.py"
+        os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
     )
+    cmds = ["python", executable]
     if cmdargs is not None:
-        command_lst = ["python", executable] + cmdargs
-    else:
-        command_lst = ["python", executable]
+        cmds.extend(cmdargs)
     interface = interface_bootup(
-        command_lst=command_lst,
-        cwd=cwd,
-        cores=cores,
-        gpus_per_core=0,
-        oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=enable_slurm_backend,
-        queue_adapter=queue_adapter,
-        queue_type=None,
-        queue_adapter_kwargs=queue_adapter_kwargs,
+        command_lst=cmds,
+        connections=MpiExecInterface(
+            cwd=cwd,
+            cores=cores,
+            threads_per_core=1,
+            gpus_per_core=0,
+            oversubscribe=oversubscribe,
+        ),
     )
     while True:
         task_dict = future_queue.get()
@@ -67,23 +64,15 @@ class LammpsConcurrent:
         self,
         cores=8,
         oversubscribe=False,
-        enable_flux_backend=False,
-        enable_slurm_backend=False,
         working_directory=".",
         cmdargs=None,
-        queue_adapter=None,
-        queue_adapter_kwargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
         self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
-        self._enable_flux_backend = enable_flux_backend
-        self._enable_slurm_backend = enable_slurm_backend
         self._cmdargs = cmdargs
-        self._queue_adapter = queue_adapter
-        self._queue_adapter_kwargs = queue_adapter_kwargs
         self._start_process()
 
     def _start_process(self):
@@ -94,11 +83,7 @@ class LammpsConcurrent:
                 "cmdargs": self._cmdargs,
                 "cores": self.cores,
                 "oversubscribe": self._oversubscribe,
-                "enable_flux_backend": self._enable_flux_backend,
-                "enable_slurm_backend": self._enable_slurm_backend,
                 "cwd": self.working_directory,
-                "queue_adapter": self._queue_adapter,
-                "queue_adapter_kwargs": self._queue_adapter_kwargs,
             },
         )
         self._process.start()

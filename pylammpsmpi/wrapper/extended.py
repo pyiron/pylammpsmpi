@@ -244,31 +244,21 @@ class LammpsLibrary:
         self,
         cores=1,
         oversubscribe=False,
-        enable_flux_backend=False,
-        enable_slurm_backend=False,
         working_directory=".",
         client=None,
         mode="local",
         cmdargs=None,
-        queue_adapter=None,
-        queue_adapter_kwargs=None,
     ):
         self.cores = cores
         self.working_directory = working_directory
         self.oversubscribe = oversubscribe
-        self.enable_flux_backend = enable_flux_backend
-        self.enable_slurm_backend = enable_slurm_backend
         self.client = client
         self.mode = mode
         self.lmp = LammpsConcurrent(
             cores=self.cores,
             oversubscribe=self.oversubscribe,
-            enable_flux_backend=self.enable_flux_backend,
-            enable_slurm_backend=self.enable_slurm_backend,
             working_directory=self.working_directory,
             cmdargs=cmdargs,
-            queue_adapter=queue_adapter,
-            queue_adapter_kwargs=queue_adapter_kwargs,
         )
 
     def __getattr__(self, name):

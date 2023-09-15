@@ -13,7 +13,6 @@ class TestLammpsConcurrent(unittest.TestCase):
         cls.lmp = LammpsConcurrent(
             cores=1,
             oversubscribe=False,
-            enable_flux_backend=False,
             working_directory=".",
             cmdargs=["-cite", cls.citation_file]
         )
