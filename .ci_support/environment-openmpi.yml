@@ -8,6 +8,6 @@ dependencies:
   - openmpi
   - numpy =1.23.5
   - mpi4py =3.1.4
-  - pympipool =0.6.2
+  - pympipool =0.7.0
   - ase =3.22.1
-  - scipy =1.11.1
+  - scipy =1.11.2
