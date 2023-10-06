@@ -1,9 +1,7 @@
 channels:
   - conda-forge
 dependencies:
-  - coveralls
   - coverage
-  - codacy-coverage
   - lammps =2023.03.28
   - mpich
   - numpy =1.26.0
