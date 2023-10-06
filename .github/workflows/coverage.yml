@@ -31,9 +31,6 @@ jobs:
       shell: bash -l {0}
       run: |
         coverage run --omit pylammpsmpi/_version.py -m unittest discover tests
-    - name: Coverage
-      shell: bash -l {0}
-      run: |
         coverage combine
-        coveralls
-        coverage xml
+    - name: Coveralls
+      uses: coverallsapp/github-action@v2
