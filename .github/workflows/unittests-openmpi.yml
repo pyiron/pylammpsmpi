@@ -34,4 +34,4 @@ jobs:
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
-      run: coverage run --omit pylammpsmpi/_version.py -m unittest discover tests
+      run: cd tests; coverage run --omit pylammpsmpi/_version.py -m unittest discover .
