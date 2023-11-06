@@ -27,7 +27,7 @@ setup(
     keywords='lammps, mpi4py',
     packages=find_packages(exclude=["*tests*"]),
     install_requires=[
-        "mpi4py==3.1.5", "pympipool==0.7.2", "numpy==1.26.0"
+        "mpi4py==3.1.5", "pympipool==0.7.2", "numpy==1.26.1"
     ],
     extras_require={
         "ase": ["ase==3.22.1", "scipy==1.11.3"],
