@@ -43,8 +43,6 @@ def execute_async(
         connections=MpiExecInterface(
             cwd=cwd,
             cores=cores,
-            threads_per_core=1,
-            gpus_per_core=0,
             oversubscribe=oversubscribe,
         ),
     )
