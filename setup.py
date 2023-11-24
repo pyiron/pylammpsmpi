@@ -30,7 +30,7 @@ setup(
         "mpi4py==3.1.5", "pympipool==0.7.5", "numpy==1.26.0"
     ],
     extras_require={
-        "ase": ["ase==3.22.1", "scipy==1.11.3"],
+        "ase": ["ase==3.22.1", "scipy==1.11.4"],
     },
     cmdclass=versioneer.get_cmdclass(),
 )
