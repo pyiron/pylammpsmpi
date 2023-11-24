@@ -1,4 +1,4 @@
-name: UpdateDependabotPR
+name: Update DependabotPR
 
 on:
   pull_request_target:
