@@ -26,7 +26,8 @@ jobs:
     - name: Test
       shell: bash -l {0}
       run: |
-        pip install --no-deps .
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
         coverage run --omit pylammpsmpi/_version.py -m unittest discover tests
         coverage combine
     - name: Coveralls
