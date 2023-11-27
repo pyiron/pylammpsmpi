@@ -31,5 +31,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        pip install --no-deps .
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
         python -m unittest discover tests
