@@ -342,6 +342,15 @@ class LammpsASELibrary(object):
             ss = np.einsum("nij,kj->nik", ss, self._prism.R)
         return ss
 
+    def interactive_velocities_getter(self):
+        velocity = np.reshape(
+            np.array(self._interactive_library.gather_atoms("v", 1, 3)),
+            (len(self._structure), 3),
+        )
+        if _check_ortho_prism(prism=self._prism):
+            velocity = np.matmul(velocity, self._prism.R.T)
+        return velocity
+
     def close(self):
         if self._interactive_library is not None:
             self._interactive_library.close()
