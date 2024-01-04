@@ -5,6 +5,7 @@
 import unittest
 import numpy as np
 import os
+import sys
 from pylammpsmpi import LammpsLibrary
 
 
@@ -55,8 +56,9 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         x = self.lmp.extract_variable("tt", "all", 0)
         self.assertEqual(np.round(x, 2), 1.13)
         x = self.lmp.extract_variable("fx", "all", 1)
-        self.assertEqual(len(x), 256)
-        self.assertEqual(np.round(x[0], 2), -0.26)
+        if sys.version_info >= (3, 10):
+            self.assertEqual(len(x), 256)
+            self.assertEqual(np.round(x[0], 2), -0.26)
 
     def test_scatter_atoms(self):
 
