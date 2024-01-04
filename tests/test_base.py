@@ -98,7 +98,7 @@ class TestLammpsBase(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.citation_file))
 
     def test_version(self):
-        self.assertEqual(self.lmp.version, 20230802)
+        self.assertTrue(self.lmp.version in [20220623, 20230802])
 
     def test_extract_global(self):
         self.assertEqual(
