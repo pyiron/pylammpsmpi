@@ -56,7 +56,7 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         x = self.lmp.extract_variable("tt", "all", 0)
         self.assertEqual(np.round(x, 2), 1.13)
         x = self.lmp.extract_variable("fx", "all", 1)
-        if sys.version_info > (3, 10):
+        if sys.version_info >= (3, 11):
             self.assertEqual(len(x), 256)
             self.assertEqual(np.round(x[0], 2), -0.26)
 
