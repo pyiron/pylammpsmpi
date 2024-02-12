@@ -6,6 +6,6 @@ dependencies:
   - mpich
   - numpy =1.26.4
   - mpi4py =3.1.5
-  - pympipool =0.7.11
+  - pympipool =0.7.13
   - ase =3.22.1
   - scipy =1.12.0
