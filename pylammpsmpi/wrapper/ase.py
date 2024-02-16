@@ -23,6 +23,8 @@ class LammpsASELibrary(object):
         library=None,
         diable_log_file=True,
         sleep_interval=0.1,
+        oversubscribe=False,
+        cmdargs=None,
     ):
         self._logger = logger
         self._prism = None
@@ -46,7 +48,11 @@ class LammpsASELibrary(object):
                 )
         else:
             self._interactive_library = LammpsBase(
-                cores=self._cores, working_directory=working_directory, sleep_interval=sleep_interval,
+                cores=self._cores,
+                oversubscribe=oversubscribe,
+                working_directory=working_directory,
+                sleep_interval=sleep_interval,
+                cmdargs=cmdargs,
             )
 
     def interactive_lib_command(self, command):
