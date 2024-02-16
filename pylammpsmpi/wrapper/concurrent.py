@@ -4,7 +4,9 @@
 
 import os
 from concurrent.futures import Future
-from queue import Queue
+from queue import Empty, Queue
+from time import sleep
+
 from pympipool.shared import (
     RaisingThread,
     interface_bootup,
@@ -31,6 +33,7 @@ def execute_async(
     cores=1,
     oversubscribe=False,
     cwd=None,
+    sleep_interval=0.1,
 ):
     executable = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
@@ -47,14 +50,20 @@ def execute_async(
         ),
     )
     while True:
-        task_dict = future_queue.get()
-        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
-            interface.shutdown(wait=task_dict["wait"])
-            break
-        elif "command" in task_dict.keys() and "future" in task_dict.keys():
-            f = task_dict.pop("future")
-            if f.set_running_or_notify_cancel():
-                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+        try:
+            task_dict = future_queue.get_nowait()
+        except Empty:
+            sleep(sleep_interval)
+        else:
+            if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+                interface.shutdown(wait=task_dict["wait"])
+                future_queue.task_done()
+                break
+            elif "command" in task_dict.keys() and "future" in task_dict.keys():
+                f = task_dict.pop("future")
+                if f.set_running_or_notify_cancel():
+                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+            future_queue.task_done()
 
 
 class LammpsConcurrent:
@@ -64,12 +73,14 @@ class LammpsConcurrent:
         oversubscribe=False,
         working_directory=".",
         cmdargs=None,
+        sleep_interval=0.1,
     ):
         self.cores = cores
         self.working_directory = working_directory
         self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
+        self._sleep_interval = sleep_interval
         self._cmdargs = cmdargs
         self._start_process()
 
@@ -82,6 +93,7 @@ class LammpsConcurrent:
                 "cores": self.cores,
                 "oversubscribe": self._oversubscribe,
                 "cwd": self.working_directory,
+                "sleep_interval": self._sleep_interval,
             },
         )
         self._process.start()
