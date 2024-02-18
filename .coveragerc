@@ -1,5 +1,0 @@
-# .coveragerc to control coverage.py
-[run]
-source = pylammpsmpi
-omit = pylammpsmpi/_version.py
-concurrency = multiprocessing
