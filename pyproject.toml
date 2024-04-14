@@ -38,7 +38,7 @@ Repository = "https://github.com/pyiron/pylammpsmpi"
 [project.optional-dependencies]
 ase = [
     "ase==3.22.1",
-    "scipy==1.12.0",
+    "scipy==1.13.0",
 ]
 
 [tool.setuptools.packages.find]
