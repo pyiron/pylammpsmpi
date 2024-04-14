@@ -57,7 +57,7 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(np.round(x, 2), 1.13)
         x = self.lmp.extract_variable("fx", "all", 1)
         if sys.version_info >= (3, 11):
-            self.assertEqual(len(x), 256)
+            self.assertEqual(len(x), 512)
             self.assertEqual(np.round(x[0], 2), -0.26)
 
     def test_scatter_atoms(self):
