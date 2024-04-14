@@ -24,6 +24,7 @@ jobs:
           to=$(echo "$PR_TITLE" | awk '{print $6}')
           sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-openmpi.yml
           sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-mpich.yml
+          sed -i "/${package}/s/${from}/${to}/g" binder/environment.yml
       - name: UpdateDependabotPR commit
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
