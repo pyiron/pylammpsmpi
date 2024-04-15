@@ -51,6 +51,7 @@ class TestLammpsBase(unittest.TestCase):
 
         ids = self.lmp.extract_atom("id")
         self.assertEqual(len(ids), 256)
+        self.assertEqual(self.lmp.get_natoms(), 256)
 
     def test_extract_fix(self):
         x = self.lmp.extract_fix("2", 0, 1, 1)
@@ -95,6 +96,29 @@ class TestLammpsBase(unittest.TestCase):
 
     def test_cmdarg_options(self):
         self.assertTrue(os.path.isfile(self.citation_file))
+
+    def test_version(self):
+        self.assertTrue(self.lmp.version in [20220623, 20230802, 20231121, 20240207])
+
+    def test_extract_global(self):
+        self.assertEqual(
+            self.lmp.extract_global(name="boxhi"),
+            [6.718384765530029, 6.718384765530029, 6.718384765530029]
+        )
+        self.assertEqual(
+            self.lmp.extract_global(name="boxlo"),
+            [0.0, 0.0, 0.0]
+        )
+
+    def test_properties(self):
+        self.assertEqual(self.lmp.has_exceptions, True)
+        self.assertEqual(self.lmp.has_gzip_support, True)
+        self.assertEqual(self.lmp.has_png_support, True)
+        self.assertEqual(self.lmp.has_jpeg_support, True)
+        self.assertEqual(self.lmp.has_ffmpeg_support, False)
+
+    def test_get_thermo(self):
+        self.assertEqual(float(self.lmp.get_thermo("temp")), 1.1298532212880312)
 
 
 if __name__ == "__main__":

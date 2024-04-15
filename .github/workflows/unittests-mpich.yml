@@ -18,7 +18,7 @@ jobs:
         python-version: ['3.9', '3.10', '3.11', '3.12']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
@@ -27,11 +27,10 @@ jobs:
         channel-priority: strict
         use-mamba: true
         environment-file: .ci_support/environment-mpich.yml
-    - name: Setup
-      shell: bash -l {0}
-      run: |
-        pip install --no-deps .
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
-      run: coverage run --omit pylammpsmpi/_version.py -m unittest discover tests
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests

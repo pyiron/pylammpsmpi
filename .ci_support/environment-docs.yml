@@ -1,11 +1,11 @@
 channels:
 - conda-forge
 dependencies:
-  - nbsphinx
-  - sphinx
-  - myst-parser
-  - numpy
-  - mpi4py
-  - pympipool
-  - ase
-  - scipy
+- nbsphinx
+- sphinx
+- myst-parser
+- numpy
+- mpi4py
+- pympipool
+- ase
+- scipy

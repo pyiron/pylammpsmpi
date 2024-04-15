@@ -3,6 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
+import sys
 from concurrent.futures import Future
 from queue import Queue
 from pympipool.shared import (
@@ -35,7 +36,7 @@ def execute_async(
     executable = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
     )
-    cmds = ["python", executable]
+    cmds = [sys.executable, executable]
     if cmdargs is not None:
         cmds.extend(cmdargs)
     interface = interface_bootup(
@@ -43,8 +44,6 @@ def execute_async(
         connections=MpiExecInterface(
             cwd=cwd,
             cores=cores,
-            threads_per_core=1,
-            gpus_per_core=0,
             oversubscribe=oversubscribe,
         ),
     )

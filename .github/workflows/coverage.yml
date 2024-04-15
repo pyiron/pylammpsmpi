@@ -14,7 +14,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: "3.11"
@@ -23,14 +23,11 @@ jobs:
         channel-priority: strict
         use-mamba: true
         environment-file: .ci_support/environment-openmpi.yml
-    - name: Setup
-      shell: bash -l {0}
-      run: |
-        pip install --no-deps .
     - name: Test
       shell: bash -l {0}
       run: |
-        coverage run --omit pylammpsmpi/_version.py -m unittest discover tests
-        coverage combine
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        coverage run  --omit="pylammpsmpi/_version.py,tests/*" -m unittest discover tests
     - name: Coveralls
       uses: coverallsapp/github-action@v2

@@ -1,0 +1,55 @@
+[build-system]
+requires = ["mpi4py", "numpy", "pympipool", "setuptools", "versioneer[toml]==0.29"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pylammpsmpi"
+description = "Parallel Lammps Python interface - control a mpi4py parallel LAMMPS instance from a serial python process or a Jupyter notebook"
+authors = [
+    { name = "Jan Janssen", email = "janssen@mpie.de" },
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = ["pyiron"]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "mpi4py==3.1.5",
+    "pympipool==0.7.17",
+    "numpy==1.26.4",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/pyiron/pylammpsmpi"
+Documentation = "https://github.com/pyiron/pylammpsmpi"
+Repository = "https://github.com/pyiron/pylammpsmpi"
+
+[project.optional-dependencies]
+ase = [
+    "ase==3.22.1",
+    "scipy==1.13.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["pylammpsmpi*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pylammpsmpi.__version__"}
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440-pre"
+versionfile_source = "pylammpsmpi/_version.py"
+parentdir_prefix = "pylammpsmpi"
+tag_prefix = "pylammpsmpi-"
