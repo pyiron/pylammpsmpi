@@ -4,7 +4,7 @@ dependencies:
 - openmpi
 - numpy =1.26.4
 - lammps =2024.02.07
-- mpi4py =3.1.5
+- mpi4py =3.1.6
 - pympipool =0.7.18
 - ase =3.22.1
 - scipy =1.13.0
