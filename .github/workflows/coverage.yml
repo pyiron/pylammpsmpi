@@ -29,5 +29,6 @@ jobs:
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         coverage run  --omit="pylammpsmpi/_version.py,tests/*" -m unittest discover tests
+        coverage xml
     - name: Coveralls
       uses: coverallsapp/github-action@v2
