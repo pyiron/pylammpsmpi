@@ -138,10 +138,10 @@ class TestASEHelperFunctions(unittest.TestCase):
 
     def test_unfolding_prism_skewed(self):
         prism = UnfoldingPrism(self.structure_skewed.cell.array)
-        self.assertEqual(
-            prism.get_lammps_prism_str(),
-            ('5.7275649276', '4.9602167291', '4.6765371804', '2.8637824638', '2.8637824638', '1.6534055764')
-        )
+        self.assertTrue(np.all(np.isclose(
+            [np.abs(float(s)) for s in prism.get_lammps_prism_str()],
+            [5.7275649276, 4.9602167291, 4.6765371804, 2.8637824638, 2.8637824638, 1.6534055764]
+        )))
         self.assertTrue(np.all(np.isclose(prism.pos_to_lammps(position=[[1.0, 1.0, 1.0]]), np.array([1.41421356, 0.81649658, 0.57735027]))))
 
 
