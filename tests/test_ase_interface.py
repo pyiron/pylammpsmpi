@@ -1,3 +1,4 @@
+import logging
 import unittest
 
 from ase.build import bulk
@@ -12,13 +13,13 @@ class TestLammpsASELibrary(unittest.TestCase):
             working_directory=None,
             cores=1,
             comm=None,
-            logger=None,
+            logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
             library=LammpsLibrary(cores=2, mode='local'),
             diable_log_file=True,
         )
         structure = bulk("Al", cubic=True).repeat([2, 2, 2])
-        lmp.interactive_lib_command(command="units	lj")
+        lmp.interactive_lib_command(command="units lj")
         lmp.interactive_lib_command(command="atom_style atomic")
         lmp.interactive_lib_command(command="atom_modify map array")
         lmp.interactive_structure_setter(
@@ -57,7 +58,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             library=None,
             diable_log_file=True,
         ) as lmp:
-            lmp.interactive_lib_command(command="units	lj")
+            lmp.interactive_lib_command(command="units lj")
             lmp.interactive_lib_command(command="atom_style atomic")
             lmp.interactive_lib_command(command="atom_modify map array")
             lmp.interactive_structure_setter(
