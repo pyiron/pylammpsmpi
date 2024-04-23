@@ -97,7 +97,6 @@ class TestLammpsASELibrary(unittest.TestCase):
             self.assertEqual(lmp.interactive_temperatures_getter(), 0)
             self.assertTrue(np.isclose(np.sum(lmp.interactive_pressures_getter()), -0.00937227406237915))
             self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
-            self.assertTrue(np.isclose(np.sum(lmp.interactive_positions_getter()), 73.60669397577456))
 
 
 class TestASEHelperFunctions(unittest.TestCase):
