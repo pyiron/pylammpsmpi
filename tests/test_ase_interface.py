@@ -2,9 +2,11 @@ import logging
 import unittest
 
 from ase.build import bulk
+from ase.constraints import FixAtoms, FixedPlane, FixCom
 import numpy as np
 
 from pylammpsmpi import LammpsASELibrary, LammpsLibrary
+from pylammpsmpi.wrapper.ase import get_species_symbols, get_structure_indices, cell_is_skewed, set_selective_dynamics
 
 
 class TestLammpsASELibrary(unittest.TestCase):
@@ -45,6 +47,7 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertEqual(lmp.interactive_steps_getter(), 0)
         self.assertEqual(lmp.interactive_temperatures_getter(), 0)
         self.assertTrue(np.isclose(np.sum(lmp.interactive_pressures_getter()), -0.015661731917941832))
+        self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
         lmp.close()
 
     def test_static_with_statement(self):
@@ -83,3 +86,88 @@ class TestLammpsASELibrary(unittest.TestCase):
             self.assertEqual(lmp.interactive_steps_getter(), 0)
             self.assertEqual(lmp.interactive_temperatures_getter(), 0)
             self.assertTrue(np.isclose(np.sum(lmp.interactive_pressures_getter()), -0.00937227406237915))
+            self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
+
+
+class TestASEHelperFunctions(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_skewed = bulk("Al").repeat([2, 2, 2])
+        cls.structure_cubic = bulk("Al", cubic=True).repeat([2, 2, 2])
+
+    def test_get_species_symbols(self):
+        self.assertEqual(get_species_symbols(structure=self.structure_cubic),['Al'])
+
+    def test_get_structure_indices(self):
+        indicies = get_structure_indices(structure=self.structure_cubic)
+        self.assertEqual(len(indicies), len(self.structure_cubic))
+        self.assertEqual(len(set(indicies)), 1)
+        self.assertEqual(set(indicies), {0})
+
+    def test_cell_is_skewed(self):
+        self.assertTrue(cell_is_skewed(cell=self.structure_skewed.cell))
+        self.assertFalse(cell_is_skewed(cell=self.structure_cubic.cell))
+
+
+class TestConstraints(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        structure = bulk("Cu", cubic=True)
+        structure.symbols[2:] = "Al"
+        cls.structure = structure
+
+    def test_selective_dynamics_mixed_calcmd(self):
+        atoms = self.structure.copy()
+        c1 = FixAtoms(indices=[atom.index for atom in atoms if atom.symbol == 'Cu'])
+        c2 = FixedPlane(
+            [atom.index for atom in atoms if atom.symbol == 'Al'],
+            [1, 0, 0],
+        )
+        atoms.set_constraint([c1, c2])
+        control_dict = set_selective_dynamics(structure=atoms, calc_md=True)
+        self.assertEqual(len(control_dict), 6)
+        self.assertTrue(control_dict['group constraintxyz'], 'id 1 2')
+        self.assertTrue(control_dict['fix constraintxyz'], 'constraintxyz setforce 0.0 0.0 0.0')
+        self.assertTrue(control_dict['velocity constraintxyz'], 'set 0.0 0.0 0.0')
+        self.assertTrue(control_dict['group constraintx'], 'id 3 4')
+        self.assertTrue(control_dict['fix constraintx'], 'constraintx setforce 0.0 NULL NULL')
+        self.assertTrue(control_dict['velocity constraintx'], 'set 0.0 NULL NULL')
+
+    def test_selective_dynamics_mixed(self):
+        atoms = self.structure.copy()
+        c1 = FixAtoms(indices=[atom.index for atom in atoms if atom.symbol == 'Cu'])
+        c2 = FixedPlane(
+            [atom.index for atom in atoms if atom.symbol == 'Al'],
+            [1, 0, 0],
+        )
+        atoms.set_constraint([c1, c2])
+        control_dict = set_selective_dynamics(structure=atoms, calc_md=False)
+        self.assertEqual(len(control_dict), 4)
+        self.assertTrue(control_dict['group constraintxyz'], 'id 1 2')
+        self.assertTrue(control_dict['fix constraintxyz'], 'constraintxyz setforce 0.0 0.0 0.0')
+        self.assertTrue(control_dict['group constraintx'], 'id 3 4')
+        self.assertTrue(control_dict['fix constraintx'], 'constraintx setforce 0.0 NULL NULL')
+
+    def test_selective_dynamics_single_fix(self):
+        atoms = self.structure.copy()
+        c1 = FixAtoms(indices=[atom.index for atom in atoms if atom.symbol == 'Cu'])
+        atoms.set_constraint(c1)
+        control_dict = set_selective_dynamics(structure=atoms, calc_md=False)
+        self.assertEqual(len(control_dict), 2)
+        self.assertTrue(control_dict['group constraintxyz'], 'id 1 2')
+        self.assertTrue(control_dict['fix constraintxyz'], 'constraintxyz setforce 0.0 0.0 0.0')
+
+    def test_selective_dynamics_errors(self):
+        atoms = self.structure.copy()
+        atoms.set_constraint(FixCom())
+        with self.assertRaises(ValueError):
+            set_selective_dynamics(structure=atoms, calc_md=False)
+
+    def test_selective_dynamics_wrong_plane(self):
+        atoms = self.structure.copy()
+        atoms.set_constraint(FixedPlane(
+            [atom.index for atom in atoms if atom.symbol == 'Al'],
+            [2, 1, 0],
+        ))
+        with self.assertRaises(ValueError):
+            set_selective_dynamics(structure=atoms, calc_md=False)
