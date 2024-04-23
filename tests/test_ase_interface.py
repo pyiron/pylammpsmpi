@@ -12,6 +12,7 @@ from pylammpsmpi.wrapper.ase import (
     get_structure_indices,
     get_lammps_indicies_from_ase_structure,
     set_selective_dynamics,
+    UnfoldingPrism,
 )
 
 
@@ -126,6 +127,22 @@ class TestASEHelperFunctions(unittest.TestCase):
         self.assertEqual(len(indicies), len(self.structure_cubic))
         self.assertEqual(len(set(indicies)), 1)
         self.assertEqual(set(indicies), {1})
+
+    def test_unfolding_prism_cubic(self):
+        prism = UnfoldingPrism(self.structure_cubic.cell.array)
+        self.assertEqual(
+            prism.get_lammps_prism_str(),
+            ('8.1000000000', '8.1000000000', '8.1000000000', '0E-10', '0E-10', '0E-10')
+        )
+        self.assertTrue(np.all(np.isclose(prism.pos_to_lammps(position=[[1.0, 1.0, 1.0]]), np.array([1.0, 1.0, 1.0]))))
+
+    def test_unfolding_prism_skewed(self):
+        prism = UnfoldingPrism(self.structure_skewed.cell.array)
+        self.assertEqual(
+            prism.get_lammps_prism_str(),
+            ('5.7275649276', '4.9602167291', '4.6765371804', '2.8637824638', '2.8637824638', '1.6534055764')
+        )
+        self.assertTrue(np.all(np.isclose(prism.pos_to_lammps(position=[[1.0, 1.0, 1.0]]), np.array([1.41421356, 0.81649658, 0.57735027]))))
 
 
 class TestConstraints(unittest.TestCase):
