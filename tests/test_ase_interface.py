@@ -3,7 +3,7 @@ import unittest
 from ase.build import bulk
 import numpy as np
 
-from pylammpsmpi import LammpsASELibrary
+from pylammpsmpi import LammpsASELibrary, LammpsLibrary
 
 
 class TestLammpsASELibrary(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=None,
             log_file=None,
-            library=None,
+            library=LammpsLibrary(cores=2, mode='local'),
             diable_log_file=True,
         )
 
@@ -41,6 +41,6 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.04")
         self.lmp.interactive_lib_command("run 0")
         self.assertTrue(np.all(np.isclose(self.lmp.interactive_cells_getter(), structure.cell.array)))
-        self.assertEqual(self.lmp.interactive_energy_pot_getter(), -0.04342932384411344)
-        self.assertEqual(self.lmp.interactive_energy_tot_getter(), -0.04342932384411344)
+        self.assertEqual(float(self.lmp.interactive_energy_pot_getter()), -0.04342932384411341)
+        self.assertEqual(float(self.lmp.interactive_energy_tot_getter()), -0.04342932384411341)
         self.assertTrue(np.isclose(np.sum(self.lmp.interactive_forces_getter()), 0.0))
