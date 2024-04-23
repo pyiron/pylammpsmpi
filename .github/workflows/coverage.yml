@@ -25,6 +25,7 @@ jobs:
         environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}
+      timeout-minutes: 5
       run: |
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
