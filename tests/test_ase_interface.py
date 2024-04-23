@@ -41,6 +41,6 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.04")
         self.lmp.interactive_lib_command("run 0")
         self.assertTrue(np.all(np.isclose(self.lmp.interactive_cells_getter(), structure.cell.array)))
-        self.assertEqual(float(self.lmp.interactive_energy_pot_getter()), -0.04342932384411341)
-        self.assertEqual(float(self.lmp.interactive_energy_tot_getter()), -0.04342932384411341)
+        self.assertTrue(np.isclose(self.lmp.interactive_energy_pot_getter(), -0.04342932384411341))
+        self.assertTrue(np.isclose(self.lmp.interactive_energy_tot_getter(), -0.04342932384411341))
         self.assertTrue(np.isclose(np.sum(self.lmp.interactive_forces_getter()), 0.0))
