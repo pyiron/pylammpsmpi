@@ -26,6 +26,16 @@ class TestLammpsBase(unittest.TestCase):
     def tearDownClass(cls):
         cls.lmp.close()
 
+    def test_file_not_found(self):
+        lmp = LammpsBase(
+            cores=1,
+            oversubscribe=False,
+            working_directory=".",
+            cmdargs=["-cite", self.citation_file]
+        )
+        with self.assertRaises(FileNotFoundError):
+            lmp.file("file_does_not_exist.txt")
+
     def test_extract_atom(self):
         f = self.lmp.extract_atom("f")
         self.assertEqual(len(f), 256)
@@ -52,6 +62,7 @@ class TestLammpsBase(unittest.TestCase):
         ids = self.lmp.extract_atom("id")
         self.assertEqual(len(ids), 256)
         self.assertEqual(self.lmp.get_natoms(), 256)
+        self.assertEqual(self.lmp.natoms, 256)
 
     def test_extract_fix(self):
         x = self.lmp.extract_fix("2", 0, 1, 1)
