@@ -46,7 +46,9 @@ class LammpsASELibrary(object):
                 )
         else:
             self._interactive_library = LammpsBase(
-                cores=self._cores, working_directory=working_directory, use_srun=use_srun,
+                cores=self._cores,
+                working_directory=working_directory,
+                use_srun=use_srun,
             )
 
     def interactive_lib_command(self, command):
