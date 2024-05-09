@@ -11,6 +11,7 @@ from pympipool.shared import (
     interface_bootup,
     cancel_items_in_queue,
     MpiExecInterface,
+    SrunInterface,
 )
 
 
@@ -32,6 +33,7 @@ def execute_async(
     cores=1,
     oversubscribe=False,
     cwd=None,
+    use_srun=False,
 ):
     executable = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
@@ -39,13 +41,21 @@ def execute_async(
     cmds = [sys.executable, executable]
     if cmdargs is not None:
         cmds.extend(cmdargs)
-    interface = interface_bootup(
-        command_lst=cmds,
-        connections=MpiExecInterface(
+    if use_srun:
+        connection_interface = SrunInterface(
             cwd=cwd,
             cores=cores,
             oversubscribe=oversubscribe,
-        ),
+        )
+    else:
+        connection_interface = MpiExecInterface(
+            cwd=cwd,
+            cores=cores,
+            oversubscribe=oversubscribe,
+        )
+    interface = interface_bootup(
+        command_lst=cmds,
+        connections=connection_interface),
     )
     while True:
         task_dict = future_queue.get()
@@ -65,6 +75,7 @@ class LammpsConcurrent:
         oversubscribe=False,
         working_directory=".",
         cmdargs=None,
+        use_srun=False,
     ):
         self.cores = cores
         self.working_directory = working_directory
@@ -72,6 +83,7 @@ class LammpsConcurrent:
         self._process = None
         self._oversubscribe = oversubscribe
         self._cmdargs = cmdargs
+        self._use_srun = use_srun
         self._start_process()
 
     def _start_process(self):
@@ -83,6 +95,7 @@ class LammpsConcurrent:
                 "cores": self.cores,
                 "oversubscribe": self._oversubscribe,
                 "cwd": self.working_directory,
+                "use_srun": self._use_srun,
             },
         )
         self._process.start()
