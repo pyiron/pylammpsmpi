@@ -55,7 +55,6 @@ def execute_async(
         )
     interface = interface_bootup(
         command_lst=cmds,
-        connections=connection_interface),
         connections=connection_interface,
     )
     while True:
