@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "mpi4py==3.1.6",
-    "pympipool==0.8.1",
+    "pympipool==0.8.2",
     "numpy==1.26.4",
 ]
 dynamic = ["version"]
