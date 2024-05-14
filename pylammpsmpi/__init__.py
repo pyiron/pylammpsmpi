@@ -11,6 +11,7 @@ __version__ = get_versions()["version"]
 
 try:
     from pylammpsmpi.wrapper.ase import LammpsASELibrary
+
     __all__ += [LammpsASELibrary]
 except ImportError:
     pass
