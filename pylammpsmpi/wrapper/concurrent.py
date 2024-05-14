@@ -557,7 +557,6 @@ class LammpsConcurrent:
                 command="gather_atoms_concat", data=list(args)
             )
         elif ids is not None:
-            lenids = len(ids)
             args = list(args)
             args.append(len(ids))
             args.append(ids)
@@ -573,7 +572,6 @@ class LammpsConcurrent:
             *args:
         """
         if ids is not None:
-            lenids = len(ids)
             args = list(args)
             args.append(len(ids))
             args.append(ids)

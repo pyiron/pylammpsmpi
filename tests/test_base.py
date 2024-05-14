@@ -18,7 +18,7 @@ class TestLammpsBase(unittest.TestCase):
             cores=1,
             oversubscribe=False,
             working_directory=".",
-            cmdargs=["-cite", cls.citation_file]
+            cmdargs=["-cite", cls.citation_file],
         )
         cls.lmp.file(cls.lammps_file)
 
@@ -31,7 +31,7 @@ class TestLammpsBase(unittest.TestCase):
             cores=1,
             oversubscribe=False,
             working_directory=".",
-            cmdargs=["-cite", self.citation_file]
+            cmdargs=["-cite", self.citation_file],
         )
         with self.assertRaises(FileNotFoundError):
             lmp.file("file_does_not_exist.txt")
@@ -114,12 +114,9 @@ class TestLammpsBase(unittest.TestCase):
     def test_extract_global(self):
         self.assertEqual(
             self.lmp.extract_global(name="boxhi"),
-            [6.718384765530029, 6.718384765530029, 6.718384765530029]
+            [6.718384765530029, 6.718384765530029, 6.718384765530029],
         )
-        self.assertEqual(
-            self.lmp.extract_global(name="boxlo"),
-            [0.0, 0.0, 0.0]
-        )
+        self.assertEqual(self.lmp.extract_global(name="boxlo"), [0.0, 0.0, 0.0])
 
     def test_properties(self):
         self.assertEqual(self.lmp.has_exceptions, True)

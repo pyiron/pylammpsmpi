@@ -126,7 +126,7 @@ def extract_atom(job, funct_args):
         # extract atoms return an internal data type
         # this has to be reformatted
         name = str(funct_args[0])
-        if not name in atom_properties.keys():
+        if name not in atom_properties.keys():
             return []
 
         # this block prevents error when trying to access values
@@ -219,7 +219,7 @@ def gather_atoms_concat(job, funct_args):
     # extract atoms return an internal data type
     # this has to be reformatted
     name = str(funct_args[0])
-    if not name in atom_properties.keys():
+    if name not in atom_properties.keys():
         return []
 
     # this block prevents error when trying to access values
@@ -252,7 +252,7 @@ def gather_atoms_subset(job, funct_args):
     for i in range(lenids):
         cids[i] = ids[i]
 
-    if not name in atom_properties.keys():
+    if name not in atom_properties.keys():
         return []
 
     # this block prevents error when trying to access values
