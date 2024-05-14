@@ -14,7 +14,7 @@ class TestLammpsConcurrent(unittest.TestCase):
             cores=1,
             oversubscribe=False,
             working_directory=".",
-            cmdargs=["-cite", cls.citation_file]
+            cmdargs=["-cite", cls.citation_file],
         )
         cls.lmp.file(cls.lammps_file).result()
 
@@ -94,16 +94,17 @@ class TestLammpsConcurrent(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.citation_file))
 
     def test_version(self):
-        self.assertTrue(self.lmp.version.result() in [20220623, 20230802, 20231121, 20240207])
+        self.assertTrue(
+            self.lmp.version.result() in [20220623, 20230802, 20231121, 20240207]
+        )
 
     def test_extract_global(self):
         self.assertEqual(
             self.lmp.extract_global(name="boxhi").result(),
-            [6.718384765530029, 6.718384765530029, 6.718384765530029]
+            [6.718384765530029, 6.718384765530029, 6.718384765530029],
         )
         self.assertEqual(
-            self.lmp.extract_global(name="boxlo").result(),
-            [0.0, 0.0, 0.0]
+            self.lmp.extract_global(name="boxlo").result(), [0.0, 0.0, 0.0]
         )
 
     def test_properties(self):
@@ -114,7 +115,9 @@ class TestLammpsConcurrent(unittest.TestCase):
         self.assertEqual(self.lmp.has_ffmpeg_support.result(), False)
 
     def test_get_thermo(self):
-        self.assertEqual(float(self.lmp.get_thermo("temp").result()), 1.1298532212880312)
+        self.assertEqual(
+            float(self.lmp.get_thermo("temp").result()), 1.1298532212880312
+        )
 
 
 if __name__ == "__main__":

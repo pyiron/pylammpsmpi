@@ -15,7 +15,9 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
         cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
-        cls.lmp = LammpsLibrary(cores=2, mode='local', cmdargs=["-cite", cls.citation_file])
+        cls.lmp = LammpsLibrary(
+            cores=2, mode="local", cmdargs=["-cite", cls.citation_file]
+        )
         cls.lmp.file(cls.lammps_file)
 
     @classmethod
@@ -33,11 +35,11 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     def test_extract_compute_global(self):
         compute_temp = self.lmp.extract_compute("1", 0, 0)
         self.assertIsInstance(compute_temp, float)
-        
+
     def test_extract_compute_per_atom(self):
         compute_ke_atom = self.lmp.extract_compute("ke", 1, 1)
         self.assertEqual(len(compute_ke_atom), 256)
-        
+
     def test_gather_atoms(self):
         f = self.lmp.gather_atoms("f")
         self.assertEqual(len(f), 256)
@@ -61,7 +63,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
             self.assertEqual(np.round(x[0], 2), -0.26)
 
     def test_scatter_atoms(self):
-
         f = self.lmp.gather_atoms("f")
         val = np.random.randint(0, 100)
         f[1][0] = val
@@ -77,7 +78,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(f1[1][1], val)
 
     def test_extract_box(self):
-
         box = self.lmp.extract_box()
         self.assertEqual(len(box), 7)
 
