@@ -7,5 +7,5 @@ dependencies:
 - numpy =1.26.4
 - mpi4py =3.1.6
 - pympipool =0.8.4
-- ase =3.22.1
+- ase =3.23.0
 - scipy =1.13.1
