@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "mpi4py==3.1.6",
-    "pympipool==0.8.4",
+    "pympipool==0.8.5",
     "numpy==1.26.4",
 ]
 dynamic = ["version"]
@@ -38,7 +38,7 @@ Repository = "https://github.com/pyiron/pylammpsmpi"
 [project.optional-dependencies]
 ase = [
     "ase==3.23.0",
-    "scipy==1.13.1",
+    "scipy==1.14.0",
 ]
 
 [tool.setuptools.packages.find]
