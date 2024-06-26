@@ -5,6 +5,6 @@ dependencies:
 - numpy =1.26.4
 - lammps =2024.02.07
 - mpi4py =3.1.6
-- pympipool =0.8.4
+- pympipool =0.8.5
 - ase =3.23.0
 - scipy =1.13.1
