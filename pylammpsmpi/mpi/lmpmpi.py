@@ -2,16 +2,17 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-from ctypes import c_double, c_int
-from mpi4py import MPI
-import numpy as np
 import sys
+from ctypes import c_double, c_int
+
+import numpy as np
 from lammps import lammps
+from mpi4py import MPI
 from pympipool.shared import (
     interface_connect,
+    interface_receive,
     interface_send,
     interface_shutdown,
-    interface_receive,
 )
 
 __author__ = "Sarath Menon, Jan Janssen"
