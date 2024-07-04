@@ -4,7 +4,6 @@
 
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
-
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
     "Copyright 2020, Max-Planck-Institut für Eisenforschung GmbH - "

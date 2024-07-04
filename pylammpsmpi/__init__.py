@@ -1,9 +1,8 @@
-from ._version import get_versions
-
-from pylammpsmpi.wrapper.extended import LammpsLibrary
-from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 from pylammpsmpi.wrapper.base import LammpsBase
+from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
+from pylammpsmpi.wrapper.extended import LammpsLibrary
 
+from ._version import get_versions
 
 __all__ = [LammpsLibrary, LammpsConcurrent, LammpsBase]
 __version__ = get_versions()["version"]
