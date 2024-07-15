@@ -1,5 +1,5 @@
 [build-system]
-requires = ["mpi4py", "numpy", "pympipool", "setuptools", "versioneer[toml]==0.29"]
+requires = ["mpi4py", "numpy", "executorlib", "setuptools", "versioneer[toml]==0.29"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "mpi4py==3.1.6",
-    "pympipool==0.9.1",
+    "executorlib==0.0.1",
     "numpy==1.26.4",
 ]
 dynamic = ["version"]

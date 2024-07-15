@@ -7,7 +7,7 @@ import sys
 from concurrent.futures import Future
 from queue import Queue
 
-from pympipool.shared import (
+from executorlib.shared import (
     MpiExecInterface,
     RaisingThread,
     cancel_items_in_queue,

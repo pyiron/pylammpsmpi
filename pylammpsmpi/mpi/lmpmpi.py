@@ -8,7 +8,7 @@ from ctypes import c_double, c_int
 import numpy as np
 from lammps import lammps
 from mpi4py import MPI
-from pympipool.shared import (
+from executorlib.shared import (
     interface_connect,
     interface_receive,
     interface_send,

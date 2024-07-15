@@ -6,7 +6,7 @@
 pylammpsmpi - Parallel Lammps Python interface
 ==============================================
 With :code:`pylammpsmpi` you can control a :code:`mpi4py` parallel LAMMPS instance from a serial python process or a
-Jupyter notebook. Internally :code:`pylammpsmpi` leverages the :code:`pympipool` communication interface to connect the
+Jupyter notebook. Internally :code:`pylammpsmpi` leverages the :code:`executorlib` communication interface to connect the
 serial python process the user interacts with, with the :code:`mpi4py` parallel LAMMPS instance. The advantage of
 separating the :code:`mpi4py` parallel LAMMPS instance from the rest of the workflow is that the workflow can be written
 as serial python code, while still benefiting from the parallel performance of LAMMPS. Still this comes at the cost of

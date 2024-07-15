@@ -3,7 +3,7 @@
 [![Python package](https://github.com/pyiron/pylammpsmpi/workflows/Python%20package/badge.svg)](https://github.com/pyiron/pylammpsmpi/actions)
 
 With `pylammpsmpi` you can control a `mpi4py` parallel LAMMPS instance from a serial python process or a Jupyter 
-notebook. Internally `pylammpsmpi` leverages the `pympipool` communication interface to connect the serial python 
+notebook. Internally `pylammpsmpi` leverages the `executorlib` communication interface to connect the serial python 
 process the user interacts with, with the `mpi4py` parallel LAMMPS instance. The advantage of separating the `mpi4py` 
 parallel LAMMPS instance from the rest of the workflow is that the workflow can be written as serial python code, while
 still benefiting from the parallel performance of LAMMPS. Still this comes at the cost of additional data transfer, as 

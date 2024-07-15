@@ -6,6 +6,6 @@ dependencies:
 - myst-parser
 - numpy
 - mpi4py
-- pympipool
+- executorlib
 - ase
 - scipy
