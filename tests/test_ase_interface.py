@@ -278,7 +278,7 @@ class TestBinary(unittest.TestCase):
         bulk_au = bulk("Au", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_mix = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
         chemical_symbol_lst = np.array(bulk_mix.get_chemical_symbols())
-        chemical_symbol_lst[:int(len(chemical_symbol_lst) / 2)-1] = "Au"
+        chemical_symbol_lst[: int(len(chemical_symbol_lst) / 2) - 1] = "Au"
         bulk_mix.set_chemical_symbols(chemical_symbol_lst)
         self.structure_lst = [bulk_al, bulk_mix, bulk_au]
 
@@ -291,7 +291,9 @@ class TestBinary(unittest.TestCase):
         lmp_instance.interactive_lib_command(
             command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
         )
-        lmp_instance.interactive_lib_command(command="thermo_modify format float %20.15g")
+        lmp_instance.interactive_lib_command(
+            command="thermo_modify format float %20.15g"
+        )
 
     def test_individual_calculation(self):
         energy_lst = []
