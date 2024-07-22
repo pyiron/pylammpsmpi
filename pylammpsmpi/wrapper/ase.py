@@ -145,13 +145,6 @@ class LammpsASELibrary(object):
         el_eam_lst,
         calc_md=True,
     ):
-        if self._structure is not None:
-            old_symbols = get_species_symbols(structure=self._structure)
-            new_symbols = get_species_symbols(structure)
-            if any(old_symbols != new_symbols):
-                raise ValueError(
-                    f"structure has different chemical symbols than old one: {new_symbols} != {old_symbols}"
-                )
         self.interactive_lib_command(command="clear")
         control_dict = set_selective_dynamics(structure=structure, calc_md=calc_md)
         self.interactive_lib_command(command="units " + units)
