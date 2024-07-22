@@ -28,9 +28,6 @@ class TestLammpsASELibrary(unittest.TestCase):
             diable_log_file=True,
         )
         structure = bulk("Al", cubic=True).repeat([2, 2, 2])
-        lmp.interactive_lib_command(command="units lj")
-        lmp.interactive_lib_command(command="atom_style atomic")
-        lmp.interactive_lib_command(command="atom_modify map array")
         lmp.interactive_structure_setter(
             structure=structure,
             units="lj",
@@ -90,9 +87,6 @@ class TestLammpsASELibrary(unittest.TestCase):
             library=None,
             diable_log_file=True,
         ) as lmp:
-            lmp.interactive_lib_command(command="units lj")
-            lmp.interactive_lib_command(command="atom_style atomic")
-            lmp.interactive_lib_command(command="atom_modify map array")
             lmp.interactive_structure_setter(
                 structure=structure,
                 units="lj",
@@ -275,3 +269,106 @@ class TestConstraints(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             set_selective_dynamics(structure=atoms, calc_md=False)
+
+
+class TestBinary(unittest.TestCase):
+    def setUp(self):
+        self.result = [-0.04742416, -0.97751609, -2.66537476]
+        bulk_al = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
+        bulk_au = bulk("Au", a=4.0, cubic=True).repeat([2, 2, 2])
+        bulk_mix = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
+        chemical_symbol_lst = np.array(bulk_mix.get_chemical_symbols())
+        chemical_symbol_lst[: int(len(chemical_symbol_lst) / 2) - 1] = "Au"
+        bulk_mix.set_chemical_symbols(chemical_symbol_lst)
+        self.structure_lst = [bulk_al, bulk_mix, bulk_au]
+
+    @staticmethod
+    def setup_job(lmp_instance):
+        lmp_instance.interactive_lib_command("pair_style lj/cut 6.0")
+        lmp_instance.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.0")
+        lmp_instance.interactive_lib_command("pair_coeff 1 2 1.0 1.5 4.0")
+        lmp_instance.interactive_lib_command("pair_coeff 2 2 1.0 2.0 4.0")
+        lmp_instance.interactive_lib_command(
+            command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
+        )
+        lmp_instance.interactive_lib_command(
+            command="thermo_modify format float %20.15g"
+        )
+
+    def test_individual_calculation(self):
+        energy_lst = []
+        for structure in self.structure_lst:
+            lmp = LammpsASELibrary(
+                working_directory=None,
+                cores=1,
+                comm=None,
+                logger=logging.getLogger("TestStaticLogger"),
+                log_file=None,
+                library=LammpsLibrary(cores=2, mode="local"),
+                diable_log_file=True,
+            )
+            lmp.interactive_structure_setter(
+                structure=structure,
+                units="lj",
+                dimension=3,
+                boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+                atom_style="atomic",
+                el_eam_lst=["Al", "Au"],
+                calc_md=False,
+            )
+            self.setup_job(lmp_instance=lmp)
+            lmp.interactive_lib_command("run 0")
+            energy_lst.append(lmp.interactive_energy_pot_getter())
+        self.assertTrue(np.allclose(self.result, energy_lst))
+
+    def test_interactive_calculation(self):
+        energy_lst = []
+        lmp = LammpsASELibrary(
+            working_directory=None,
+            cores=1,
+            comm=None,
+            logger=logging.getLogger("TestStaticLogger"),
+            log_file=None,
+            library=LammpsLibrary(cores=2, mode="local"),
+            diable_log_file=True,
+        )
+        for structure in self.structure_lst:
+            lmp.interactive_structure_setter(
+                structure=structure,
+                units="lj",
+                dimension=3,
+                boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+                atom_style="atomic",
+                el_eam_lst=["Al", "Au"],
+                calc_md=False,
+            )
+            self.setup_job(lmp_instance=lmp)
+            lmp.interactive_lib_command("run 0")
+            energy_lst.append(lmp.interactive_energy_pot_getter())
+        self.assertTrue(np.allclose(self.result, energy_lst))
+
+    def test_interactive_calculation_inverse(self):
+        energy_lst = []
+        lmp = LammpsASELibrary(
+            working_directory=None,
+            cores=1,
+            comm=None,
+            logger=logging.getLogger("TestStaticLogger"),
+            log_file=None,
+            library=LammpsLibrary(cores=2, mode="local"),
+            diable_log_file=True,
+        )
+        for structure in self.structure_lst[::-1]:
+            lmp.interactive_structure_setter(
+                structure=structure,
+                units="lj",
+                dimension=3,
+                boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+                atom_style="atomic",
+                el_eam_lst=["Al", "Au"],
+                calc_md=False,
+            )
+            self.setup_job(lmp_instance=lmp)
+            lmp.interactive_lib_command("run 0")
+            energy_lst.append(lmp.interactive_energy_pot_getter())
+        self.assertTrue(np.allclose(self.result, energy_lst[::-1]))
