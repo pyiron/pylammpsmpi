@@ -57,12 +57,12 @@ class LammpsASELibrary(object):
             np.array(self._interactive_library.gather_atoms("x", 1, 3)),
             (len(self._structure), 3),
         )
-        if _check_ortho_prism(prism=self._prism):
-            positions = np.matmul(positions, self._prism.rot_mat.T)
+        if not _check_ortho_prism(prism=self._prism):
+            positions = self._prism.vector_to_ase(positions)
         return positions
 
     def interactive_positions_setter(self, positions):
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             positions = np.array(positions).reshape(-1, 3)
             positions = np.matmul(positions, self._prism.rot_mat)
         positions = np.array(positions).flatten()
@@ -90,12 +90,12 @@ class LammpsASELibrary(object):
                 ],
             ]
         )
-        return self._prism.tensor2_to_ase(cc)
+        return self._prism.vector_to_ase(cc)
 
     def interactive_cells_setter(self, cell):
         self._prism = Prism(cell)
         lx, ly, lz, xy, xz, yz = self._prism.get_lammps_prism()
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
                 "Warning: setting upper trangular matrix might slow down the calculation"
             )
@@ -130,7 +130,7 @@ class LammpsASELibrary(object):
             np.array(self._interactive_library.gather_atoms("f", 1, 3)),
             (len(self._structure), 3),
         )
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             ff = np.matmul(ff, self._prism.rot_mat.T)
         return ff
 
@@ -153,7 +153,7 @@ class LammpsASELibrary(object):
 
         self.interactive_lib_command(command="atom_modify map array")
         self._prism = Prism(structure.cell)
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
                 "Warning: setting upper trangular matrix might slow down the calculation"
             )
@@ -214,7 +214,7 @@ class LammpsASELibrary(object):
                     command="mass {0:3d} {1:f}".format(id_eam + 1, 1.00),
                 )
         positions = structure.positions.flatten()
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             positions = np.array(positions).reshape(-1, 3)
             positions = np.matmul(positions, self._prism.rot_mat)
         positions = positions.flatten()
@@ -288,7 +288,7 @@ class LammpsASELibrary(object):
                 ],
             ]
         )
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             rotation_matrix = self._prism.rot_mat.T
             pp = rotation_matrix.T @ pp @ rotation_matrix
         return pp
@@ -315,7 +315,7 @@ class LammpsASELibrary(object):
         if enable_stress_computation:
             self.interactive_lib_command("compute st all stress/atom NULL")
             self.interactive_lib_command("run 0")
-        id_lst = self._interactive_library.extract_atom("id", 0)
+        id_lst = self._interactive_library.extract_atom("id")
         id_lst = np.array([id_lst[i] for i in range(len(self._structure))]) - 1
         id_lst = np.arange(len(id_lst))[np.argsort(id_lst)]
         ind = np.array([0, 3, 4, 3, 1, 5, 4, 5, 2])
@@ -329,7 +329,7 @@ class LammpsASELibrary(object):
             * constants.bar
             * constants.angstrom**3
         )
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             ss = np.einsum("ij,njk->nik", self._prism.rot_mat, ss)
             ss = np.einsum("nij,kj->nik", ss, self._prism.rot_mat)
         return ss
@@ -339,7 +339,7 @@ class LammpsASELibrary(object):
             np.array(self._interactive_library.gather_atoms("v", 1, 3)),
             (len(self._structure), 3),
         )
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             velocity = np.matmul(velocity, self._prism.rot_mat.T)
         return velocity
 

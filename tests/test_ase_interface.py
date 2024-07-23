@@ -104,10 +104,10 @@ class TestLammpsASELibrary(unittest.TestCase):
             lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
             lmp.interactive_lib_command("run 0")
             self.assertTrue(
-                np.isclose(lmp.interactive_energy_pot_getter(), -0.3083820387630098)
+                np.isclose(lmp.interactive_energy_pot_getter(), -0.04342932384411333)
             )
             self.assertTrue(
-                np.isclose(lmp.interactive_energy_tot_getter(), -0.3083820387630098)
+                np.isclose(lmp.interactive_energy_tot_getter(), -0.04342932384411333)
             )
             self.assertTrue(np.isclose(np.sum(lmp.interactive_forces_getter()), 0.0))
             self.assertTrue(
@@ -120,7 +120,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             self.assertEqual(lmp.interactive_temperatures_getter(), 0)
             self.assertTrue(
                 np.isclose(
-                    np.sum(lmp.interactive_pressures_getter()), -0.00937227406237915
+                    np.sum(lmp.interactive_pressures_getter()), -0.015661731917941825
                 )
             )
             self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
