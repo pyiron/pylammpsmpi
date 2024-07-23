@@ -1,6 +1,7 @@
 import logging
 import unittest
 
+from ase.atoms import Atoms
 from ase.build import bulk
 from ase.calculators.lammps.coordinatetransform import Prism
 from ase.constraints import FixAtoms, FixedPlane, FixCom
@@ -131,6 +132,22 @@ class TestASEHelperFunctions(unittest.TestCase):
     def setUpClass(cls):
         cls.structure_skewed = bulk("Al").repeat([2, 2, 2])
         cls.structure_cubic = bulk("Al", cubic=True).repeat([2, 2, 2])
+        cls.structure_skewed_mix = Atoms(
+            symbols=["Al", "Al", "Al", "Al", "Au", "Au"],
+            positions=[
+                [-1.25120847, 3.13757959, 1.09837453],
+                [3.23128782, 0.98516899, 3.33835018],
+                [1.77212851, 1.69333354, 1.10604864],
+                [0.20795084, 2.42941504, 3.33067607],
+                [4.6655973, 0.31115683, 1.11420958],
+                [-2.68551794, 3.81159175, 3.32251513],
+            ],
+            cell=[
+                [5.3322323737169475, -0.0016906521100747, 8.4534718925e-06],
+                [-3.3521530195865985, 4.14672704356616, -0.0207341535846293],
+                [0.0, -0.0222878092490574, 4.457450407979247],
+            ]
+        )
 
     def test_get_species_symbols(self):
         self.assertEqual(get_species_symbols(structure=self.structure_cubic), ["Al"])
@@ -190,6 +207,17 @@ class TestASEHelperFunctions(unittest.TestCase):
                     prism.vector_to_lammps([[1.0, 1.0, 1.0]]),
                     np.array([1.41421356, 0.81649658, 0.57735027]),
                 )
+            )
+        )
+
+    def test_folding(self):
+        prism = UnfoldingPrism(self.structure_skewed_mix.cell.array)
+        xhi, yhi, zhi, xy, xz, yz = prism.get_lammps_prism()
+        cell_new = [[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]]
+        cell_old = prism.unfold_cell(cell_new)
+        self.assertTrue(
+            np.all(
+                np.isclose(self.structure_skewed_mix.cell.array, cell_old)
             )
         )
 
