@@ -63,8 +63,7 @@ class LammpsASELibrary(object):
 
     def interactive_positions_setter(self, positions):
         if not _check_ortho_prism(prism=self._prism):
-            positions = np.array(positions).reshape(-1, 3)
-            positions = np.matmul(positions, self._prism.rot_mat)
+            positions = self._prism.vector_to_lammps(positions)
         positions = np.array(positions).flatten()
         if self._cores == 1:
             self._interactive_library.scatter_atoms(
@@ -131,7 +130,7 @@ class LammpsASELibrary(object):
             (len(self._structure), 3),
         )
         if not _check_ortho_prism(prism=self._prism):
-            ff = np.matmul(ff, self._prism.rot_mat.T)
+            ff = self._prism.vector_to_ase(ff)
         return ff
 
     def interactive_structure_setter(
@@ -213,11 +212,10 @@ class LammpsASELibrary(object):
                 self.interactive_lib_command(
                     command="mass {0:3d} {1:f}".format(id_eam + 1, 1.00),
                 )
-        positions = structure.positions.flatten()
         if not _check_ortho_prism(prism=self._prism):
-            positions = np.array(positions).reshape(-1, 3)
-            positions = np.matmul(positions, self._prism.rot_mat)
-        positions = positions.flatten()
+            positions = self._prism.vector_to_lammps(structure.positions).flatten()
+        else:
+            positions = structure.positions.flatten()
         try:
             elem_all = get_lammps_indicies_from_ase_structure(
                 structure=structure, el_eam_lst=el_eam_lst
@@ -340,7 +338,7 @@ class LammpsASELibrary(object):
             (len(self._structure), 3),
         )
         if not _check_ortho_prism(prism=self._prism):
-            velocity = np.matmul(velocity, self._prism.rot_mat.T)
+            velocity = self._prism.vector_to_ase(velocity)
         return velocity
 
     def close(self):
