@@ -211,10 +211,10 @@ class TestASEHelperFunctions(unittest.TestCase):
         )
 
     def test_folding(self):
-        prism = UnfoldingPrism(self.structure_skewed_mix.cell.array)
+        prism = Prism(self.structure_skewed_mix.cell.array)
         xhi, yhi, zhi, xy, xz, yz = prism.get_lammps_prism()
         cell_new = [[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]]
-        cell_old = prism.unfold_cell(cell_new)
+        cell_old = prism.vector_to_ase(cell_new)
         self.assertTrue(
             np.all(
                 np.isclose(self.structure_skewed_mix.cell.array, cell_old)
