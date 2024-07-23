@@ -28,6 +28,7 @@ class LammpsASELibrary(object):
         self._cores = cores
         if library is not None:
             self._interactive_library = library
+            self._cores = library.cores
         elif self._cores == 1:
             lammps = getattr(importlib.import_module("lammps"), "lammps")
             if diable_log_file:
