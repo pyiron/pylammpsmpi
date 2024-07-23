@@ -1,7 +1,9 @@
 import logging
 import unittest
 
+from ase.atoms import Atoms
 from ase.build import bulk
+from ase.calculators.lammps.coordinatetransform import Prism
 from ase.constraints import FixAtoms, FixedPlane, FixCom
 import numpy as np
 
@@ -12,7 +14,6 @@ from pylammpsmpi.wrapper.ase import (
     get_structure_indices,
     get_lammps_indicies_from_ase_structure,
     set_selective_dynamics,
-    UnfoldingPrism,
 )
 
 
@@ -76,6 +77,94 @@ class TestLammpsASELibrary(unittest.TestCase):
         )
         lmp.close()
 
+    def test_small_displacement(self):
+        lmp = LammpsASELibrary(
+            working_directory=None,
+            cores=1,
+            comm=None,
+            logger=logging.getLogger("TestStaticLogger"),
+            log_file=None,
+            library=LammpsLibrary(cores=2, mode="local"),
+            diable_log_file=True,
+        )
+        structure = bulk("Al", cubic=True)
+        lmp.interactive_structure_setter(
+            structure=structure,
+            units="lj",
+            dimension=3,
+            boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+            atom_style="atomic",
+            el_eam_lst=["Al"],
+            calc_md=False,
+        )
+        lmp.interactive_lib_command("pair_style lj/cut 6.0")
+        lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.04")
+        lmp.interactive_lib_command(
+            command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
+        )
+        lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
+        lmp.interactive_lib_command("run 0")
+        self.assertTrue(
+            np.all(np.isclose(lmp.interactive_positions_getter(), structure.positions))
+        )
+        self.assertTrue(
+            np.isclose(lmp.interactive_energy_pot_getter(), -0.04342932384411341)
+        )
+        positions = structure.positions.copy()
+        positions[0] += np.array([0.1, 0.1, 0.1])
+        lmp.interactive_positions_setter(positions=positions)
+        lmp.interactive_lib_command("run 0")
+        self.assertTrue(
+            np.isclose(lmp.interactive_energy_pot_getter(), -0.043829529274767506)
+        )
+        self.assertTrue(
+            np.all(np.isclose(lmp.interactive_positions_getter(), positions))
+        )
+
+    def test_small_displacement_skewed(self):
+        lmp = LammpsASELibrary(
+            working_directory=None,
+            cores=1,
+            comm=None,
+            logger=logging.getLogger("TestStaticLogger"),
+            log_file=None,
+            library=LammpsLibrary(cores=2, mode="local"),
+            diable_log_file=True,
+        )
+        structure = bulk("Al").repeat([2, 2, 2])
+        lmp.interactive_structure_setter(
+            structure=structure,
+            units="lj",
+            dimension=3,
+            boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+            atom_style="atomic",
+            el_eam_lst=["Al"],
+            calc_md=False,
+        )
+        lmp.interactive_lib_command("pair_style lj/cut 6.0")
+        lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.04")
+        lmp.interactive_lib_command(
+            command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
+        )
+        lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
+        lmp.interactive_lib_command("run 0")
+        self.assertTrue(
+            np.all(np.isclose(lmp.interactive_positions_getter(), structure.positions))
+        )
+        self.assertTrue(
+            np.isclose(lmp.interactive_energy_pot_getter(), -0.04342932384411341)
+        )
+        positions = structure.positions.copy()
+        positions[0] += np.array([0.1, 0.1, 0.1])
+        lmp.interactive_positions_setter(positions=positions)
+        lmp.interactive_lib_command("run 0")
+        self.assertTrue(
+            np.isclose(lmp.interactive_energy_pot_getter(), -0.0440227281853079)
+        )
+        self.assertTrue(
+            np.all(np.isclose(lmp.interactive_positions_getter(), positions))
+        )
+
     def test_static_with_statement(self):
         structure = bulk("Al").repeat([2, 2, 2])
         with LammpsASELibrary(
@@ -104,10 +193,10 @@ class TestLammpsASELibrary(unittest.TestCase):
             lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
             lmp.interactive_lib_command("run 0")
             self.assertTrue(
-                np.isclose(lmp.interactive_energy_pot_getter(), -0.3083820387630098)
+                np.isclose(lmp.interactive_energy_pot_getter(), -0.04342932384411333)
             )
             self.assertTrue(
-                np.isclose(lmp.interactive_energy_tot_getter(), -0.3083820387630098)
+                np.isclose(lmp.interactive_energy_tot_getter(), -0.04342932384411333)
             )
             self.assertTrue(np.isclose(np.sum(lmp.interactive_forces_getter()), 0.0))
             self.assertTrue(
@@ -120,7 +209,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             self.assertEqual(lmp.interactive_temperatures_getter(), 0)
             self.assertTrue(
                 np.isclose(
-                    np.sum(lmp.interactive_pressures_getter()), -0.00937227406237915
+                    np.sum(lmp.interactive_pressures_getter()), -0.015661731917941825
                 )
             )
             self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
@@ -131,6 +220,22 @@ class TestASEHelperFunctions(unittest.TestCase):
     def setUpClass(cls):
         cls.structure_skewed = bulk("Al").repeat([2, 2, 2])
         cls.structure_cubic = bulk("Al", cubic=True).repeat([2, 2, 2])
+        cls.structure_skewed_mix = Atoms(
+            symbols=["Al", "Al", "Al", "Al", "Au", "Au"],
+            positions=[
+                [-1.25120847, 3.13757959, 1.09837453],
+                [3.23128782, 0.98516899, 3.33835018],
+                [1.77212851, 1.69333354, 1.10604864],
+                [0.20795084, 2.42941504, 3.33067607],
+                [4.6655973, 0.31115683, 1.11420958],
+                [-2.68551794, 3.81159175, 3.32251513],
+            ],
+            cell=[
+                [5.3322323737169475, -0.0016906521100747, 8.4534718925e-06],
+                [-3.3521530195865985, 4.14672704356616, -0.0207341535846293],
+                [0.0, -0.0222878092490574, 4.457450407979247],
+            ],
+        )
 
     def test_get_species_symbols(self):
         self.assertEqual(get_species_symbols(structure=self.structure_cubic), ["Al"])
@@ -154,26 +259,25 @@ class TestASEHelperFunctions(unittest.TestCase):
         self.assertEqual(set(indicies), {1})
 
     def test_unfolding_prism_cubic(self):
-        prism = UnfoldingPrism(self.structure_cubic.cell.array)
-        self.assertEqual(
-            prism.get_lammps_prism_str(),
-            ("8.1000000000", "8.1000000000", "8.1000000000", "0E-10", "0E-10", "0E-10"),
+        prism = Prism(self.structure_cubic.cell.array)
+        self.assertTrue(
+            np.all(np.isclose(prism.get_lammps_prism(), [8.1, 8.1, 8.1, 0.0, 0.0, 0.0]))
         )
         self.assertTrue(
             np.all(
                 np.isclose(
-                    prism.pos_to_lammps(position=[[1.0, 1.0, 1.0]]),
+                    prism.vector_to_lammps([[1.0, 1.0, 1.0]]),
                     np.array([1.0, 1.0, 1.0]),
                 )
             )
         )
 
     def test_unfolding_prism_skewed(self):
-        prism = UnfoldingPrism(self.structure_skewed.cell.array)
+        prism = Prism(self.structure_skewed.cell.array)
         self.assertTrue(
             np.all(
                 np.isclose(
-                    [np.abs(float(s)) for s in prism.get_lammps_prism_str()],
+                    prism.get_lammps_prism(),
                     [
                         5.7275649276,
                         4.9602167291,
@@ -188,10 +292,19 @@ class TestASEHelperFunctions(unittest.TestCase):
         self.assertTrue(
             np.all(
                 np.isclose(
-                    prism.pos_to_lammps(position=[[1.0, 1.0, 1.0]]),
+                    prism.vector_to_lammps([[1.0, 1.0, 1.0]]),
                     np.array([1.41421356, 0.81649658, 0.57735027]),
                 )
             )
+        )
+
+    def test_folding(self):
+        prism = Prism(self.structure_skewed_mix.cell.array)
+        xhi, yhi, zhi, xy, xz, yz = prism.get_lammps_prism()
+        cell_new = [[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]]
+        cell_old = prism.vector_to_ase(cell_new)
+        self.assertTrue(
+            np.all(np.isclose(self.structure_skewed_mix.cell.array, cell_old))
         )
 
 
@@ -273,7 +386,7 @@ class TestConstraints(unittest.TestCase):
 
 class TestBinary(unittest.TestCase):
     def setUp(self):
-        self.result = [-0.04742416, -0.97751609, -2.66537476]
+        self.result = [-0.04678345, -0.96708929, -2.625]
         bulk_al = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_au = bulk("Au", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_mix = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])

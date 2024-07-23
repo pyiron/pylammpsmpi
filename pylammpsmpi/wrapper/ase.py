@@ -1,4 +1,3 @@
-import decimal as dec
 import importlib
 import os
 import warnings
@@ -29,6 +28,7 @@ class LammpsASELibrary(object):
         self._cores = cores
         if library is not None:
             self._interactive_library = library
+            self._cores = library.cores
         elif self._cores == 1:
             lammps = getattr(importlib.import_module("lammps"), "lammps")
             if diable_log_file:
@@ -58,14 +58,13 @@ class LammpsASELibrary(object):
             np.array(self._interactive_library.gather_atoms("x", 1, 3)),
             (len(self._structure), 3),
         )
-        if _check_ortho_prism(prism=self._prism):
-            positions = np.matmul(positions, self._prism.R.T)
+        if not _check_ortho_prism(prism=self._prism):
+            positions = self._prism.vector_to_ase(positions)
         return positions
 
     def interactive_positions_setter(self, positions):
-        if _check_ortho_prism(prism=self._prism):
-            positions = np.array(positions).reshape(-1, 3)
-            positions = np.matmul(positions, self._prism.R)
+        if not _check_ortho_prism(prism=self._prism):
+            positions = self._prism.vector_to_lammps(positions)
         positions = np.array(positions).flatten()
         if self._cores == 1:
             self._interactive_library.scatter_atoms(
@@ -91,12 +90,12 @@ class LammpsASELibrary(object):
                 ],
             ]
         )
-        return self._prism.unfold_cell(cc)
+        return self._prism.vector_to_ase(cc)
 
     def interactive_cells_setter(self, cell):
-        self._prism = UnfoldingPrism(cell)
+        self._prism = Prism(cell)
         lx, ly, lz, xy, xz, yz = self._prism.get_lammps_prism()
-        if _check_ortho_prism(prism=self._prism):
+        if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
                 "Warning: setting upper trangular matrix might slow down the calculation"
             )
@@ -131,8 +130,8 @@ class LammpsASELibrary(object):
             np.array(self._interactive_library.gather_atoms("f", 1, 3)),
             (len(self._structure), 3),
         )
-        if _check_ortho_prism(prism=self._prism):
-            ff = np.matmul(ff, self._prism.R.T)
+        if not _check_ortho_prism(prism=self._prism):
+            ff = self._prism.vector_to_ase(ff)
         return ff
 
     def interactive_structure_setter(
@@ -153,8 +152,8 @@ class LammpsASELibrary(object):
         self.interactive_lib_command(command="atom_style " + atom_style)
 
         self.interactive_lib_command(command="atom_modify map array")
-        self._prism = UnfoldingPrism(structure.cell)
-        if _check_ortho_prism(prism=self._prism):
+        self._prism = Prism(structure.cell)
+        if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
                 "Warning: setting upper trangular matrix might slow down the calculation"
             )
@@ -214,11 +213,10 @@ class LammpsASELibrary(object):
                 self.interactive_lib_command(
                     command="mass {0:3d} {1:f}".format(id_eam + 1, 1.00),
                 )
-        positions = structure.positions.flatten()
-        if _check_ortho_prism(prism=self._prism):
-            positions = np.array(positions).reshape(-1, 3)
-            positions = np.matmul(positions, self._prism.R)
-        positions = positions.flatten()
+        if not _check_ortho_prism(prism=self._prism):
+            positions = self._prism.vector_to_lammps(structure.positions).flatten()
+        else:
+            positions = structure.positions.flatten()
         try:
             elem_all = get_lammps_indicies_from_ase_structure(
                 structure=structure, el_eam_lst=el_eam_lst
@@ -242,7 +240,7 @@ class LammpsASELibrary(object):
         else:
             self._interactive_library.create_atoms(
                 n=len(structure),
-                id=None,
+                id=range(1, len(structure) + 1),
                 type=elem_all,
                 x=positions,
                 v=None,
@@ -289,9 +287,8 @@ class LammpsASELibrary(object):
                 ],
             ]
         )
-        if _check_ortho_prism(prism=self._prism):
-            rotation_matrix = self._prism.R.T
-            pp = rotation_matrix.T @ pp @ rotation_matrix
+        if not _check_ortho_prism(prism=self._prism):
+            pp = self._prism.tensor2_to_ase(pp)
         return pp
 
     def interactive_indices_setter(self, indices, el_eam_lst):
@@ -316,7 +313,7 @@ class LammpsASELibrary(object):
         if enable_stress_computation:
             self.interactive_lib_command("compute st all stress/atom NULL")
             self.interactive_lib_command("run 0")
-        id_lst = self._interactive_library.extract_atom("id", 0)
+        id_lst = self._interactive_library.extract_atom("id")
         id_lst = np.array([id_lst[i] for i in range(len(self._structure))]) - 1
         id_lst = np.arange(len(id_lst))[np.argsort(id_lst)]
         ind = np.array([0, 3, 4, 3, 1, 5, 4, 5, 2])
@@ -330,9 +327,9 @@ class LammpsASELibrary(object):
             * constants.bar
             * constants.angstrom**3
         )
-        if _check_ortho_prism(prism=self._prism):
-            ss = np.einsum("ij,njk->nik", self._prism.R, ss)
-            ss = np.einsum("nij,kj->nik", ss, self._prism.R)
+        if not _check_ortho_prism(prism=self._prism):
+            ss = np.einsum("ij,njk->nik", self._prism.rot_mat, ss)
+            ss = np.einsum("nij,kj->nik", ss, self._prism.rot_mat)
         return ss
 
     def interactive_velocities_getter(self):
@@ -340,8 +337,8 @@ class LammpsASELibrary(object):
             np.array(self._interactive_library.gather_atoms("v", 1, 3)),
             (len(self._structure), 3),
         )
-        if _check_ortho_prism(prism=self._prism):
-            velocity = np.matmul(velocity, self._prism.R.T)
+        if not _check_ortho_prism(prism=self._prism):
+            velocity = self._prism.vector_to_ase(velocity)
         return velocity
 
     def close(self):
@@ -364,153 +361,6 @@ class LammpsASELibrary(object):
         Compatibility function for the with statement
         """
         self.close()
-
-
-class UnfoldingPrism(Prism):
-    """
-    Create a lammps-style triclinic prism object from a cell
-
-    The main purpose of the prism-object is to create suitable
-    string representations of prism limits and atom positions
-    within the prism.
-    When creating the object, the digits parameter (default set to 10)
-    specify the precision to use.
-    lammps is picky about stuff being within semi-open intervals,
-    e.g. for atom positions (when using create_atom in the in-file),
-    x must be within [xlo, xhi).
-
-    Args:
-        cell:
-        pbc:
-        digits:
-    """
-
-    def __init__(self, cell, pbc=(True, True, True), digits=10):
-        # Temporary fix. Since the arguments for the constructor have changed, try to see if it is compatible with
-        # the latest ase. If not, revert to the old __init__ parameters.
-        try:
-            super(UnfoldingPrism, self).__init__(
-                cell, pbc=pbc, tolerance=float("1e-{}".format(digits))
-            )
-        except TypeError:
-            super(UnfoldingPrism, self).__init__(cell, pbc=pbc, digits=digits)
-        a, b, c = cell
-        an, bn, cn = [np.linalg.norm(v) for v in cell]
-
-        alpha = np.arccos(np.dot(b, c) / (bn * cn))
-        beta = np.arccos(np.dot(a, c) / (an * cn))
-        gamma = np.arccos(np.dot(a, b) / (an * bn))
-
-        xhi = an
-        xyp = np.cos(gamma) * bn
-        yhi = np.sin(gamma) * bn
-        xzp = np.cos(beta) * cn
-        yzp = (bn * cn * np.cos(alpha) - xyp * xzp) / yhi
-        zhi = np.sqrt(cn**2 - xzp**2 - yzp**2)
-
-        # Set precision
-        self.car_prec = dec.Decimal("10.0") ** int(
-            np.floor(np.log10(max((xhi, yhi, zhi)))) - digits
-        )
-        self.dir_prec = dec.Decimal("10.0") ** (-digits)
-        self.acc = float(self.car_prec)
-        self.eps = np.finfo(xhi).eps
-
-        # For rotating positions from ase to lammps
-        apre = np.array(((xhi, 0, 0), (xyp, yhi, 0), (xzp, yzp, zhi)))
-        # np.linalg.inv(cell) ?= np.array([np.cross(b, c), np.cross(c, a), np.cross(a, b)]).T / np.linalg.det(cell)
-        self.R = np.dot(np.linalg.inv(cell), apre)
-
-        def fold(vec, pvec, i):
-            p = pvec[i]
-            x = vec[i] + 0.5 * p
-            n = (np.mod(x, p) - x) / p
-            return [float(self.f2qdec(vec_a)) for vec_a in (vec + n * pvec)], n
-
-        apre[1, :], n1 = fold(apre[1, :], apre[0, :], 0)
-        if np.abs(apre[1, 0] / apre[0, 0]) > 0.5:
-            apre[1, 0] -= np.sign(n1) * apre[0, 0]
-            n1 -= np.sign(n1)
-
-        apre[2, :], n2 = fold(apre[2, :], apre[1, :], 1)
-        if np.abs(apre[2, 1] / apre[1, 1]) > 0.5:
-            apre[2, 1] -= np.sign(n2) * apre[1, 1]
-            n2 -= np.sign(n2)
-
-        apre[2, :], n3 = fold(apre[2, :], apre[0, :], 0)
-        if np.abs(apre[2, 0] / apre[0, 0]) > 0.5:
-            apre[2, 0] -= np.sign(n3) * apre[0, 0]
-            n3 -= np.sign(n3)
-        self.ns = [n1, n2, n3]
-
-        d_a = apre[0, 0] / 2 - apre[1, 0]
-        if np.abs(d_a) < self.acc:
-            if d_a < 0:
-                print("debug: apply shift")
-                apre[1, 0] += 2 * d_a
-                apre[2, 0] += 2 * d_a
-
-        self.A = apre
-
-        if self.is_skewed() and (not (pbc[0] and pbc[1] and pbc[2])):
-            warnings.warn(
-                "Skewed lammps cells should have PBC == True in all directions!"
-            )
-
-    def unfold_cell(self, cell):
-        """
-        Unfold LAMMPS cell to original
-
-        Let C be the pyiron_atomistics cell and A be the Lammps cell, then define (in init) the rotation matrix between them as
-            R := C^inv.A
-        And recall that rotation matrices have the property
-            R^T == R^inv
-        Then left multiply the definition of R by C, and right multiply by R.T to get
-            C.R.R^T = C.C^inv.A.R^T
-        Then
-            C = A.R^T
-
-        After that, account for the folding process.
-
-        Args:
-            cell: LAMMPS cell,
-
-        Returns:
-            unfolded cell
-        """
-        # Rotation
-        ucell = np.dot(cell, self.R.T)
-        # Folding
-        a = ucell[0]
-        bp = ucell[1]
-        cpp = ucell[2]
-        (n1, n2, n3) = self.ns
-        b = bp - n1 * a
-        c = cpp - n2 * bp - n3 * a
-        return np.array([a, b, c])
-
-    def pos_to_lammps(self, position):
-        """
-        Rotate an ase-cell position to the lammps cell orientation
-
-        Args:
-            position:
-
-        Returns:
-            tuple of float.
-        """
-        return tuple([x for x in np.dot(position, self.R)])
-
-    def f2qdec(self, f):
-        return dec.Decimal(repr(f)).quantize(self.car_prec, dec.ROUND_DOWN)
-
-    def f2s(self, f):
-        return str(dec.Decimal(repr(f)).quantize(self.car_prec, dec.ROUND_HALF_EVEN))
-
-    def get_lammps_prism_str(self):
-        """Return a tuple of strings"""
-        p = self.get_lammps_prism()
-        return tuple([self.f2s(x) for x in p])
 
 
 def cell_is_skewed(cell, tolerance=1.0e-8):
@@ -538,14 +388,14 @@ def _check_ortho_prism(prism, rtol=0.0, atol=1e-08):
     Check if the rotation matrix of the UnfoldingPrism object is sufficiently close to a unit matrix
 
     Args:
-        prism (pyiron_atomistics.lammps.structure.UnfoldingPrism): UnfoldingPrism object to check
+        prism (ase.calculators.lammps.Prism): Prism object to check
         rtol (float): relative precision for numpy.isclose()
         atol (float): absolute precision for numpy.isclose()
 
     Returns:
         boolean: True or False
     """
-    return np.isclose(prism.R, np.eye(3), rtol=rtol, atol=atol).all()
+    return np.isclose(prism.rot_mat, np.eye(3), rtol=rtol, atol=atol).all()
 
 
 def get_species_symbols(structure):
