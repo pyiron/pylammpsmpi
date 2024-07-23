@@ -241,7 +241,7 @@ class LammpsASELibrary(object):
         else:
             self._interactive_library.create_atoms(
                 n=len(structure),
-                id=None,
+                id=range(1, len(structure)+1),
                 type=elem_all,
                 x=positions,
                 v=None,
