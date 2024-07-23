@@ -104,7 +104,9 @@ class TestLammpsASELibrary(unittest.TestCase):
         )
         lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
         lmp.interactive_lib_command("run 0")
-        self.assertTrue(np.all(np.isclose(lmp.interactive_positions_getter(), structure.positions)))
+        self.assertTrue(
+            np.all(np.isclose(lmp.interactive_positions_getter(), structure.positions))
+        )
         self.assertTrue(
             np.isclose(lmp.interactive_energy_pot_getter(), -0.04342932384411341)
         )
@@ -115,7 +117,9 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertTrue(
             np.isclose(lmp.interactive_energy_pot_getter(), -0.043829529274767506)
         )
-        self.assertTrue(np.all(np.isclose(lmp.interactive_positions_getter(), positions)))
+        self.assertTrue(
+            np.all(np.isclose(lmp.interactive_positions_getter(), positions))
+        )
 
     def test_static_with_statement(self):
         structure = bulk("Al").repeat([2, 2, 2])
