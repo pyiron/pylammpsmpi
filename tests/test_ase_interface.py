@@ -146,7 +146,7 @@ class TestASEHelperFunctions(unittest.TestCase):
                 [5.3322323737169475, -0.0016906521100747, 8.4534718925e-06],
                 [-3.3521530195865985, 4.14672704356616, -0.0207341535846293],
                 [0.0, -0.0222878092490574, 4.457450407979247],
-            ]
+            ],
         )
 
     def test_get_species_symbols(self):
@@ -216,9 +216,7 @@ class TestASEHelperFunctions(unittest.TestCase):
         cell_new = [[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]]
         cell_old = prism.vector_to_ase(cell_new)
         self.assertTrue(
-            np.all(
-                np.isclose(self.structure_skewed_mix.cell.array, cell_old)
-            )
+            np.all(np.isclose(self.structure_skewed_mix.cell.array, cell_old))
         )
 
 
