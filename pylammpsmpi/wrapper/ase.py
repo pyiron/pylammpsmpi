@@ -287,8 +287,7 @@ class LammpsASELibrary(object):
             ]
         )
         if not _check_ortho_prism(prism=self._prism):
-            rotation_matrix = self._prism.rot_mat.T
-            pp = rotation_matrix.T @ pp @ rotation_matrix
+            pp = self._prism.tensor2_to_ase(pp)
         return pp
 
     def interactive_indices_setter(self, indices, el_eam_lst):
