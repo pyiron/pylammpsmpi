@@ -156,9 +156,7 @@ class TestASEHelperFunctions(unittest.TestCase):
     def test_unfolding_prism_cubic(self):
         prism = Prism(self.structure_cubic.cell.array)
         self.assertTrue(
-            np.all(
-                np.isclose(prism.get_lammps_prism(), [8.1, 8.1, 8.1, 0., 0., 0.])
-            )
+            np.all(np.isclose(prism.get_lammps_prism(), [8.1, 8.1, 8.1, 0.0, 0.0, 0.0]))
         )
         self.assertTrue(
             np.all(
