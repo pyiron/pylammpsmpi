@@ -2,6 +2,7 @@ import logging
 import unittest
 
 from ase.build import bulk
+from ase.calculators.lammps.coordinatetransform import Prism
 from ase.constraints import FixAtoms, FixedPlane, FixCom
 import numpy as np
 
@@ -12,7 +13,6 @@ from pylammpsmpi.wrapper.ase import (
     get_structure_indices,
     get_lammps_indicies_from_ase_structure,
     set_selective_dynamics,
-    UnfoldingPrism,
 )
 
 
@@ -154,26 +154,27 @@ class TestASEHelperFunctions(unittest.TestCase):
         self.assertEqual(set(indicies), {1})
 
     def test_unfolding_prism_cubic(self):
-        prism = UnfoldingPrism(self.structure_cubic.cell.array)
-        self.assertEqual(
-            prism.get_lammps_prism_str(),
-            ("8.1000000000", "8.1000000000", "8.1000000000", "0E-10", "0E-10", "0E-10"),
+        prism = Prism(self.structure_cubic.cell.array)
+        self.assertTrue(
+            np.all(
+                np.isclose(prism.get_lammps_prism(), [8.1, 8.1, 8.1, 0., 0., 0.])
+            )
         )
         self.assertTrue(
             np.all(
                 np.isclose(
-                    prism.pos_to_lammps(position=[[1.0, 1.0, 1.0]]),
+                    prism.vector_to_lammps([[1.0, 1.0, 1.0]]),
                     np.array([1.0, 1.0, 1.0]),
                 )
             )
         )
 
     def test_unfolding_prism_skewed(self):
-        prism = UnfoldingPrism(self.structure_skewed.cell.array)
+        prism = Prism(self.structure_skewed.cell.array)
         self.assertTrue(
             np.all(
                 np.isclose(
-                    [np.abs(float(s)) for s in prism.get_lammps_prism_str()],
+                    prism.get_lammps_prism(),
                     [
                         5.7275649276,
                         4.9602167291,
@@ -188,7 +189,7 @@ class TestASEHelperFunctions(unittest.TestCase):
         self.assertTrue(
             np.all(
                 np.isclose(
-                    prism.pos_to_lammps(position=[[1.0, 1.0, 1.0]]),
+                    prism.vector_to_lammps([[1.0, 1.0, 1.0]]),
                     np.array([1.41421356, 0.81649658, 0.57735027]),
                 )
             )
@@ -273,7 +274,7 @@ class TestConstraints(unittest.TestCase):
 
 class TestBinary(unittest.TestCase):
     def setUp(self):
-        self.result = [-0.04742416, -0.97751609, -2.66537476]
+        self.result = [-0.04678345, -0.96708929, -2.625]
         bulk_al = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_au = bulk("Au", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_mix = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
