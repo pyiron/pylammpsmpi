@@ -95,7 +95,8 @@ class TestLammpsConcurrent(unittest.TestCase):
 
     def test_version(self):
         self.assertTrue(
-            self.lmp.version.result() in [20220623, 20230802, 20231121, 20240207]
+            self.lmp.version.result()
+            in [20220623, 20230802, 20231121, 20240207, 20240627]
         )
 
     def test_extract_global(self):
