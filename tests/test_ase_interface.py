@@ -21,7 +21,7 @@ class TestLammpsASELibrary(unittest.TestCase):
     def test_static(self):
         lmp = LammpsASELibrary(
             working_directory=None,
-            cores=2,
+            cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
