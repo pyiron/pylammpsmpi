@@ -4,6 +4,7 @@ from executorlib import Executor
 from executorlib.shared.executor import cloudpickle_register
 from pylammpsmpi import LammpsASELibrary
 
+
 def calc_lmp(structure):
     from mpi4py import MPI
 
