@@ -1,6 +1,7 @@
 import unittest
 from ase.build import bulk
 from executorlib import Executor
+from executorlib.shared.executor import cloudpickle_register
 from pylammpsmpi import LammpsASELibrary
 
 def calc_lmp(structure):
@@ -37,6 +38,7 @@ def calc_lmp(structure):
 class TestWithExecutor(unittest.TestCase):
     def test_executor(self):
         with Executor(max_cores=2, backend="local", hostname_localhost=True) as exe:
+            cloudpickle_register(ind=1)
             future = exe.submit(calc_lmp, bulk("Al", cubic=True).repeat([2, 2, 2]))
             energy = future.result()
         self.assertAlmostEqual(energy, -0.04342932384411344)
