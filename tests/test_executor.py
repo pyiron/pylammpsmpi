@@ -3,6 +3,7 @@ from ase.build import bulk
 from executorlib import Executor
 from pylammpsmpi import LammpsASELibrary
 
+
 def calc_lmp(structure):
     from mpi4py import MPI
 
