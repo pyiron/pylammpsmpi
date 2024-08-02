@@ -3,6 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 from typing import List, Union
+
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -178,8 +179,13 @@ class LammpsBase(LammpsConcurrent):
         _ = super().reset_box(*args).result()
 
     def generate_atoms(
-        self, ids: List[int] = None, type: List[int] = None, x: List[float] = None,
-        v: List[float] = None, image: List[int] = None, shrinkexceed: bool = False
+        self,
+        ids: List[int] = None,
+        type: List[int] = None,
+        x: List[float] = None,
+        v: List[float] = None,
+        image: List[int] = None,
+        shrinkexceed: bool = False,
     ) -> None:
         """
         Create atoms on all procs
@@ -215,9 +221,16 @@ class LammpsBase(LammpsConcurrent):
             .result()
         )
 
-    def create_atoms(self, n: int, id: List[int], type: List[int], x: List[float],
-                     v: List[float] = None, image: List[int] = None,
-                     shrinkexceed: bool = False) -> None:
+    def create_atoms(
+        self,
+        n: int,
+        id: List[int],
+        type: List[int],
+        x: List[float],
+        v: List[float] = None,
+        image: List[int] = None,
+        shrinkexceed: bool = False,
+    ) -> None:
         """
         Create atoms on all procs
 

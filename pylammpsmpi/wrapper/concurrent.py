@@ -6,7 +6,7 @@ import os
 import sys
 from concurrent.futures import Future
 from queue import Queue
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
 from executorlib.shared import (
     MpiExecInterface,
@@ -315,7 +315,9 @@ class LammpsConcurrent:
             ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
 
-    def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False) -> Future:
+    def create_atoms(
+        self, n, id, type, x, v=None, image=None, shrinkexceed=False
+    ) -> Future:
         """
         Create atoms on all processors.
 
