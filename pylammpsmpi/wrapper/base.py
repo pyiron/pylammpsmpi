@@ -283,7 +283,7 @@ class LammpsBase(LammpsConcurrent):
     def set_fix_external_callback(self, *args) -> None:
         _ = super().set_fix_external_callback(*args).result()
 
-    def get_neighlist(self, *args) -> NeighList:
+    def get_neighlist(self, *args):
         """Returns an instance of :class:`NeighList` which wraps access to the neighbor list with the given index
         :param idx: index of neighbor list
         :type  idx: int
