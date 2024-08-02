@@ -5,6 +5,7 @@ from ctypes import c_double, c_int
 from typing import List, Optional
 
 import numpy as np
+from ase.atoms import Atoms
 from ase.calculators.lammps import Prism
 from ase.data import atomic_masses, atomic_numbers
 from scipy import constants
