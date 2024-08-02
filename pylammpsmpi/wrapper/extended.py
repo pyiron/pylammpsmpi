@@ -3,6 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 from typing import Any, List, Optional
+
 from pylammpsmpi.wrapper.base import LammpsConcurrent
 
 __author__ = "Sarath Menon, Jan Janssen"
