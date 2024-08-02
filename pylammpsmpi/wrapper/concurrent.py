@@ -31,6 +31,7 @@ def execute_async(
     cmdargs=None,
     cores=1,
     oversubscribe=False,
+    hostname_localhost=False,
     cwd=None,
 ):
     executable = os.path.join(
@@ -46,6 +47,9 @@ def execute_async(
             cores=cores,
             oversubscribe=oversubscribe,
         ),
+        hostname_localhost=hostname_localhost,
+        prefix_name=None,
+        prefix_path=None,
     )
     while True:
         task_dict = future_queue.get()
@@ -65,12 +69,14 @@ class LammpsConcurrent:
         oversubscribe=False,
         working_directory=".",
         cmdargs=None,
+        hostname_localhost=False,
     ):
         self.cores = cores
         self.working_directory = working_directory
         self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
+        self._hostname_localhost = hostname_localhost
         self._cmdargs = cmdargs
         self._start_process()
 
@@ -83,6 +89,7 @@ class LammpsConcurrent:
                 "cores": self.cores,
                 "oversubscribe": self._oversubscribe,
                 "cwd": self.working_directory,
+                "hostname_localhost": self._hostname_localhost,
             },
         )
         self._process.start()
