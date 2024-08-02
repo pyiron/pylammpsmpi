@@ -3,9 +3,9 @@ channels:
 dependencies:
 - coverage
 - lammps =2024.06.27=*_mpi_openmpi_*
-- openmpi =4.1.6
+- openmpi =5.0.5
 - numpy =1.26.4
-- mpi4py =3.1.6
+- mpi4py =4.0.0
 - executorlib =0.0.1
 - ase =3.23.0
 - scipy =1.14.0
