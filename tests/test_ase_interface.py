@@ -25,7 +25,11 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
+            library=LammpsLibrary(
+                cores=2,
+                mode="local",
+                hostname_localhost=True,
+            ),
             diable_log_file=True,
             hostname_localhost=True,
         )
@@ -85,7 +89,11 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
+            library=LammpsLibrary(
+                cores=2,
+                mode="local",
+                hostname_localhost=True,
+            ),
             diable_log_file=True,
             hostname_localhost=True,
         )
@@ -130,7 +138,11 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
+            library=LammpsLibrary(
+                cores=2,
+                mode="local",
+                hostname_localhost=True,
+            ),
             diable_log_file=True,
             hostname_localhost=True,
         )
@@ -421,7 +433,11 @@ class TestBinary(unittest.TestCase):
                 comm=None,
                 logger=logging.getLogger("TestStaticLogger"),
                 log_file=None,
-                library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
+                library=LammpsLibrary(
+                    cores=2,
+                    mode="local",
+                    hostname_localhost=True,
+                ),
                 diable_log_file=True,
                 hostname_localhost=True,
             )
@@ -478,7 +494,11 @@ class TestBinary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
+            library=LammpsLibrary(
+                cores=2,
+                mode="local",
+                hostname_localhost=True,
+            ),
             diable_log_file=True,
             hostname_localhost=True,
         )
