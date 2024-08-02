@@ -19,6 +19,7 @@ class TestLammpsBase(unittest.TestCase):
             oversubscribe=False,
             working_directory=".",
             cmdargs=["-cite", cls.citation_file],
+            hostname_localhost=True,
         )
         cls.lmp.file(cls.lammps_file)
 
@@ -32,6 +33,7 @@ class TestLammpsBase(unittest.TestCase):
             oversubscribe=False,
             working_directory=".",
             cmdargs=["-cite", self.citation_file],
+            hostname_localhost=True,
         )
         with self.assertRaises(FileNotFoundError):
             lmp.file("file_does_not_exist.txt")

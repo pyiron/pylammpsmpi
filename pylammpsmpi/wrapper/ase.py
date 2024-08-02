@@ -21,6 +21,7 @@ class LammpsASELibrary(object):
         log_file=None,
         library=None,
         diable_log_file=True,
+        hostname_localhost=False,
     ):
         self._logger = logger
         self._prism = None
@@ -45,7 +46,9 @@ class LammpsASELibrary(object):
                 )
         else:
             self._interactive_library = LammpsBase(
-                cores=self._cores, working_directory=working_directory
+                cores=self._cores,
+                working_directory=working_directory,
+                hostname_localhost=hostname_localhost,
             )
 
     def interactive_lib_command(self, command):

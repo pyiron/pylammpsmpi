@@ -25,8 +25,9 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
             diable_log_file=True,
+            hostname_localhost=True,
         )
         structure = bulk("Al", cubic=True).repeat([2, 2, 2])
         lmp.interactive_structure_setter(
@@ -84,8 +85,9 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
             diable_log_file=True,
+            hostname_localhost=True,
         )
         structure = bulk("Al", cubic=True)
         lmp.interactive_structure_setter(
@@ -128,8 +130,9 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
             diable_log_file=True,
+            hostname_localhost=True,
         )
         structure = bulk("Al").repeat([2, 2, 2])
         lmp.interactive_structure_setter(
@@ -175,6 +178,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             log_file=None,
             library=None,
             diable_log_file=True,
+            hostname_localhost=True,
         ) as lmp:
             lmp.interactive_structure_setter(
                 structure=structure,
@@ -417,8 +421,9 @@ class TestBinary(unittest.TestCase):
                 comm=None,
                 logger=logging.getLogger("TestStaticLogger"),
                 log_file=None,
-                library=LammpsLibrary(cores=2, mode="local"),
+                library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
                 diable_log_file=True,
+                hostname_localhost=True,
             )
             lmp.interactive_structure_setter(
                 structure=structure,
@@ -442,8 +447,13 @@ class TestBinary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(
+                cores=2,
+                mode="local",
+                hostname_localhost=True,
+            ),
             diable_log_file=True,
+            hostname_localhost=True,
         )
         for structure in self.structure_lst:
             lmp.interactive_structure_setter(
@@ -468,8 +478,9 @@ class TestBinary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
             diable_log_file=True,
+            hostname_localhost=True,
         )
         for structure in self.structure_lst[::-1]:
             lmp.interactive_structure_setter(

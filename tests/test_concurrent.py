@@ -15,6 +15,7 @@ class TestLammpsConcurrent(unittest.TestCase):
             oversubscribe=False,
             working_directory=".",
             cmdargs=["-cite", cls.citation_file],
+            hostname_localhost=True,
         )
         cls.lmp.file(cls.lammps_file).result()
 

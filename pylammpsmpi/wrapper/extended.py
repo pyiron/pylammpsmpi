@@ -248,6 +248,7 @@ class LammpsLibrary:
         client=None,
         mode="local",
         cmdargs=None,
+        hostname_localhost=False,
     ):
         self.cores = cores
         self.working_directory = working_directory
@@ -259,6 +260,7 @@ class LammpsLibrary:
             oversubscribe=self.oversubscribe,
             working_directory=self.working_directory,
             cmdargs=cmdargs,
+            hostname_localhost=hostname_localhost,
         )
 
     def __getattr__(self, name):

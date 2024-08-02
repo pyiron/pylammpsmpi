@@ -16,6 +16,7 @@ def calc_lmp(structure):
         log_file=None,
         library=None,
         diable_log_file=True,
+        hostname_localhost=True,
     )
     lmp.interactive_structure_setter(
         structure=structure,
