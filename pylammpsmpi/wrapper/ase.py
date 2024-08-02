@@ -2,6 +2,7 @@ import importlib
 import os
 import warnings
 from ctypes import c_double, c_int
+from typing import List, Optional
 
 import numpy as np
 from ase.calculators.lammps import Prism
@@ -11,16 +12,29 @@ from scipy import constants
 from pylammpsmpi.wrapper.base import LammpsBase
 
 
-class LammpsASELibrary(object):
+class LammpsASELibrary:
+    """
+    A class that provides an interface to interact with LAMMPS using ASE.
+
+    Args:
+        working_directory (str, optional): The working directory. Defaults to None.
+        cores (int, optional): The number of cores to use. Defaults to 1.
+        comm (object, optional): The MPI communicator. Defaults to None.
+        logger (object, optional): The logger object. Defaults to None.
+        log_file (str, optional): The log file path. Defaults to None.
+        library (object, optional): The LAMMPS library object. Defaults to None.
+        disable_log_file (bool, optional): Whether to disable the log file. Defaults to True.
+    """
+
     def __init__(
         self,
-        working_directory=None,
-        cores=1,
-        comm=None,
-        logger=None,
-        log_file=None,
-        library=None,
-        diable_log_file=True,
+        working_directory: Optional[str] = None,
+        cores: int = 1,
+        comm: Optional[object] = None,
+        logger: Optional[object] = None,
+        log_file: Optional[str] = None,
+        library: Optional[object] = None,
+        disable_log_file: bool = True,
     ):
         self._logger = logger
         self._prism = None
@@ -31,7 +45,7 @@ class LammpsASELibrary(object):
             self._cores = library.cores
         elif self._cores == 1:
             lammps = getattr(importlib.import_module("lammps"), "lammps")
-            if diable_log_file:
+            if disable_log_file:
                 self._interactive_library = lammps(
                     cmdargs=["-screen", "none", "-log", "none"],
                     comm=comm,
@@ -48,12 +62,24 @@ class LammpsASELibrary(object):
                 cores=self._cores, working_directory=working_directory
             )
 
-    def interactive_lib_command(self, command):
+    def interactive_lib_command(self, command: str) -> None:
+        """
+        Execute a LAMMPS command using the interactive library.
+
+        Args:
+            command (str): The LAMMPS command to execute.
+        """
         if self._logger is not None:
             self._logger.debug("Lammps library: " + command)
         self._interactive_library.command(command)
 
-    def interactive_positions_getter(self):
+    def interactive_positions_getter(self) -> np.ndarray:
+        """
+        Get the positions of atoms from the interactive library.
+
+        Returns:
+            np.ndarray: The positions of atoms.
+        """
         positions = np.reshape(
             np.array(self._interactive_library.gather_atoms("x", 1, 3)),
             (len(self._structure), 3),
@@ -62,7 +88,13 @@ class LammpsASELibrary(object):
             positions = self._prism.vector_to_ase(positions)
         return positions
 
-    def interactive_positions_setter(self, positions):
+    def interactive_positions_setter(self, positions: List[List[float]]) -> None:
+        """
+        Set the positions of atoms in the interactive library.
+
+        Args:
+            positions (List[List[float]]): The positions of atoms.
+        """
         if not _check_ortho_prism(prism=self._prism):
             positions = self._prism.vector_to_lammps(positions)
         positions = np.array(positions).flatten()
@@ -74,7 +106,13 @@ class LammpsASELibrary(object):
             self._interactive_library.scatter_atoms("x", positions)
         self.interactive_lib_command(command="change_box all remap")
 
-    def interactive_cells_getter(self):
+    def interactive_cells_getter(self) -> np.ndarray:
+        """
+        Get the cell vectors from the interactive library.
+
+        Returns:
+            np.ndarray: The cell vectors.
+        """
         cc = np.array(
             [
                 [self._interactive_library.get_thermo("lx"), 0, 0],
@@ -92,7 +130,13 @@ class LammpsASELibrary(object):
         )
         return self._prism.vector_to_ase(cc)
 
-    def interactive_cells_setter(self, cell):
+    def interactive_cells_setter(self, cell: np.ndarray) -> None:
+        """
+        Set the cell vectors in the interactive library.
+
+        Args:
+            cell (np.ndarray): The cell vectors.
+        """
         self._prism = Prism(cell)
         lx, ly, lz, xy, xz, yz = self._prism.get_lammps_prism()
         if not _check_ortho_prism(prism=self._prism):
@@ -122,10 +166,22 @@ class LammpsASELibrary(object):
                 % (lx, ly, lz),
             )
 
-    def interactive_volume_getter(self):
+    def interactive_volume_getter(self) -> float:
+        """
+        Get the volume of the system from the interactive library.
+
+        Returns:
+            float: The volume of the system.
+        """
         return self._interactive_library.get_thermo("vol")
 
-    def interactive_forces_getter(self):
+    def interactive_forces_getter(self) -> np.ndarray:
+        """
+        Get the forces on atoms from the interactive library.
+
+        Returns:
+            np.ndarray: The forces on atoms.
+        """
         ff = np.reshape(
             np.array(self._interactive_library.gather_atoms("f", 1, 3)),
             (len(self._structure), 3),
@@ -136,14 +192,26 @@ class LammpsASELibrary(object):
 
     def interactive_structure_setter(
         self,
-        structure,
-        units,
-        dimension,
-        boundary,
-        atom_style,
-        el_eam_lst,
-        calc_md=True,
-    ):
+        structure: Atoms,
+        units: str,
+        dimension: int,
+        boundary: str,
+        atom_style: str,
+        el_eam_lst: List[str],
+        calc_md: bool = True,
+    ) -> None:
+        """
+        Set the structure in the interactive library.
+
+        Args:
+            structure (ase.Atoms): The structure.
+            units (str): The units of the simulation.
+            dimension (int): The dimension of the simulation.
+            boundary (str): The boundary conditions.
+            atom_style (str): The atom style.
+            el_eam_lst (List[str]): The list of element symbols.
+            calc_md (bool, optional): Whether to calculate molecular dynamics. Defaults to True.
+        """
         self.interactive_lib_command(command="clear")
         control_dict = set_selective_dynamics(structure=structure, calc_md=calc_md)
         self.interactive_lib_command(command="units " + units)
@@ -252,19 +320,49 @@ class LammpsASELibrary(object):
             self.interactive_lib_command(command=key + " " + value)
         self._structure = structure
 
-    def interactive_indices_getter(self):
+    def interactive_indices_getter(self) -> np.ndarray:
+        """
+        Get the indices of atoms from the interactive library.
+
+        Returns:
+            np.ndarray: The indices of atoms.
+        """
         return np.array(self._interactive_library.gather_atoms("type", 0, 1))
 
-    def interactive_energy_pot_getter(self):
+    def interactive_energy_pot_getter(self) -> float:
+        """
+        Get the potential energy from the interactive library.
+
+        Returns:
+            float: The potential energy.
+        """
         return self._interactive_library.get_thermo("pe")
 
-    def interactive_energy_tot_getter(self):
+    def interactive_energy_tot_getter(self) -> float:
+        """
+        Get the total energy from the interactive library.
+
+        Returns:
+            float: The total energy.
+        """
         return self._interactive_library.get_thermo("etotal")
 
-    def interactive_steps_getter(self):
+    def interactive_steps_getter(self) -> int:
+        """
+        Get the number of steps from the interactive library.
+
+        Returns:
+            int: The number of steps.
+        """
         return self._interactive_library.get_thermo("step")
 
-    def interactive_temperatures_getter(self):
+    def interactive_temperatures_getter(self) -> float:
+        """
+        Get the temperature from the interactive library.
+
+        Returns:
+            float: The temperature.
+        """
         return self._interactive_library.get_thermo("temp")
 
     def interactive_pressures_getter(self):
