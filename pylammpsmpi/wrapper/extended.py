@@ -2,6 +2,8 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
+from typing import Any, List, Optional
+
 from pylammpsmpi.wrapper.base import LammpsConcurrent
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -238,17 +240,25 @@ thermo_list = [
 class LammpsLibrary:
     """
     Top level class which manages the lammps library provided by LammpsBase
+
+    Args:
+        cores (int): Number of CPU cores to use for Lammps simulation (default: 1)
+        oversubscribe (bool): Whether to oversubscribe CPU cores (default: False)
+        working_directory (str): Path to the working directory (default: ".")
+        client: Client object for distributed computing (default: None)
+        mode (str): Mode of operation (default: "local")
+        cmdargs: Additional command line arguments for Lammps (default: None)
     """
 
     def __init__(
         self,
-        cores=1,
-        oversubscribe=False,
-        working_directory=".",
-        client=None,
-        mode="local",
-        cmdargs=None,
-    ):
+        cores: int = 1,
+        oversubscribe: bool = False,
+        working_directory: str = ".",
+        client: Any = None,
+        mode: str = "local",
+        cmdargs: Optional[List[str]] = None,
+    ) -> None:
         self.cores = cores
         self.working_directory = working_directory
         self.oversubscribe = oversubscribe
@@ -261,13 +271,19 @@ class LammpsLibrary:
             cmdargs=cmdargs,
         )
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         """
         Try to run input as a lammps command
+
+        Args:
+            name (str): Name of the lammps command
+
+        Returns:
+            Any: Result of the lammps command
         """
         if name in func_list:
 
-            def func_wrapper(*args, **kwargs):
+            def func_wrapper(*args, **kwargs) -> Any:
                 func = getattr(self.lmp, name)
                 fut = func(*args, **kwargs)
                 return fut.result()
@@ -280,7 +296,7 @@ class LammpsLibrary:
 
         elif name in command_list:
 
-            def command_wrapper(*args):
+            def command_wrapper(*args) -> Any:
                 args = [name] + list(args)
                 cmd = " ".join([str(x) for x in args])
                 fut = self.lmp.command(cmd)
@@ -295,10 +311,19 @@ class LammpsLibrary:
         else:
             raise AttributeError(name)
 
-    def close(self):
+    def close(self) -> None:
+        """
+        Close the Lammps simulation
+        """
         self.lmp.close()
 
-    def __dir__(self):
+    def __dir__(self) -> List[str]:
+        """
+        Get the list of attributes and methods of the LammpsLibrary object
+
+        Returns:
+            List[str]: List of attributes and methods
+        """
         return (
             list(super().__dir__()) + func_list + thermo_list + command_list + prop_list
         )
