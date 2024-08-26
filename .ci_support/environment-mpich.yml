@@ -4,7 +4,7 @@ dependencies:
 - coverage
 - lammps =2024.06.27=*_mpi_mpich_*
 - mpich =4.2.2
-- numpy =1.26.4
+- numpy =2.1.0
 - mpi4py =4.0.0
 - executorlib =0.0.2
 - ase =3.23.0
