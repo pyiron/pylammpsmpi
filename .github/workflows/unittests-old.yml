@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.9'
-        miniforge-variant: Mambaforge
-        channels: conda-forge
-        channel-priority: strict
-        use-mamba: true
+        miniforge-version: latest
+        condarc-file: .condarc
         environment-file: .ci_support/environment-old.yml
     - name: Test
       shell: bash -l {0}
