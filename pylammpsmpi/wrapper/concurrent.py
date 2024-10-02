@@ -58,7 +58,7 @@ def execute_async(
         connections=MpiExecSpawner(
             cwd=cwd,
             cores=cores,
-            oversubscribe=oversubscribe,
+            openmpi_oversubscribe=oversubscribe,
         ),
     )
     while True:
