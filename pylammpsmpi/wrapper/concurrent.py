@@ -9,7 +9,7 @@ from queue import Queue
 from typing import Any, List, Optional
 
 from executorlib.shared import (
-    MpiExecInterface,
+    MpiExecSpawner,
     RaisingThread,
     cancel_items_in_queue,
     interface_bootup,
@@ -55,7 +55,7 @@ def execute_async(
         cmds.extend(cmdargs)
     interface = interface_bootup(
         command_lst=cmds,
-        connections=MpiExecInterface(
+        connections=MpiExecSpawner(
             cwd=cwd,
             cores=cores,
             oversubscribe=oversubscribe,
