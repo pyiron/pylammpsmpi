@@ -10,7 +10,7 @@ from typing import Any, List, Optional
 
 from executorlib.standalone.thread import RaisingThread
 from exeuctorlib.standalone.queue import cancel_items_in_queue
-from executorlib.standalone.interactive.spawner import MpiExecInterface
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.standalone.interactive.communication import interface_bootup
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -53,10 +53,10 @@ def execute_async(
         cmds.extend(cmdargs)
     interface = interface_bootup(
         command_lst=cmds,
-        connections=MpiExecInterface(
+        connections=MpiExecSpawner(
             cwd=cwd,
             cores=cores,
-            oversubscribe=oversubscribe,
+            openmpi_oversubscribe=oversubscribe,
         ),
     )
     while True:
