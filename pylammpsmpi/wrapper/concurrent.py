@@ -8,12 +8,10 @@ from concurrent.futures import Future
 from queue import Queue
 from typing import Any, List, Optional
 
-from executorlib.shared import (
-    MpiExecInterface,
-    RaisingThread,
-    cancel_items_in_queue,
-    interface_bootup,
-)
+from executorlib.standalone.thread import RaisingThread
+from exeuctorlib.standalone.queue import cancel_items_in_queue
+from executorlib.standalone.interactive.spawner import MpiExecInterface
+from executorlib.standalone.interactive.communication import interface_bootup
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (

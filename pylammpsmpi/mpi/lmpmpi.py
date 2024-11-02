@@ -6,7 +6,7 @@ import sys
 from ctypes import c_double, c_int
 
 import numpy as np
-from executorlib.shared import (
+from executorlib.standalone.interactive.communication import (
     interface_connect,
     interface_receive,
     interface_send,
