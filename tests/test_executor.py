@@ -1,7 +1,7 @@
 import unittest
 from ase.build import bulk
 from executorlib import Executor
-from executorlib.shared.executor import cloudpickle_register
+from executorlib.standalone.serialize import cloudpickle_register
 from pylammpsmpi import LammpsASELibrary
 
 
