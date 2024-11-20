@@ -11,7 +11,7 @@ from typing import Any, List, Optional
 from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.standalone.thread import RaisingThread
-from exeuctorlib.standalone.queue import cancel_items_in_queue
+from executorlib.standalone.queue import cancel_items_in_queue
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
