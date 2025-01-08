@@ -110,7 +110,8 @@ class TestLammpsBase(unittest.TestCase):
 
     def test_version(self):
         self.assertTrue(
-            self.lmp.version in [20220623, 20230802, 20231121, 20240207, 20240627]
+            self.lmp.version
+            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
         )
 
     def test_extract_global(self):
