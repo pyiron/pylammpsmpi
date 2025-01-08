@@ -3,7 +3,7 @@ channels:
 dependencies:
 - openmpi
 - numpy =1.26.4
-- lammps =2024.06.27
+- lammps =2024.08.29
 - mpi4py =4.0.1
 - executorlib =0.0.4
 - ase =3.24.0
