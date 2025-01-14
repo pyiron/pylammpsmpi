@@ -9,3 +9,5 @@ dependencies:
 - executorlib
 - ase
 - scipy
+- setuptools
+- python =3.12
