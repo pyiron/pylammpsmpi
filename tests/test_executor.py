@@ -38,7 +38,9 @@ def calc_lmp(structure):
 
 class TestWithExecutor(unittest.TestCase):
     def test_executor(self):
-        with SingleNodeExecutor(max_workers=2, backend="local", hostname_localhost=True) as exe:
+        with SingleNodeExecutor(
+            max_workers=2, backend="local", hostname_localhost=True
+        ) as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(calc_lmp, bulk("Al", cubic=True).repeat([2, 2, 2]))
             energy = future.result()
