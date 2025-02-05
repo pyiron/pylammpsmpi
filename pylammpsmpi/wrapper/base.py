@@ -1,8 +1,7 @@
-# coding: utf-8
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-from typing import List, Union
+from typing import Union
 
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
@@ -72,7 +71,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return super().extract_global(name=name).result()
 
-    def extract_box(self) -> List[Union[float, List[float], List[int]]]:
+    def extract_box(self) -> list[Union[float, list[float], list[int]]]:
         """
         Get the simulation box
 
@@ -87,7 +86,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return super().extract_box().result()
 
-    def extract_atom(self, name: str) -> Union[List[int], List[float]]:
+    def extract_atom(self, name: str) -> Union[list[int], list[float]]:
         """
         Extract a property of the atoms
 
@@ -102,7 +101,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return super().extract_atom(name=name).result()
 
-    def extract_fix(self, *args) -> Union[int, float, List[Union[int, float]]]:
+    def extract_fix(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
         Extract a fix value
 
@@ -116,7 +115,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return super().extract_fix(*args).result()
 
-    def extract_variable(self, *args) -> Union[int, float, List[Union[int, float]]]:
+    def extract_variable(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
         Extract the value of a variable
 
@@ -180,11 +179,11 @@ class LammpsBase(LammpsConcurrent):
 
     def generate_atoms(
         self,
-        ids: List[int] = None,
-        type: List[int] = None,
-        x: List[float] = None,
-        v: List[float] = None,
-        image: List[int] = None,
+        ids: list[int] = None,
+        type: list[int] = None,
+        x: list[float] = None,
+        v: list[float] = None,
+        image: list[int] = None,
         shrinkexceed: bool = False,
     ) -> None:
         """
@@ -224,11 +223,11 @@ class LammpsBase(LammpsConcurrent):
     def create_atoms(
         self,
         n: int,
-        id: List[int],
-        type: List[int],
-        x: List[float],
-        v: List[float] = None,
-        image: List[int] = None,
+        id: list[int],
+        type: list[int],
+        x: list[float],
+        v: list[float] = None,
+        image: list[int] = None,
         shrinkexceed: bool = False,
     ) -> None:
         """
@@ -290,7 +289,7 @@ class LammpsBase(LammpsConcurrent):
         return super().has_ffmpeg_support.result()
 
     @property
-    def installed_packages(self) -> List[str]:
+    def installed_packages(self) -> list[str]:
         return super().installed_packages.result()
 
     def set_fix_external_callback(self, *args) -> None:
@@ -305,7 +304,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return super().get_neighlist(*args).result()
 
-    def find_pair_neighlist(self, style: str) -> int:
+    def find_pair_neighlist(self, *args) -> int:
         """Find neighbor list index of pair style neighbor list
         Try finding pair instance that matches style. If exact is set, the pair must
         match style exactly. If exact is 0, style must only be contained. If pair is

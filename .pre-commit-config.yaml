@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: ruff
         name: ruff lint
-        args: ["--select", "I", "--fix"]
+        args: ["--fix"]
         files: ^pylammpsmpi/
       - id: ruff-format
         name: ruff format

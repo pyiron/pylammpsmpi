@@ -2,7 +2,7 @@ import importlib
 import os
 import warnings
 from ctypes import c_double, c_int
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 from ase.atoms import Atoms
@@ -45,7 +45,7 @@ class LammpsASELibrary:
             self._interactive_library = library
             self._cores = library.cores
         elif self._cores == 1:
-            lammps = getattr(importlib.import_module("lammps"), "lammps")
+            lammps = importlib.import_module("lammps").lammps
             if disable_log_file:
                 self._interactive_library = lammps(
                     cmdargs=["-screen", "none", "-log", "none"],
@@ -89,7 +89,7 @@ class LammpsASELibrary:
             positions = self._prism.vector_to_ase(positions)
         return positions
 
-    def interactive_positions_setter(self, positions: List[List[float]]) -> None:
+    def interactive_positions_setter(self, positions: list[list[float]]) -> None:
         """
         Set the positions of atoms in the interactive library.
 
@@ -142,7 +142,7 @@ class LammpsASELibrary:
         lx, ly, lz, xy, xz, yz = self._prism.get_lammps_prism()
         if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
-                "Warning: setting upper trangular matrix might slow down the calculation"
+                "Warning: setting upper trangular matrix might slow down the calculation", stacklevel=2
             )
 
         is_skewed = cell_is_skewed(cell=cell, tolerance=1.0e-8)
@@ -152,19 +152,16 @@ class LammpsASELibrary:
             if not was_skewed:
                 self.interactive_lib_command(command="change_box all triclinic")
             self.interactive_lib_command(
-                command="change_box all x final 0 %f y final 0 %f z final 0 %f  xy final %f xz final %f yz final %f remap units box"
-                % (lx, ly, lz, xy, xz, yz),
+                command=f"change_box all x final 0 {lx:f} y final 0 {ly:f} z final 0 {lz:f}  xy final {xy:f} xz final {xz:f} yz final {yz:f} remap units box",
             )
         elif was_skewed:
             self.interactive_lib_command(
-                command="change_box all x final 0 %f y final 0 %f z final 0 %f xy final %f xz final %f yz final %f remap units box"
-                % (lx, ly, lz, 0.0, 0.0, 0.0),
+                command=f"change_box all x final 0 {lx:f} y final 0 {ly:f} z final 0 {lz:f} xy final {0.0:f} xz final {0.0:f} yz final {0.0:f} remap units box",
             )
             self.interactive_lib_command(command="change_box all ortho")
         else:
             self.interactive_lib_command(
-                command="change_box all x final 0 %f y final 0 %f z final 0 %f remap units box"
-                % (lx, ly, lz),
+                command=f"change_box all x final 0 {lx:f} y final 0 {ly:f} z final 0 {lz:f} remap units box",
             )
 
     def interactive_volume_getter(self) -> float:
@@ -198,7 +195,7 @@ class LammpsASELibrary:
         dimension: int,
         boundary: str,
         atom_style: str,
-        el_eam_lst: List[str],
+        el_eam_lst: list[str],
         calc_md: bool = True,
     ) -> None:
         """
@@ -224,7 +221,7 @@ class LammpsASELibrary:
         self._prism = Prism(structure.cell)
         if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
-                "Warning: setting upper trangular matrix might slow down the calculation"
+                "Warning: setting upper trangular matrix might slow down the calculation", stacklevel=2
             )
         xhi, yhi, zhi, xy, xz, yz = self._prism.get_lammps_prism()
         if self._prism.is_skewed():
@@ -274,13 +271,11 @@ class LammpsASELibrary:
         for id_eam, el_eam in enumerate(el_eam_lst):
             if el_eam in el_struct_lst:
                 self.interactive_lib_command(
-                    command="mass {0:3d} {1:f}".format(
-                        id_eam + 1, atomic_masses[atomic_numbers[el_eam]]
-                    ),
+                    command=f"mass {id_eam + 1:3d} {atomic_masses[atomic_numbers[el_eam]]:f}",
                 )
             else:
                 self.interactive_lib_command(
-                    command="mass {0:3d} {1:f}".format(id_eam + 1, 1.00),
+                    command=f"mass {id_eam + 1:3d} {1.00:f}",
                 )
         if not _check_ortho_prism(prism=self._prism):
             positions = self._prism.vector_to_lammps(structure.positions).flatten()
@@ -476,10 +471,7 @@ def cell_is_skewed(cell, tolerance=1.0e-8):
     """
     volume = np.abs(np.linalg.det(cell))
     prod = np.linalg.norm(cell, axis=-1).prod()
-    if volume > 0:
-        if abs(volume - prod) / volume < tolerance:
-            return False
-    return True
+    return not (volume > 0 and abs(volume - prod) / volume < tolerance)
 
 
 def _check_ortho_prism(prism, rtol=0.0, atol=1e-08):
@@ -553,11 +545,11 @@ def get_fixed_atom_boolean_vector(structure):
             fixed_atom_vector[c_dict["kwargs"]["indices"]] = [True, True, True]
         elif c_dict["name"] == "FixedPlane":
             if all(np.isin(c_dict["kwargs"]["direction"], [0, 1])):
-                if "indices" in c_dict["kwargs"].keys():
+                if "indices" in c_dict["kwargs"]:
                     fixed_atom_vector[c_dict["kwargs"]["indices"]] = np.array(
                         c_dict["kwargs"]["direction"]
                     ).astype(bool)
-                elif "a" in c_dict["kwargs"].keys():
+                elif "a" in c_dict["kwargs"]:
                     fixed_atom_vector[c_dict["kwargs"]["a"]] = np.array(
                         c_dict["kwargs"]["direction"]
                     ).astype(bool)

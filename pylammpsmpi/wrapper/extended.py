@@ -1,8 +1,7 @@
-# coding: utf-8
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from pylammpsmpi.wrapper.base import LammpsConcurrent
 
@@ -257,7 +256,7 @@ class LammpsLibrary:
         working_directory: str = ".",
         client: Any = None,
         mode: str = "local",
-        cmdargs: Optional[List[str]] = None,
+        cmdargs: Optional[list[str]] = None,
     ) -> None:
         self.cores = cores
         self.working_directory = working_directory
@@ -317,7 +316,7 @@ class LammpsLibrary:
         """
         self.lmp.close()
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> list[str]:
         """
         Get the list of attributes and methods of the LammpsLibrary object
 

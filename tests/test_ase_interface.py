@@ -1,18 +1,18 @@
 import logging
 import unittest
 
+import numpy as np
 from ase.atoms import Atoms
 from ase.build import bulk
 from ase.calculators.lammps.coordinatetransform import Prism
-from ase.constraints import FixAtoms, FixedPlane, FixCom
-import numpy as np
+from ase.constraints import FixAtoms, FixCom, FixedPlane
 
 from pylammpsmpi import LammpsASELibrary, LammpsLibrary
 from pylammpsmpi.wrapper.ase import (
     cell_is_skewed,
+    get_lammps_indicies_from_ase_structure,
     get_species_symbols,
     get_structure_indices,
-    get_lammps_indicies_from_ase_structure,
     set_selective_dynamics,
 )
 
