@@ -1,6 +1,8 @@
-import unittest
-import numpy as np
 import os
+import unittest
+
+import numpy as np
+
 from pylammpsmpi import LammpsConcurrent
 
 

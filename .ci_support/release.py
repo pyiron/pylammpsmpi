@@ -15,7 +15,7 @@ def get_setup_version_and_pattern(setup_content):
                     version_lst.append(dep.split("==")[1])
                     depend_lst.append(dep.split("==")[0])
 
-    version_high_dict = {d: v for d, v in zip(depend_lst, version_lst)}
+    version_high_dict = dict(zip(depend_lst, version_lst))
     return version_high_dict
 
 
@@ -30,13 +30,13 @@ def get_env_version(env_content):
             if len(lst) == 2:
                 depend_lst.append(lst[0])
                 version_lst.append(lst[1])
-    return {d: v for d, v in zip(depend_lst, version_lst)}
+    return dict(zip(depend_lst, version_lst))
 
 
 def update_dependencies(setup_content, version_low_dict, version_high_dict):
     version_combo_dict = {}
     for dep, ver in version_high_dict.items():
-        if dep in version_low_dict.keys() and version_low_dict[dep] != ver:
+        if dep in version_low_dict and version_low_dict[dep] != ver:
             version_combo_dict[dep] = dep + ">=" + version_low_dict[dep] + ",<=" + ver
         else:
             version_combo_dict[dep] = dep + "==" + ver
@@ -52,10 +52,10 @@ def update_dependencies(setup_content, version_low_dict, version_high_dict):
 
 
 if __name__ == "__main__":
-    with open("pyproject.toml", "r") as f:
+    with open("pyproject.toml") as f:
         setup_content = f.readlines()
 
-    with open("environment.yml", "r") as f:
+    with open("environment.yml") as f:
         env_content = f.readlines()
 
     setup_content_new = update_dependencies(

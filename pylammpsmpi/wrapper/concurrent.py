@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
@@ -6,7 +5,7 @@ import os
 import sys
 from concurrent.futures import Future
 from queue import Queue
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
@@ -27,7 +26,7 @@ __date__ = "Feb 28, 2020"
 
 def execute_async(
     future_queue: Any,
-    cmdargs: Optional[List[str]] = None,
+    cmdargs: Optional[list[str]] = None,
     cores: int = 1,
     oversubscribe: bool = False,
     cwd: Optional[str] = None,
@@ -61,10 +60,10 @@ def execute_async(
     )
     while True:
         task_dict = future_queue.get()
-        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+        if "shutdown" in task_dict and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
             break
-        elif "command" in task_dict.keys() and "future" in task_dict.keys():
+        elif "command" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
@@ -196,7 +195,7 @@ class LammpsConcurrent:
         val : Future
             A future object representing the extracted property of the atoms.
         """
-        return self._send_and_receive_dict(command="extract_atom", data=list([name]))
+        return self._send_and_receive_dict(command="extract_atom", data=[name])
 
     def extract_fix(self, *args) -> Future:
         """
