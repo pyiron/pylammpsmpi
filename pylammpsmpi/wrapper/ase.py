@@ -142,7 +142,8 @@ class LammpsASELibrary:
         lx, ly, lz, xy, xz, yz = self._prism.get_lammps_prism()
         if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
-                "Warning: setting upper trangular matrix might slow down the calculation", stacklevel=2
+                "Warning: setting upper trangular matrix might slow down the calculation",
+                stacklevel=2,
             )
 
         is_skewed = cell_is_skewed(cell=cell, tolerance=1.0e-8)
@@ -221,7 +222,8 @@ class LammpsASELibrary:
         self._prism = Prism(structure.cell)
         if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
-                "Warning: setting upper trangular matrix might slow down the calculation", stacklevel=2
+                "Warning: setting upper trangular matrix might slow down the calculation",
+                stacklevel=2,
             )
         xhi, yhi, zhi, xy, xz, yz = self._prism.get_lammps_prism()
         if self._prism.is_skewed():
