@@ -1,6 +1,6 @@
 # pylammpsmpi - Parallel Lammps Python interface
 [![Pipeline](https://github.com/pyiron/pylammpsmpi/actions/workflows/pipeline.yml/badge.svg)](https://github.com/pyiron/pylammpsmpi/actions/workflows/pipeline.yml)
-[![Coverage Status](https://coveralls.io/repos/github/pyiron/pylammpsmpi/badge.svg?branch=main)](https://coveralls.io/github/pyiron/pylammpsmpi?branch=main)
+[![codecov](https://codecov.io/gh/pyiron/pylammpsmpi/graph/badge.svg?token=DJIR6FJW85)](https://codecov.io/gh/pyiron/pylammpsmpi)
 
 With `pylammpsmpi` you can control a `mpi4py` parallel LAMMPS instance from a serial python process or a Jupyter 
 notebook. Internally `pylammpsmpi` leverages the `executorlib` communication interface to connect the serial python 
