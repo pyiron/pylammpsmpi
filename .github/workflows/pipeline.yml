@@ -62,8 +62,10 @@ jobs:
         pip install . --no-deps --no-build-isolation
         coverage run  --omit="pylammpsmpi/_version.py,tests/*" -m unittest discover tests
         coverage xml
-    - name: Coveralls
-      uses: coverallsapp/github-action@v2
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   pip_check:
     needs: [black]
