@@ -24,7 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "mpi4py==4.0.1",
+    "mpi4py==4.0.2",
     "executorlib==0.2.0",
     "numpy==1.26.4",
 ]
