@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - openmpi
-- numpy =1.26.4
+- numpy =2.2.3
 - lammps =2024.08.29
 - mpi4py =4.0.1
 - executorlib =0.0.4
