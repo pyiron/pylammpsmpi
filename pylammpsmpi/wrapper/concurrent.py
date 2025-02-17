@@ -5,12 +5,12 @@ import os
 import sys
 from concurrent.futures import Future
 from queue import Queue
+from threading import Thread
 from typing import Any, Optional
 
 from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
-from executorlib.standalone.thread import RaisingThread
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -104,7 +104,7 @@ class LammpsConcurrent:
         self._start_process()
 
     def _start_process(self):
-        self._process = RaisingThread(
+        self._process = Thread(
             target=execute_async,
             kwargs={
                 "future_queue": self._future_queue,
