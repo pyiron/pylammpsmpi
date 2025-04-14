@@ -7,5 +7,5 @@ dependencies:
 - numpy =1.26.4
 - mpi4py =4.0.1
 - executorlib =1.0.1
-- ase =3.24.0
+- ase =3.25.0
 - scipy =1.15.2
