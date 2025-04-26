@@ -8,9 +8,9 @@ from queue import Queue
 from threading import Thread
 from typing import Any, Optional
 
-from executorlib.standalone.interactive.communication import interface_bootup
-from executorlib.standalone.interactive.spawner import MpiExecSpawner
-from executorlib.standalone.queue import cancel_items_in_queue
+from executorlib.standalone import interface_bootup
+from executorlib.standalone import MpiExecSpawner
+from executorlib.standalone import cancel_items_in_queue
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
