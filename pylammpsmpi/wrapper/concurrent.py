@@ -8,7 +8,7 @@ from queue import Queue
 from threading import Thread
 from typing import Any, Optional
 
-from executorlib.standalone import (
+from executorlib.api import (
     MpiExecSpawner,
     cancel_items_in_queue,
     interface_bootup,
