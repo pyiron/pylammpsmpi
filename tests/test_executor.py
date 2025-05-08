@@ -2,7 +2,7 @@ import unittest
 
 from ase.build import bulk
 from executorlib import SingleNodeExecutor
-from executorlib.standalone import cloudpickle_register
+from executorlib.api import cloudpickle_register
 
 from pylammpsmpi import LammpsASELibrary
 
