@@ -5,7 +5,7 @@ dependencies:
 - lammps =2024.08.29=*_mpi_mpich_*
 - mpich =4.2.3
 - numpy =1.26.4
-- mpi4py =4.0.1
+- mpi4py =4.1.0
 - executorlib =1.5.1
 - ase =3.25.0
 - scipy =1.15.2
