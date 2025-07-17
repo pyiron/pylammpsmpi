@@ -34,9 +34,9 @@ class LammpsASELibrary:
         comm: Optional[object] = None,
         logger: Optional[object] = None,
         log_file: Optional[str] = None,
-        library: Optional[object] = None,
+            library: Optional[object] = None,
         disable_log_file: bool = True,
-        hostname_localhost: bool = False,
+            hostname_localhost: bool = False,
     ):
         self._logger = logger
         self._prism = None
