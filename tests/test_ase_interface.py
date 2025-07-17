@@ -178,7 +178,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             log_file=None,
             library=None,
             disable_log_file=True,
-                hostname_localhost=True,
+            hostname_localhost=True,
         ) as lmp:
             lmp.interactive_structure_setter(
                 structure=structure,
