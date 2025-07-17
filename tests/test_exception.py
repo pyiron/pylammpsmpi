@@ -1,3 +1,4 @@
+import os.path
 from unittest import TestCase
 from pylammpsmpi import LammpsLibrary
 
@@ -48,3 +49,8 @@ class TestException(TestCase):
         with self.assertRaises(Exception):
             lmp = LammpsLibrary(cores=2, mode="local")
             lmp.file("in.error")
+
+    def tearDown(self):
+        for f in ["in.error", "log.lammps"]:
+            if os.path.exists(f):
+                os.remove(f)
