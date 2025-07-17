@@ -1,4 +1,5 @@
 import logging
+import sys
 import unittest
 
 import numpy as np
@@ -123,6 +124,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
 
+    @unittest.skipIf(sys.platform == "darwin", "This test is not supported on MacOs")
     def test_small_displacement_skewed(self):
         lmp = LammpsASELibrary(
             working_directory=None,
