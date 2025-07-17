@@ -61,8 +61,6 @@ def execute_async(
             openmpi_oversubscribe=oversubscribe,
         ),
         hostname_localhost=hostname_localhost,
-        prefix_name=None,
-        prefix_path=None,
     )
     while True:
         task_dict = future_queue.get()
