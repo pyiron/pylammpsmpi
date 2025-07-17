@@ -165,17 +165,12 @@ jobs:
     - uses: actions/checkout@v4
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - name: Downgrade openmpi
-      run: |
-        sed -i '' -e 's/- openmpi =5.0.8/- openmpi =4.1.6/g' .ci_support/environment-openmpi.yml
-        sed -i '' -e 's/- numpy =2.3.1/- numpy =1.26.4/g' .ci_support/environment-openmpi.yml
-        sed -i '' -e 's/- lammps =2024.08.29=*_mpi_openmpi_*/- lammps =2024.06.27=*_mpi_openmpi_*/g' .ci_support/environment-openmpi.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.12'
         miniforge-version: latest
         condarc-file: .condarc
-        environment-file: .ci_support/environment-openmpi.yml
+        environment-file: .ci_support/environment-openmpi-mac.yml
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
