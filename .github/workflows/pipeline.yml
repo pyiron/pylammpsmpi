@@ -89,7 +89,7 @@ jobs:
         pip install . --no-deps --no-build-isolation
         pip check
 
-  unittest_mpich:
+  unittest_linux_mpich:
     needs: [black]
     runs-on: ubuntu-latest
     strategy:
@@ -113,7 +113,28 @@ jobs:
         pip install . --no-deps --no-build-isolation
         python -m unittest discover tests
 
-  unittest_openmpi:
+  unittest_mac_mpich:
+    needs: [black]
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.13'
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-mpich.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests
+
+  unittest_linux_openmpi:
     needs: [black]
     runs-on: ubuntu-latest
     strategy:
@@ -126,6 +147,27 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: ${{ matrix.python-version }}
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-openmpi.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests
+
+  unittest_mac_openmpi:
+    needs: [black]
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.13'
         miniforge-version: latest
         condarc-file: .condarc
         environment-file: .ci_support/environment-openmpi.yml
