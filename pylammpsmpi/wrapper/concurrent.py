@@ -68,7 +68,10 @@ def execute_async(
         elif "command" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
-                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+                try:
+                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+                except Exception as error:
+                    f.set_exception(error)
 
 
 class LammpsConcurrent:

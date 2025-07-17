@@ -482,11 +482,17 @@ def _run_lammps_mpi(argument_lst):
                 interface_send(socket=socket, result_dict={"result": True})
                 interface_shutdown(socket=socket, context=context)
             break
-        output = select_cmd(input_dict["command"])(
-            job=job, funct_args=input_dict["args"]
-        )
-        if MPI.COMM_WORLD.rank == 0 and output is not None:
-            interface_send(socket=socket, result_dict={"result": output})
+        try:
+            output = select_cmd(input_dict["command"])(
+                job=job, funct_args=input_dict["args"]
+            )
+        except Exception as error:
+            if MPI.COMM_WORLD.rank == 0:
+                interface_send(socket=socket, result_dict={"error": error})
+            break
+        else:
+            if MPI.COMM_WORLD.rank == 0 and output is not None:
+                interface_send(socket=socket, result_dict={"result": output})
 
 
 if __name__ == "__main__":
