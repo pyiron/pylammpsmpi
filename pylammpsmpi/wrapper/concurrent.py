@@ -31,6 +31,7 @@ def execute_async(
     cmdargs: Optional[list[str]] = None,
     cores: int = 1,
     oversubscribe: bool = False,
+    hostname_localhost: bool = False,
     cwd: Optional[str] = None,
 ) -> None:
     """
@@ -59,10 +60,12 @@ def execute_async(
             cores=cores,
             openmpi_oversubscribe=oversubscribe,
         ),
+        hostname_localhost=hostname_localhost,
     )
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
+            future_queue.task_done()
             interface.shutdown(wait=task_dict["wait"])
             break
         elif "command" in task_dict and "future" in task_dict:
@@ -73,6 +76,7 @@ def execute_async(
                 except Exception as error:
                     f.set_exception(error)
                     break
+        future_queue.task_done()
 
 
 class LammpsConcurrent:
@@ -82,6 +86,7 @@ class LammpsConcurrent:
         oversubscribe: bool = False,
         working_directory: str = ".",
         cmdargs: list = None,
+        hostname_localhost: bool = False,
     ):
         """
         Initialize the LammpsConcurrent object.
@@ -106,6 +111,7 @@ class LammpsConcurrent:
         self._future_queue = Queue()
         self._process = None
         self._oversubscribe = oversubscribe
+        self._hostname_localhost = hostname_localhost
         self._cmdargs = cmdargs
         self._start_process()
 
@@ -118,6 +124,7 @@ class LammpsConcurrent:
                 "cores": self.cores,
                 "oversubscribe": self._oversubscribe,
                 "cwd": self.working_directory,
+                "hostname_localhost": self._hostname_localhost,
             },
         )
         self._process.start()

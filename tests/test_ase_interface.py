@@ -1,4 +1,5 @@
 import logging
+import sys
 import unittest
 
 import numpy as np
@@ -27,6 +28,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             log_file=None,
             library=LammpsLibrary(cores=2, mode="local"),
             disable_log_file=True,
+            hostname_localhost=True,
         )
         structure = bulk("Al", cubic=True).repeat([2, 2, 2])
         lmp.interactive_structure_setter(
@@ -86,6 +88,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             log_file=None,
             library=LammpsLibrary(cores=2, mode="local"),
             disable_log_file=True,
+            hostname_localhost=True,
         )
         structure = bulk("Al", cubic=True)
         lmp.interactive_structure_setter(
@@ -121,6 +124,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
 
+    @unittest.skipIf(sys.platform == "darwin", "This test is not supported on MacOs")
     def test_small_displacement_skewed(self):
         lmp = LammpsASELibrary(
             working_directory=None,
@@ -130,6 +134,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             log_file=None,
             library=LammpsLibrary(cores=2, mode="local"),
             disable_log_file=True,
+            hostname_localhost=True,
         )
         structure = bulk("Al").repeat([2, 2, 2])
         lmp.interactive_structure_setter(
@@ -175,6 +180,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             log_file=None,
             library=None,
             disable_log_file=True,
+            hostname_localhost=True,
         ) as lmp:
             lmp.interactive_structure_setter(
                 structure=structure,
@@ -419,6 +425,7 @@ class TestBinary(unittest.TestCase):
                 log_file=None,
                 library=LammpsLibrary(cores=2, mode="local"),
                 disable_log_file=True,
+                hostname_localhost=True,
             )
             lmp.interactive_structure_setter(
                 structure=structure,
@@ -444,6 +451,7 @@ class TestBinary(unittest.TestCase):
             log_file=None,
             library=LammpsLibrary(cores=2, mode="local"),
             disable_log_file=True,
+            hostname_localhost=True,
         )
         for structure in self.structure_lst:
             lmp.interactive_structure_setter(
@@ -470,6 +478,7 @@ class TestBinary(unittest.TestCase):
             log_file=None,
             library=LammpsLibrary(cores=2, mode="local"),
             disable_log_file=True,
+            hostname_localhost=True,
         )
         for structure in self.structure_lst[::-1]:
             lmp.interactive_structure_setter(

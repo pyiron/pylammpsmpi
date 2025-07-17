@@ -36,6 +36,7 @@ class LammpsASELibrary:
         log_file: Optional[str] = None,
         library: Optional[object] = None,
         disable_log_file: bool = True,
+        hostname_localhost: bool = False,
     ):
         self._logger = logger
         self._prism = None
@@ -60,7 +61,9 @@ class LammpsASELibrary:
                 )
         else:
             self._interactive_library = LammpsBase(
-                cores=self._cores, working_directory=working_directory
+                cores=self._cores,
+                working_directory=working_directory,
+                hostname_localhost=hostname_localhost,
             )
 
     def interactive_lib_command(self, command: str) -> None:
