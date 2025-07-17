@@ -72,7 +72,7 @@ def execute_async(
                     f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
                 except Exception as error:
                     f.set_exception(error)
-                    future_queue.shutdown()
+                    break
 
 
 class LammpsConcurrent:
