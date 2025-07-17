@@ -489,7 +489,6 @@ def _run_lammps_mpi(argument_lst):
         except Exception as error:
             if MPI.COMM_WORLD.rank == 0:
                 interface_send(socket=socket, result_dict={"error": error})
-            break
         else:
             if MPI.COMM_WORLD.rank == 0 and output is not None:
                 interface_send(socket=socket, result_dict={"result": output})
