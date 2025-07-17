@@ -1,18 +1,18 @@
 import logging
 import unittest
 
+import numpy as np
 from ase.atoms import Atoms
 from ase.build import bulk
 from ase.calculators.lammps.coordinatetransform import Prism
-from ase.constraints import FixAtoms, FixedPlane, FixCom
-import numpy as np
+from ase.constraints import FixAtoms, FixCom, FixedPlane
 
 from pylammpsmpi import LammpsASELibrary, LammpsLibrary
 from pylammpsmpi.wrapper.ase import (
     cell_is_skewed,
+    get_lammps_indicies_from_ase_structure,
     get_species_symbols,
     get_structure_indices,
-    get_lammps_indicies_from_ase_structure,
     set_selective_dynamics,
 )
 
@@ -25,8 +25,8 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
-            diable_log_file=True,
+            library=LammpsLibrary(cores=2, mode="local"),
+            disable_log_file=True,
             hostname_localhost=True,
         )
         structure = bulk("Al", cubic=True).repeat([2, 2, 2])
@@ -85,8 +85,8 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
-            diable_log_file=True,
+            library=LammpsLibrary(cores=2, mode="local"),
+            disable_log_file=True,
             hostname_localhost=True,
         )
         structure = bulk("Al", cubic=True)
@@ -130,8 +130,8 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
-            diable_log_file=True,
+            library=LammpsLibrary(cores=2, mode="local"),
+            disable_log_file=True,
             hostname_localhost=True,
         )
         structure = bulk("Al").repeat([2, 2, 2])
@@ -177,7 +177,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             logger=None,
             log_file=None,
             library=None,
-            diable_log_file=True,
+            disable_log_file=True,
             hostname_localhost=True,
         ) as lmp:
             lmp.interactive_structure_setter(
@@ -421,8 +421,8 @@ class TestBinary(unittest.TestCase):
                 comm=None,
                 logger=logging.getLogger("TestStaticLogger"),
                 log_file=None,
-                library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
-                diable_log_file=True,
+                library=LammpsLibrary(cores=2, mode="local"),
+                disable_log_file=True,
                 hostname_localhost=True,
             )
             lmp.interactive_structure_setter(
@@ -447,12 +447,8 @@ class TestBinary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(
-                cores=2,
-                mode="local",
-                hostname_localhost=True,
-            ),
-            diable_log_file=True,
+            library=LammpsLibrary(cores=2, mode="local"),
+            disable_log_file=True,
             hostname_localhost=True,
         )
         for structure in self.structure_lst:
@@ -478,8 +474,8 @@ class TestBinary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local", hostname_localhost=True,),
-            diable_log_file=True,
+            library=LammpsLibrary(cores=2, mode="local"),
+            disable_log_file=True,
             hostname_localhost=True,
         )
         for structure in self.structure_lst[::-1]:

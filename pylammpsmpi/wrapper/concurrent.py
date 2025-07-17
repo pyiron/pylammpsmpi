@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
@@ -6,10 +5,11 @@ import os
 import sys
 from concurrent.futures import Future
 from queue import Queue
+from threading import Thread
+from typing import Any, Optional
 
-from executorlib.shared import (
-    MpiExecInterface,
-    RaisingThread,
+from executorlib.api import (
+    MpiExecSpawner,
     cancel_items_in_queue,
     interface_bootup,
 )
@@ -27,13 +27,26 @@ __date__ = "Feb 28, 2020"
 
 
 def execute_async(
-    future_queue,
-    cmdargs=None,
-    cores=1,
-    oversubscribe=False,
-    hostname_localhost=False,
-    cwd=None,
-):
+    future_queue: Any,
+    cmdargs: Optional[list[str]] = None,
+    cores: int = 1,
+    oversubscribe: bool = False,
+    hostname_localhost: bool = False,
+    cwd: Optional[str] = None,
+) -> None:
+    """
+    Asynchronously executes a command using MPI.
+
+    Args:
+        future_queue (Any): A queue to receive task dictionaries.
+        cmdargs (Optional[List[str]], optional): Additional command-line arguments. Defaults to None.
+        cores (int, optional): Number of CPU cores to use. Defaults to 1.
+        oversubscribe (bool, optional): Whether to oversubscribe the CPU cores. Defaults to False.
+        cwd (Optional[str], optional): Current working directory. Defaults to None.
+
+    Returns:
+        None
+    """
     executable = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
     )
@@ -42,10 +55,10 @@ def execute_async(
         cmds.extend(cmdargs)
     interface = interface_bootup(
         command_lst=cmds,
-        connections=MpiExecInterface(
+        connections=MpiExecSpawner(
             cwd=cwd,
             cores=cores,
-            oversubscribe=oversubscribe,
+            openmpi_oversubscribe=oversubscribe,
         ),
         hostname_localhost=hostname_localhost,
         prefix_name=None,
@@ -53,10 +66,10 @@ def execute_async(
     )
     while True:
         task_dict = future_queue.get()
-        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+        if "shutdown" in task_dict and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
             break
-        elif "command" in task_dict.keys() and "future" in task_dict.keys():
+        elif "command" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
@@ -65,12 +78,30 @@ def execute_async(
 class LammpsConcurrent:
     def __init__(
         self,
-        cores=8,
-        oversubscribe=False,
-        working_directory=".",
-        cmdargs=None,
-        hostname_localhost=False,
+        cores: int = 8,
+        oversubscribe: bool = False,
+        working_directory: str = ".",
+        cmdargs: list = None,
+        hostname_localhost: bool = False,
     ):
+        """
+        Initialize the LammpsConcurrent object.
+
+        Parameters
+        ----------
+        cores : int, optional
+            Number of cores to use for parallel execution (default is 8).
+        oversubscribe : bool, optional
+            Whether to oversubscribe the cores (default is False).
+        working_directory : str, optional
+            Working directory for Lammps execution (default is current directory).
+        cmdargs : list, optional
+            Additional command line arguments for Lammps (default is None).
+
+        Returns
+        -------
+        None
+        """
         self.cores = cores
         self.working_directory = working_directory
         self._future_queue = Queue()
@@ -81,7 +112,7 @@ class LammpsConcurrent:
         self._start_process()
 
     def _start_process(self):
-        self._process = RaisingThread(
+        self._process = Thread(
             target=execute_async,
             kwargs={
                 "future_queue": self._future_queue,
@@ -100,29 +131,25 @@ class LammpsConcurrent:
         return f
 
     @property
-    def version(self):
+    def version(self) -> Future:
         """
-        Get the version of lammps
-
-        Parameters
-        ----------
-        None
+        Get the version of Lammps.
 
         Returns
         -------
-        version: string
-            version string of lammps
+        version : Future
+            A future object representing the version string of Lammps.
         """
         return self._send_and_receive_dict(command="get_version", data=[])
 
-    def file(self, inputfile):
+    def file(self, inputfile: str) -> Future:
         """
-        Read script from an input file
+        Read script from an input file.
 
         Parameters
         ----------
-        inputfile: string
-            name of inputfile
+        inputfile : str
+            Name of the input file.
 
         Returns
         -------
@@ -136,264 +163,191 @@ class LammpsConcurrent:
     def extract_setting(self, *args):
         return self._send_and_receive_dict(command="extract_setting", data=list(args))
 
-    def extract_global(self, name):
+    def extract_global(self, name: str) -> Future:
         """
-        Extract value of global simulation parameters
+        Extract value of global simulation parameters.
 
         Parameters
         ----------
-        name : string
-            see notes for a set of possible options
+        name : str
+            Name of the global simulation parameter.
 
-        Notes
-        -----
-        The possible options for `name` are-
-        "dt", "boxlo", "boxhi", "boxxlo", "boxxhi",
-        "boxylo", "boxyhi", "boxzlo", "boxzhi", "periodicity",
-        "xy", "xz", "yz", "natoms", "nbonds", "nangles",
-        "ndihedrals", "nimpropers", "nlocal", "nghost",
-        "nmax", "ntypes", "ntimestep", "units", "triclinic",
-        "q_flag", "atime", "atimestep"
-
-        Also global constants defined by units can be accessed-
-        "boltz", "hplanck", "mvv2e", "ftm2v", "mv2d",
-        "nktv2p", "qqr2e", "qe2f", "vxmu2f", "xxt2kmu",
-        "dielectric", "qqr2e", "e_mass", "hhmrr2e",
-        "mvh2r", "angstrom", "femtosecond", "qelectron"
-
+        Returns
+        -------
+        value : Future
+            A future object representing the value of the requested global parameter.
         """
         return self._send_and_receive_dict(command="extract_global", data=[name])
 
-    def extract_box(self):
+    def extract_box(self) -> Future:
         """
-        Get the simulation box
-
-        Parameters
-        ----------
-        None
+        Get the simulation box.
 
         Returns
         -------
-        box : list
-            of the form `[boxlo,boxhi,xy,yz,xz,periodicity,box_change]` where
-            `boxlo` and `boxhi` are lower and upper bounds of the box in three dimensions,
-            `xy, yz, xz` are the box tilts, `periodicity` is an array which shows if
-            the box is periodic in three dimensions.
+        box : Future
+            A future object representing the simulation box.
         """
         return self._send_and_receive_dict(command="extract_box", data=[])
 
-    def extract_atom(self, name):
+    def extract_atom(self, name: str) -> Future:
         """
-        Extract a property of the atoms
+        Extract a property of the atoms.
 
         Parameters
         ----------
-        name : {'x', 'mass', 'id', 'type', 'mask', 'v', 'f',
-                'molecule', 'q', 'mu', 'omega', 'angmom', 'torque', 'radius'}
-            the property of atom to be extracted
+        name : str
+            The property of the atom to be extracted.
 
         Returns
         -------
-        val : array of length n_atoms
-            If the requested name has multiple dimensions, output
-            will be a multi-dimensional array.
-
-        Notes
-        -----
-        This method only gathers information from the current processor.
-        Rest of the values would be zero.
-
-        See Also
-        --------
-        scatter_atoms
+        val : Future
+            A future object representing the extracted property of the atoms.
         """
-        return self._send_and_receive_dict(command="extract_atom", data=list([name]))
+        return self._send_and_receive_dict(command="extract_atom", data=[name])
 
-    def extract_fix(self, *args):
+    def extract_fix(self, *args) -> Future:
         """
-        Extract a fix value
+        Extract a fix value.
 
         Parameters
         ----------
-        id: string
-            id of the fix
-
-        style: {0, 1, 2}
-            0 - global data
-            1 - per-atom data
-            2 - local data
-
-        type: {0, 1, 2}
-            0 - scalar
-            1 - vector
-            2 - array
-
-        i: int, optional
-            index to select fix output
-
-        j: int, optional
-            index to select fix output
+        args : tuple
+            Variable number of arguments specifying the fix value to extract.
 
         Returns
         -------
-        value
-            Fix data corresponding to the requested dimensions
+        value : Future
+            A future object representing the extracted fix value.
         """
         return self._send_and_receive_dict(command="extract_fix", data=list(args))
 
-    def extract_variable(self, *args):
+    def extract_variable(self, *args) -> Future:
         """
-        Extract the value of a variable
+        Extract the value of a variable.
 
         Parameters
         ----------
-        name: string
-            name of the variable
-
-        group: string
-            group id (ignored for equal style variables)
-
-        flag: {0, 1}
-            0 - equal style variable
-            1 - atom style variable
+        args : tuple
+            Variable number of arguments specifying the variable to extract.
 
         Returns
         -------
-        data
-            value of variable depending on the requested dimension
-
-        Notes
-        -----
-        Currently only returns the information provided on a single processor
-
+        data : Future
+            A future object representing the value of the variable.
         """
         return self._send_and_receive_dict(command="extract_variable", data=list(args))
 
     @property
-    def natoms(self):
-        return self.get_natoms()
-
-    def get_natoms(self):
+    def natoms(self) -> Future:
         """
-        Get the number of atoms
-
-        Parameters
-        ----------
-        None
+        Get the number of atoms.
 
         Returns
         -------
-        natoms : int
-            number of atoms
+        natoms : Future
+            A future object representing the number of atoms.
+        """
+        return self.get_natoms()
+
+    def get_natoms(self) -> Future:
+        """
+        Get the number of atoms.
+
+        Returns
+        -------
+        natoms : Future
+            A future object representing the number of atoms.
         """
         return self._send_and_receive_dict(command="get_natoms", data=[])
 
-    def set_variable(self, *args):
+    def set_variable(self, *args) -> Future:
         """
-        Set the value of a string style variable
+        Set the value of a string style variable.
 
         Parameters
         ----------
-        name: string
-            name of the variable
-
-        value: string
-            value of the variable
+        args : tuple
+            Variable number of arguments specifying the variable name and value.
 
         Returns
         -------
-        flag : int
-            0 if successfull, -1 otherwise
+        flag : Future
+            A future object representing the success flag (0 if successful, -1 otherwise).
         """
         return self._send_and_receive_dict(command="set_variable", data=list(args))
 
-    def reset_box(self, *args):
+    def reset_box(self, *args) -> Future:
         """
-        Reset the simulation box
+        Reset the simulation box.
 
         Parameters
         ----------
-        boxlo: array of floats
-            lower bound of box in three dimensions
+        args : tuple
+            Variable number of arguments specifying the box parameters.
 
-        boxhi: array of floats
-            upper bound of box in three dimensions
-
-        xy, yz, xz : floats
-            box tilts
+        Returns
+        -------
+        None
         """
         return self._send_and_receive_dict(command="reset_box", data=list(args))
 
     def generate_atoms(
         self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
-    ):
+    ) -> Future:
         """
-        Create atoms on all procs
+        Create atoms on all processors.
 
         Parameters
         ----------
         ids : list of ints, optional
-            ids of N atoms that need to be created
-            if not specified, ids from 1 to N are assigned
-
+            IDs of N atoms that need to be created.
         type : list of atom types, optional
-            type of N atoms, if not specied, all atoms are assigned as type 1
-
-        x: list of positions
-            list of the type `[posx, posy, posz]` for N atoms
-
-        v: list of velocities
-            list of the type `[vx, vy, vz]` for N atoms
-
-        image: list of ints, optional
-            if not specified a list of 0s will be used.
-
-        shrinkexceed: bool, optional
-            default False
+            Type of N atoms.
+        x : list of positions
+            List of positions for N atoms.
+        v : list of velocities, optional
+            List of velocities for N atoms.
+        image : list of ints, optional
+            List of image flags for N atoms.
+        shrinkexceed : bool, optional
+            Whether to shrink the box if the atoms exceed the box boundaries.
 
         Returns
         -------
         None
-
         """
         return self.create_atoms(
             ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
 
-    def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False):
+    def create_atoms(
+        self, n, id, type, x, v=None, image=None, shrinkexceed=False
+    ) -> Future:
         """
-        Create atoms on all procs
+        Create atoms on all processors.
 
         Parameters
         ----------
         n : int
-            number of atoms
-
+            Number of atoms.
         id : list of ints, optional
-            ids of N atoms that need to be created
-            if not specified, ids from 1 to N are assigned
-
+            IDs of N atoms that need to be created.
         type : list of atom types, optional
-            type of N atoms, if not specied, all atoms are assigned as type 1
-
-        x: list of positions
-            list of the type `[posx, posy, posz]` for N atoms
-
-        v: list of velocities
-            list of the type `[vx, vy, vz]` for N atoms
-
-        image: list of ints, optional
-            if not specified a list of 0s will be used.
-
-        shrinkexceed: bool, optional
-            default False
+            Type of N atoms.
+        x : list of positions
+            List of positions for N atoms.
+        v : list of velocities, optional
+            List of velocities for N atoms.
+        image : list of ints, optional
+            List of image flags for N atoms.
+        shrinkexceed : bool, optional
+            Whether to shrink the box if the atoms exceed the box boundaries.
 
         Returns
         -------
         None
-
         """
-
         if x is not None:
             funct_args = [n, id, type, x, v, image, shrinkexceed]
             return self._send_and_receive_dict(command="create_atoms", data=funct_args)
@@ -401,20 +355,52 @@ class LammpsConcurrent:
             raise TypeError("Value of x cannot be None")
 
     @property
-    def has_exceptions(self):
-        """Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled"""
+    def has_exceptions(self) -> Future:
+        """
+        Return whether the Lammps shared library was compiled with C++ exceptions handling enabled.
+
+        Returns
+        -------
+        has_exceptions : Future
+            A future object representing whether the Lammps library has exceptions handling enabled.
+        """
         return self._send_and_receive_dict(command="has_exceptions", data=[])
 
     @property
-    def has_gzip_support(self):
+    def has_gzip_support(self) -> Future:
+        """
+        Return whether the Lammps shared library has gzip support.
+
+        Returns
+        -------
+        has_gzip_support : Future
+            A future object representing whether the Lammps library has gzip support.
+        """
         return self._send_and_receive_dict(command="has_gzip_support", data=[])
 
     @property
-    def has_png_support(self):
+    def has_png_support(self) -> Future:
+        """
+        Return whether the Lammps shared library has PNG support.
+
+        Returns
+        -------
+        has_png_support : Future
+            A future object representing whether the Lammps library has PNG support.
+        """
         return self._send_and_receive_dict(command="has_png_support", data=[])
 
     @property
-    def has_jpeg_support(self):
+    def has_jpeg_support(self) -> Future:
+        """
+        Return whether the Lammps shared library has JPEG support.
+
+        Returns
+        -------
+        has_jpeg_support : Future
+            A future object representing whether the Lammps library has JPEG support.
+        """
+        return self._send_and_receive_dict(command="has_jpeg_support", data=[])
         return self._send_and_receive_dict(command="has_jpeg_support", data=[])
 
     @property

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
@@ -6,7 +5,7 @@ import sys
 from ctypes import c_double, c_int
 
 import numpy as np
-from executorlib.shared import (
+from executorlib.api import (
     interface_connect,
     interface_receive,
     interface_send,
@@ -127,7 +126,7 @@ def extract_atom(job, funct_args):
         # extract atoms return an internal data type
         # this has to be reformatted
         name = str(funct_args[0])
-        if name not in atom_properties.keys():
+        if name not in atom_properties:
             return []
 
         # this block prevents error when trying to access values
@@ -166,14 +165,13 @@ def extract_variable(job, funct_args):
         )
         if MPI.COMM_WORLD.rank == 0:
             return np.array(data)
-    else:
-        if MPI.COMM_WORLD.rank == 0:
-            # if type is 1 - reformat file
-            try:
-                data = job.extract_variable(*funct_args)
-            except ValueError:
-                return []
-            return data
+    elif MPI.COMM_WORLD.rank == 0:
+        # if type is 1 - reformat file
+        try:
+            data = job.extract_variable(*funct_args)
+        except ValueError:
+            return []
+        return data
 
 
 def get_natoms(job, funct_args):
@@ -194,7 +192,7 @@ def gather_atoms(job, funct_args):
     # extract atoms return an internal data type
     # this has to be reformatted
     name = str(funct_args[0])
-    if name not in atom_properties.keys():
+    if name not in atom_properties:
         return []
 
     # this block prevents error when trying to access values
@@ -209,10 +207,7 @@ def gather_atoms(job, funct_args):
     # number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    if dim > 1:
-        data = [val[x : x + dim] for x in range(0, len(val), dim)]
-    else:
-        data = list(val)
+    data = [val[x : x + dim] for x in range(0, len(val), dim)] if dim > 1 else list(val)
     return np.array(data)
 
 
@@ -220,7 +215,7 @@ def gather_atoms_concat(job, funct_args):
     # extract atoms return an internal data type
     # this has to be reformatted
     name = str(funct_args[0])
-    if name not in atom_properties.keys():
+    if name not in atom_properties:
         return []
 
     # this block prevents error when trying to access values
@@ -235,10 +230,7 @@ def gather_atoms_concat(job, funct_args):
     # number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    if dim > 1:
-        data = [val[x : x + dim] for x in range(0, len(val), dim)]
-    else:
-        data = list(val)
+    data = [val[x : x + dim] for x in range(0, len(val), dim)] if dim > 1 else list(val)
     return np.array(data)
 
 
@@ -253,7 +245,7 @@ def gather_atoms_subset(job, funct_args):
     for i in range(lenids):
         cids[i] = ids[i]
 
-    if name not in atom_properties.keys():
+    if name not in atom_properties:
         return []
 
     # this block prevents error when trying to access values
@@ -272,10 +264,7 @@ def gather_atoms_subset(job, funct_args):
     # number of atoms - first dimension
     val = list(val)
     dim = atom_properties[name]["dim"]
-    if dim > 1:
-        data = [val[x : x + dim] for x in range(0, len(val), dim)]
-    else:
-        data = list(val)
+    data = [val[x : x + dim] for x in range(0, len(val), dim)] if dim > 1 else list(val)
     return np.array(data)
 
 
@@ -487,7 +476,7 @@ def _run_lammps_mpi(argument_lst):
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
-        if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
+        if "shutdown" in input_dict and input_dict["shutdown"]:
             job.close()
             if MPI.COMM_WORLD.rank == 0:
                 interface_send(socket=socket, result_dict={"result": True})

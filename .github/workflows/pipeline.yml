@@ -1,0 +1,173 @@
+name: Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: psf/black@stable
+      with:
+        options: "--check --diff"
+        src: ./${{ github.event.repository.name }}
+
+  black_fix:  # in most cases pre-commit is faster
+    needs: [black]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
+        ref: ${{ github.event.pull_request.head.ref }} # Check out the head of the actual branch, not the PR
+        fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+    - name: format black
+      uses: psf/black@stable
+      with:
+        options: ""
+        src: "./${{ github.event.repository.name }}"
+    - name: commit
+      run: |
+        git config --local user.email "pyiron@mpie.de"
+        git config --local user.name "pyiron-runner"
+        git commit -m "Format black" -a
+    - name: push
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
+        branch: ${{ github.event.pull_request.head.ref }}
+
+  coverage:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: "3.12"
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-openmpi.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        coverage run  --omit="pylammpsmpi/_version.py,tests/*" -m unittest discover tests
+        coverage xml
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  pip_check:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: "3.12"
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-openmpi.yml
+    - name: Setup
+      shell: bash -l {0}
+      run: |
+        pip install versioneer[toml]==0.29 tomlkit
+        python .ci_support/check.py
+        cat pyproject.toml
+        pip install . --no-deps --no-build-isolation
+        pip check
+
+  unittest_mpich:
+    needs: [black]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-mpich.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests
+
+  unittest_openmpi:
+    needs: [black]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-openmpi.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests
+
+  unittest_old:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.9'
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-old.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests
+
+  autobot:
+    needs: [unittest_old, unittest_openmpi, unittest_mpich, pip_check, coverage]
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    if: (github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'pre-commit-ci[bot]')
+    steps:
+      - name: Enable auto-merge for bot PRs
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}

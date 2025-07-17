@@ -1,10 +1,10 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.5
+    rev: v0.12.3
     hooks:
       - id: ruff
         name: ruff lint
-        args: ["--select", "I", "--fix"]
+        args: ["--fix"]
         files: ^pylammpsmpi/
       - id: ruff-format
         name: ruff format

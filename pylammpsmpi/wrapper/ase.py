@@ -2,8 +2,10 @@ import importlib
 import os
 import warnings
 from ctypes import c_double, c_int
+from typing import Optional
 
 import numpy as np
+from ase.atoms import Atoms
 from ase.calculators.lammps import Prism
 from ase.data import atomic_masses, atomic_numbers
 from scipy import constants
@@ -11,17 +13,30 @@ from scipy import constants
 from pylammpsmpi.wrapper.base import LammpsBase
 
 
-class LammpsASELibrary(object):
+class LammpsASELibrary:
+    """
+    A class that provides an interface to interact with LAMMPS using ASE.
+
+    Args:
+        working_directory (str, optional): The working directory. Defaults to None.
+        cores (int, optional): The number of cores to use. Defaults to 1.
+        comm (object, optional): The MPI communicator. Defaults to None.
+        logger (object, optional): The logger object. Defaults to None.
+        log_file (str, optional): The log file path. Defaults to None.
+        library (object, optional): The LAMMPS library object. Defaults to None.
+        disable_log_file (bool, optional): Whether to disable the log file. Defaults to True.
+    """
+
     def __init__(
         self,
-        working_directory=None,
-        cores=1,
-        comm=None,
-        logger=None,
-        log_file=None,
-        library=None,
-        diable_log_file=True,
-        hostname_localhost=False,
+        working_directory: Optional[str] = None,
+        cores: int = 1,
+        comm: Optional[object] = None,
+        logger: Optional[object] = None,
+        log_file: Optional[str] = None,
+        library: Optional[object] = None,
+        disable_log_file: bool = True,
+        hostname_localhost: bool = False,
     ):
         self._logger = logger
         self._prism = None
@@ -31,8 +46,8 @@ class LammpsASELibrary(object):
             self._interactive_library = library
             self._cores = library.cores
         elif self._cores == 1:
-            lammps = getattr(importlib.import_module("lammps"), "lammps")
-            if diable_log_file:
+            lammps = importlib.import_module("lammps").lammps
+            if disable_log_file:
                 self._interactive_library = lammps(
                     cmdargs=["-screen", "none", "-log", "none"],
                     comm=comm,
@@ -51,12 +66,24 @@ class LammpsASELibrary(object):
                 hostname_localhost=hostname_localhost,
             )
 
-    def interactive_lib_command(self, command):
+    def interactive_lib_command(self, command: str) -> None:
+        """
+        Execute a LAMMPS command using the interactive library.
+
+        Args:
+            command (str): The LAMMPS command to execute.
+        """
         if self._logger is not None:
             self._logger.debug("Lammps library: " + command)
         self._interactive_library.command(command)
 
-    def interactive_positions_getter(self):
+    def interactive_positions_getter(self) -> np.ndarray:
+        """
+        Get the positions of atoms from the interactive library.
+
+        Returns:
+            np.ndarray: The positions of atoms.
+        """
         positions = np.reshape(
             np.array(self._interactive_library.gather_atoms("x", 1, 3)),
             (len(self._structure), 3),
@@ -65,7 +92,13 @@ class LammpsASELibrary(object):
             positions = self._prism.vector_to_ase(positions)
         return positions
 
-    def interactive_positions_setter(self, positions):
+    def interactive_positions_setter(self, positions: list[list[float]]) -> None:
+        """
+        Set the positions of atoms in the interactive library.
+
+        Args:
+            positions (List[List[float]]): The positions of atoms.
+        """
         if not _check_ortho_prism(prism=self._prism):
             positions = self._prism.vector_to_lammps(positions)
         positions = np.array(positions).flatten()
@@ -77,7 +110,13 @@ class LammpsASELibrary(object):
             self._interactive_library.scatter_atoms("x", positions)
         self.interactive_lib_command(command="change_box all remap")
 
-    def interactive_cells_getter(self):
+    def interactive_cells_getter(self) -> np.ndarray:
+        """
+        Get the cell vectors from the interactive library.
+
+        Returns:
+            np.ndarray: The cell vectors.
+        """
         cc = np.array(
             [
                 [self._interactive_library.get_thermo("lx"), 0, 0],
@@ -95,12 +134,19 @@ class LammpsASELibrary(object):
         )
         return self._prism.vector_to_ase(cc)
 
-    def interactive_cells_setter(self, cell):
+    def interactive_cells_setter(self, cell: np.ndarray) -> None:
+        """
+        Set the cell vectors in the interactive library.
+
+        Args:
+            cell (np.ndarray): The cell vectors.
+        """
         self._prism = Prism(cell)
         lx, ly, lz, xy, xz, yz = self._prism.get_lammps_prism()
         if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
-                "Warning: setting upper trangular matrix might slow down the calculation"
+                "Warning: setting upper trangular matrix might slow down the calculation",
+                stacklevel=2,
             )
 
         is_skewed = cell_is_skewed(cell=cell, tolerance=1.0e-8)
@@ -110,25 +156,34 @@ class LammpsASELibrary(object):
             if not was_skewed:
                 self.interactive_lib_command(command="change_box all triclinic")
             self.interactive_lib_command(
-                command="change_box all x final 0 %f y final 0 %f z final 0 %f  xy final %f xz final %f yz final %f remap units box"
-                % (lx, ly, lz, xy, xz, yz),
+                command=f"change_box all x final 0 {lx:f} y final 0 {ly:f} z final 0 {lz:f}  xy final {xy:f} xz final {xz:f} yz final {yz:f} remap units box",
             )
         elif was_skewed:
             self.interactive_lib_command(
-                command="change_box all x final 0 %f y final 0 %f z final 0 %f xy final %f xz final %f yz final %f remap units box"
-                % (lx, ly, lz, 0.0, 0.0, 0.0),
+                command=f"change_box all x final 0 {lx:f} y final 0 {ly:f} z final 0 {lz:f} xy final {0.0:f} xz final {0.0:f} yz final {0.0:f} remap units box",
             )
             self.interactive_lib_command(command="change_box all ortho")
         else:
             self.interactive_lib_command(
-                command="change_box all x final 0 %f y final 0 %f z final 0 %f remap units box"
-                % (lx, ly, lz),
+                command=f"change_box all x final 0 {lx:f} y final 0 {ly:f} z final 0 {lz:f} remap units box",
             )
 
-    def interactive_volume_getter(self):
+    def interactive_volume_getter(self) -> float:
+        """
+        Get the volume of the system from the interactive library.
+
+        Returns:
+            float: The volume of the system.
+        """
         return self._interactive_library.get_thermo("vol")
 
-    def interactive_forces_getter(self):
+    def interactive_forces_getter(self) -> np.ndarray:
+        """
+        Get the forces on atoms from the interactive library.
+
+        Returns:
+            np.ndarray: The forces on atoms.
+        """
         ff = np.reshape(
             np.array(self._interactive_library.gather_atoms("f", 1, 3)),
             (len(self._structure), 3),
@@ -139,14 +194,26 @@ class LammpsASELibrary(object):
 
     def interactive_structure_setter(
         self,
-        structure,
-        units,
-        dimension,
-        boundary,
-        atom_style,
-        el_eam_lst,
-        calc_md=True,
-    ):
+        structure: Atoms,
+        units: str,
+        dimension: int,
+        boundary: str,
+        atom_style: str,
+        el_eam_lst: list[str],
+        calc_md: bool = True,
+    ) -> None:
+        """
+        Set the structure in the interactive library.
+
+        Args:
+            structure (ase.Atoms): The structure.
+            units (str): The units of the simulation.
+            dimension (int): The dimension of the simulation.
+            boundary (str): The boundary conditions.
+            atom_style (str): The atom style.
+            el_eam_lst (List[str]): The list of element symbols.
+            calc_md (bool, optional): Whether to calculate molecular dynamics. Defaults to True.
+        """
         self.interactive_lib_command(command="clear")
         control_dict = set_selective_dynamics(structure=structure, calc_md=calc_md)
         self.interactive_lib_command(command="units " + units)
@@ -158,7 +225,8 @@ class LammpsASELibrary(object):
         self._prism = Prism(structure.cell)
         if not _check_ortho_prism(prism=self._prism):
             warnings.warn(
-                "Warning: setting upper trangular matrix might slow down the calculation"
+                "Warning: setting upper trangular matrix might slow down the calculation",
+                stacklevel=2,
             )
         xhi, yhi, zhi, xy, xz, yz = self._prism.get_lammps_prism()
         if self._prism.is_skewed():
@@ -208,13 +276,11 @@ class LammpsASELibrary(object):
         for id_eam, el_eam in enumerate(el_eam_lst):
             if el_eam in el_struct_lst:
                 self.interactive_lib_command(
-                    command="mass {0:3d} {1:f}".format(
-                        id_eam + 1, atomic_masses[atomic_numbers[el_eam]]
-                    ),
+                    command=f"mass {id_eam + 1:3d} {atomic_masses[atomic_numbers[el_eam]]:f}",
                 )
             else:
                 self.interactive_lib_command(
-                    command="mass {0:3d} {1:f}".format(id_eam + 1, 1.00),
+                    command=f"mass {id_eam + 1:3d} {1.00:f}",
                 )
         if not _check_ortho_prism(prism=self._prism):
             positions = self._prism.vector_to_lammps(structure.positions).flatten()
@@ -255,19 +321,49 @@ class LammpsASELibrary(object):
             self.interactive_lib_command(command=key + " " + value)
         self._structure = structure
 
-    def interactive_indices_getter(self):
+    def interactive_indices_getter(self) -> np.ndarray:
+        """
+        Get the indices of atoms from the interactive library.
+
+        Returns:
+            np.ndarray: The indices of atoms.
+        """
         return np.array(self._interactive_library.gather_atoms("type", 0, 1))
 
-    def interactive_energy_pot_getter(self):
+    def interactive_energy_pot_getter(self) -> float:
+        """
+        Get the potential energy from the interactive library.
+
+        Returns:
+            float: The potential energy.
+        """
         return self._interactive_library.get_thermo("pe")
 
-    def interactive_energy_tot_getter(self):
+    def interactive_energy_tot_getter(self) -> float:
+        """
+        Get the total energy from the interactive library.
+
+        Returns:
+            float: The total energy.
+        """
         return self._interactive_library.get_thermo("etotal")
 
-    def interactive_steps_getter(self):
+    def interactive_steps_getter(self) -> int:
+        """
+        Get the number of steps from the interactive library.
+
+        Returns:
+            int: The number of steps.
+        """
         return self._interactive_library.get_thermo("step")
 
-    def interactive_temperatures_getter(self):
+    def interactive_temperatures_getter(self) -> float:
+        """
+        Get the temperature from the interactive library.
+
+        Returns:
+            float: The temperature.
+        """
         return self._interactive_library.get_thermo("temp")
 
     def interactive_pressures_getter(self):
@@ -380,10 +476,7 @@ def cell_is_skewed(cell, tolerance=1.0e-8):
     """
     volume = np.abs(np.linalg.det(cell))
     prod = np.linalg.norm(cell, axis=-1).prod()
-    if volume > 0:
-        if abs(volume - prod) / volume < tolerance:
-            return False
-    return True
+    return not (volume > 0 and abs(volume - prod) / volume < tolerance)
 
 
 def _check_ortho_prism(prism, rtol=0.0, atol=1e-08):
@@ -457,11 +550,11 @@ def get_fixed_atom_boolean_vector(structure):
             fixed_atom_vector[c_dict["kwargs"]["indices"]] = [True, True, True]
         elif c_dict["name"] == "FixedPlane":
             if all(np.isin(c_dict["kwargs"]["direction"], [0, 1])):
-                if "indices" in c_dict["kwargs"].keys():
+                if "indices" in c_dict["kwargs"]:
                     fixed_atom_vector[c_dict["kwargs"]["indices"]] = np.array(
                         c_dict["kwargs"]["direction"]
                     ).astype(bool)
-                elif "a" in c_dict["kwargs"].keys():
+                elif "a" in c_dict["kwargs"]:
                     fixed_atom_vector[c_dict["kwargs"]["a"]] = np.array(
                         c_dict["kwargs"]["direction"]
                     ).astype(bool)

@@ -1,6 +1,7 @@
-# coding: utf-8
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
+
+from typing import Union
 
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
@@ -18,242 +19,183 @@ __date__ = "Feb 28, 2020"
 
 class LammpsBase(LammpsConcurrent):
     @property
-    def version(self):
+    def version(self) -> str:
         """
         Get the version of lammps
 
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        version: string
+        Returns:
+        version: str
             version string of lammps
         """
         return super().version.result()
 
-    def file(self, inputfile):
+    def file(self, inputfile: str) -> None:
         """
         Read script from an input file
 
-        Parameters
-        ----------
-        inputfile: string
+        Parameters:
+        inputfile: str
             name of inputfile
 
-        Returns
-        -------
+        Returns:
         None
         """
         _ = super().file(inputfile=inputfile).result()
 
     # TODO
-    def extract_setting(self, *args):
+    def extract_setting(self, *args) -> Union[int, float, str]:
+        """
+        Extract a setting value
+
+        Parameters:
+        *args: tuple
+            arguments to specify the setting to extract
+
+        Returns:
+        value: int, float, or str
+            extracted setting value
+        """
         return super().extract_setting(*args).result()
 
-    def extract_global(self, name):
+    def extract_global(self, name: str) -> Union[int, float, str]:
         """
         Extract value of global simulation parameters
 
-        Parameters
-        ----------
-        name : string
-            see notes for a set of possible options
+        Parameters:
+        name : str
+            name of the global parameter to extract
 
-        Notes
-        -----
-        The possible options for `name` are-
-        "dt", "boxlo", "boxhi", "boxxlo", "boxxhi",
-        "boxylo", "boxyhi", "boxzlo", "boxzhi", "periodicity",
-        "xy", "xz", "yz", "natoms", "nbonds", "nangles",
-        "ndihedrals", "nimpropers", "nlocal", "nghost",
-        "nmax", "ntypes", "ntimestep", "units", "triclinic",
-        "q_flag", "atime", "atimestep"
-
-        Also global constants defined by units can be accessed-
-        "boltz", "hplanck", "mvv2e", "ftm2v", "mv2d",
-        "nktv2p", "qqr2e", "qe2f", "vxmu2f", "xxt2kmu",
-        "dielectric", "qqr2e", "e_mass", "hhmrr2e",
-        "mvh2r", "angstrom", "femtosecond", "qelectron"
-
+        Returns:
+        value: int, float, or str
+            extracted value of the global parameter
         """
         return super().extract_global(name=name).result()
 
-    def extract_box(self):
+    def extract_box(self) -> list[Union[float, list[float], list[int]]]:
         """
         Get the simulation box
 
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
+        Returns:
         box : list
-            of the form `[boxlo,boxhi,xy,yz,xz,periodicity,box_change]` where
-            `boxlo` and `boxhi` are lower and upper bounds of the box in three dimensions,
-            `xy, yz, xz` are the box tilts, `periodicity` is an array which shows if
-            the box is periodic in three dimensions.
+            list containing the simulation box information
+            [boxlo, boxhi, xy, yz, xz, periodicity, box_change]
+            where boxlo and boxhi are lower and upper bounds of the box in three dimensions,
+            xy, yz, xz are the box tilts, periodicity is an array which shows if
+            the box is periodic in three dimensions, and box_change is a list of booleans
+            indicating if the box dimensions have changed
         """
         return super().extract_box().result()
 
-    def extract_atom(self, name):
+    def extract_atom(self, name: str) -> Union[list[int], list[float]]:
         """
         Extract a property of the atoms
 
-        Parameters
-        ----------
-        name : {'x', 'mass', 'id', 'type', 'mask', 'v', 'f',
-                'molecule', 'q', 'mu', 'omega', 'angmom', 'torque', 'radius'}
+        Parameters:
+        name : str
             the property of atom to be extracted
 
-        Returns
-        -------
-        val : array of length n_atoms
+        Returns:
+        val : list of int or float
             If the requested name has multiple dimensions, output
-            will be a multi-dimensional array.
-
-        Notes
-        -----
-        This method only gathers information from the current processor.
-        Rest of the values would be zero.
-
-        See Also
-        --------
-        scatter_atoms
+            will be a multi-dimensional list.
         """
         return super().extract_atom(name=name).result()
 
-    def extract_fix(self, *args):
+    def extract_fix(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
         Extract a fix value
 
-        Parameters
-        ----------
-        id: string
-            id of the fix
+        Parameters:
+        *args: tuple
+            arguments to specify the fix value to extract
 
-        style: {0, 1, 2}
-            0 - global data
-            1 - per-atom data
-            2 - local data
-
-        type: {0, 1, 2}
-            0 - scalar
-            1 - vector
-            2 - array
-
-        i: int, optional
-            index to select fix output
-
-        j: int, optional
-            index to select fix output
-
-        Returns
-        -------
-        value
-            Fix data corresponding to the requested dimensions
+        Returns:
+        value: int, float, or list of int or float
+            extracted fix value corresponding to the requested dimensions
         """
         return super().extract_fix(*args).result()
 
-    def extract_variable(self, *args):
+    def extract_variable(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
         Extract the value of a variable
 
-        Parameters
-        ----------
-        name: string
-            name of the variable
+        Parameters:
+        *args: tuple
+            arguments to specify the variable to extract
 
-        group: string
-            group id (ignored for equal style variables)
-
-        flag: {0, 1}
-            0 - equal style variable
-            1 - atom style variable
-
-        Returns
-        -------
-        data
-            value of variable depending on the requested dimension
-
-        Notes
-        -----
-        Currently only returns the information provided on a single processor
-
+        Returns:
+        data: int, float, or list of int or float
+            value of the variable depending on the requested dimension
         """
         return super().extract_variable(*args).result()
 
     @property
-    def natoms(self):
-        return self.get_natoms()
-
-    def get_natoms(self):
+    def natoms(self) -> int:
         """
         Get the number of atoms
 
-        Parameters
-        ----------
-        None
+        Returns:
+        natoms : int
+            number of atoms
+        """
+        return self.get_natoms()
 
-        Returns
-        -------
+    def get_natoms(self) -> int:
+        """
+        Get the number of atoms
+
+        Returns:
         natoms : int
             number of atoms
         """
         return super().get_natoms().result()
 
-    def set_variable(self, *args):
+    def set_variable(self, *args) -> int:
         """
         Set the value of a string style variable
 
-        Parameters
-        ----------
-        name: string
-            name of the variable
+        Parameters:
+        *args: tuple
+            arguments to specify the variable and its value
 
-        value: string
-            value of the variable
-
-        Returns
-        -------
+        Returns:
         flag : int
-            0 if successfull, -1 otherwise
+            0 if successful, -1 otherwise
         """
         return super().set_variable(*args).result()
 
-    def reset_box(self, *args):
+    def reset_box(self, *args) -> None:
         """
         Reset the simulation box
 
-        Parameters
-        ----------
-        boxlo: array of floats
-            lower bound of box in three dimensions
+        Parameters:
+        *args: tuple
+            arguments to specify the new box dimensions
 
-        boxhi: array of floats
-            upper bound of box in three dimensions
-
-        xy, yz, xz : floats
-            box tilts
+        Returns:
+        None
         """
         _ = super().reset_box(*args).result()
 
     def generate_atoms(
-        self, ids=None, type=None, x=None, v=None, image=None, shrinkexceed=False
-    ):
+        self,
+        ids: list[int] = None,
+        type: list[int] = None,
+        x: list[float] = None,
+        v: list[float] = None,
+        image: list[int] = None,
+        shrinkexceed: bool = False,
+    ) -> None:
         """
         Create atoms on all procs
 
-        Parameters
-        ----------
+        Parameters:
         ids : list of ints, optional
             ids of N atoms that need to be created
             if not specified, ids from 1 to N are assigned
 
         type : list of atom types, optional
-            type of N atoms, if not specied, all atoms are assigned as type 1
+            type of N atoms, if not specified, all atoms are assigned as type 1
 
         x: list of positions
             list of the type `[posx, posy, posz]` for N atoms
@@ -267,10 +209,8 @@ class LammpsBase(LammpsConcurrent):
         shrinkexceed: bool, optional
             default False
 
-        Returns
-        -------
+        Returns:
         None
-
         """
         _ = (
             super()
@@ -280,12 +220,20 @@ class LammpsBase(LammpsConcurrent):
             .result()
         )
 
-    def create_atoms(self, n, id, type, x, v=None, image=None, shrinkexceed=False):
+    def create_atoms(
+        self,
+        n: int,
+        id: list[int],
+        type: list[int],
+        x: list[float],
+        v: list[float] = None,
+        image: list[int] = None,
+        shrinkexceed: bool = False,
+    ) -> None:
         """
         Create atoms on all procs
 
-        Parameters
-        ----------
+        Parameters:
         n : int
             number of atoms
 
@@ -294,7 +242,7 @@ class LammpsBase(LammpsConcurrent):
             if not specified, ids from 1 to N are assigned
 
         type : list of atom types, optional
-            type of N atoms, if not specied, all atoms are assigned as type 1
+            type of N atoms, if not specified, all atoms are assigned as type 1
 
         x: list of positions
             list of the type `[posx, posy, posz]` for N atoms
@@ -308,10 +256,8 @@ class LammpsBase(LammpsConcurrent):
         shrinkexceed: bool, optional
             default False
 
-        Returns
-        -------
+        Returns:
         None
-
         """
         _ = (
             super()
@@ -322,31 +268,31 @@ class LammpsBase(LammpsConcurrent):
         )
 
     @property
-    def has_exceptions(self):
+    def has_exceptions(self) -> bool:
         """Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled"""
         return super().has_exceptions.result()
 
     @property
-    def has_gzip_support(self):
+    def has_gzip_support(self) -> bool:
         return super().has_gzip_support.result()
 
     @property
-    def has_png_support(self):
+    def has_png_support(self) -> bool:
         return super().has_png_support.result()
 
     @property
-    def has_jpeg_support(self):
+    def has_jpeg_support(self) -> bool:
         return super().has_jpeg_support.result()
 
     @property
-    def has_ffmpeg_support(self):
+    def has_ffmpeg_support(self) -> bool:
         return super().has_ffmpeg_support.result()
 
     @property
-    def installed_packages(self):
+    def installed_packages(self) -> list[str]:
         return super().installed_packages.result()
 
-    def set_fix_external_callback(self, *args):
+    def set_fix_external_callback(self, *args) -> None:
         _ = super().set_fix_external_callback(*args).result()
 
     def get_neighlist(self, *args):
@@ -358,7 +304,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return super().get_neighlist(*args).result()
 
-    def find_pair_neighlist(self, *args):
+    def find_pair_neighlist(self, *args) -> int:
         """Find neighbor list index of pair style neighbor list
         Try finding pair instance that matches style. If exact is set, the pair must
         match style exactly. If exact is 0, style must only be contained. If pair is

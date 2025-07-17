@@ -5,6 +5,6 @@ dependencies:
 - openmpi
 - numpy =1.23.5
 - mpi4py =3.1.4
-- executorlib =0.0.1
+- executorlib =1.2.0
 - ase =3.23.0
 - scipy =1.9.3
