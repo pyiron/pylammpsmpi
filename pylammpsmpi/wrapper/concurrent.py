@@ -65,12 +65,14 @@ def execute_async(
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
+            future_queue.task_done()
             interface.shutdown(wait=task_dict["wait"])
             break
         elif "command" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+        future_queue.task_done()
 
 
 class LammpsConcurrent:
