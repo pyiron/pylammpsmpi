@@ -401,7 +401,6 @@ class LammpsConcurrent:
             A future object representing whether the Lammps library has JPEG support.
         """
         return self._send_and_receive_dict(command="has_jpeg_support", data=[])
-        return self._send_and_receive_dict(command="has_jpeg_support", data=[])
 
     @property
     def has_ffmpeg_support(self):
