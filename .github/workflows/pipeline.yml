@@ -165,6 +165,9 @@ jobs:
     - uses: actions/checkout@v4
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - name: Downgrade openmpi
+      run:
+        sed -i 's/- openmpi =5.0.8/- openmpi =4.1.6/g' .ci_support/environment-openmpi.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.13'
