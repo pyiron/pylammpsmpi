@@ -201,7 +201,7 @@ jobs:
         python -m unittest discover tests
 
   autobot:
-    needs: [unittest_old, unittest_openmpi, unittest_mpich, pip_check, coverage]
+    needs: [unittest_old, unittest_linux_openmpi, unittest_mac_openmpi, unittest_mac_mpich, unittest_linux_mpich, pip_check, coverage]
     permissions:
       contents: write
       pull-requests: write
