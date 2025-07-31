@@ -25,7 +25,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2),
             disable_log_file=True,
         )
         structure = bulk("Al", cubic=True).repeat([2, 2, 2])
@@ -84,7 +84,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2),
             disable_log_file=True,
         )
         structure = bulk("Al", cubic=True)
@@ -128,7 +128,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2),
             disable_log_file=True,
         )
         structure = bulk("Al").repeat([2, 2, 2])
@@ -417,7 +417,7 @@ class TestBinary(unittest.TestCase):
                 comm=None,
                 logger=logging.getLogger("TestStaticLogger"),
                 log_file=None,
-                library=LammpsLibrary(cores=2, mode="local"),
+                library=LammpsLibrary(cores=2),
                 disable_log_file=True,
             )
             lmp.interactive_structure_setter(
@@ -442,7 +442,7 @@ class TestBinary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2),
             disable_log_file=True,
         )
         for structure in self.structure_lst:
@@ -468,7 +468,7 @@ class TestBinary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2, mode="local"),
+            library=LammpsLibrary(cores=2),
             disable_log_file=True,
         )
         for structure in self.structure_lst[::-1]:
