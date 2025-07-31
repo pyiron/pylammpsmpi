@@ -47,7 +47,7 @@ class TestException(TestCase):
         with open("in.error", "w") as f:
             f.writelines(lmp_str)
         with self.assertRaises(Exception):
-            lmp = LammpsLibrary(cores=2, mode="local")
+            lmp = LammpsLibrary(cores=2)
             lmp.file("in.error")
 
     def tearDown(self):

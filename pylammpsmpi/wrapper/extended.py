@@ -245,7 +245,6 @@ class LammpsLibrary:
         oversubscribe (bool): Whether to oversubscribe CPU cores (default: False)
         working_directory (str): Path to the working directory (default: ".")
         client: Client object for distributed computing (default: None)
-        mode (str): Mode of operation (default: "local")
         cmdargs: Additional command line arguments for Lammps (default: None)
     """
 
@@ -255,14 +254,12 @@ class LammpsLibrary:
         oversubscribe: bool = False,
         working_directory: str = ".",
         client: Any = None,
-        mode: str = "local",
         cmdargs: Optional[list[str]] = None,
     ) -> None:
         self.cores = cores
         self.working_directory = working_directory
         self.oversubscribe = oversubscribe
         self.client = client
-        self.mode = mode
         self.lmp = LammpsConcurrent(
             cores=self.cores,
             oversubscribe=self.oversubscribe,
