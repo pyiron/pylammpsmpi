@@ -14,11 +14,8 @@ Then an instance of this class can be instantiated using:
 lmp = LammpsBase(
     cores=8,
     oversubscribe=False,
-    enable_flux_backend=False,
     working_directory=".",
     cmdargs=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
 )
 ```
 In this example the `mpi4py` parallel LAMMPS instances is set to be executed with 8 CPU cores `cores=8`. For OpenMPI 
@@ -103,11 +100,8 @@ Then an instance of this class can be instantiated using:
 lmp = LammpsConcurrent(
     cores=8,
     oversubscribe=False,
-    enable_flux_backend=False,
     working_directory=".",
     cmdargs=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
 )
 ```
 In this example the `mpi4py` parallel LAMMPS instances is set to be executed with 8 CPU cores `cores=8`. For OpenMPI 
@@ -208,11 +202,8 @@ Then an instance of this class can be instantiated using:
 lmp = LammpsLibrary(
     cores=8,
     oversubscribe=False,
-    enable_flux_backend=False,
     working_directory=".",
     cmdargs=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
 )
 ```
 In this example the `mpi4py` parallel LAMMPS instances is set to be executed with 8 CPU cores `cores=8`. For OpenMPI 
