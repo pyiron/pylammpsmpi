@@ -83,6 +83,7 @@ command_list = [
     "dimension",
     "displace_atoms",
     "dump",
+    "dump_modify",
     "dynamical_matrix",
     "fix",
     "fix_modify",
