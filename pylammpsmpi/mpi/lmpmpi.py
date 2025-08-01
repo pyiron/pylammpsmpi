@@ -333,8 +333,7 @@ def get_neighlist_element_neighbors(job, funct_args):
 
 
 def get_thermo(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return np.array(job.get_thermo(*funct_args))
+    return np.array(job.get_thermo(*funct_args))
 
 
 def scatter_atoms(job, funct_args):
