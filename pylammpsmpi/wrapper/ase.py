@@ -96,9 +96,7 @@ class LammpsASELibrary:
         Args:
             positions (List[List[float]]): The positions of atoms.
         """
-        positions = _vector_to_lammps(
-            vector=positions, prism=self._prism, flatten=True
-        )
+        positions = _vector_to_lammps(vector=positions, prism=self._prism, flatten=True)
         if self._cores == 1:
             self._interactive_library.scatter_atoms(
                 "x", 1, 3, (len(positions) * c_double)(*positions)
