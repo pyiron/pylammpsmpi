@@ -9,7 +9,6 @@ from ase.atoms import Atoms
 from ase.calculators.lammps import Prism
 from ase.data import atomic_masses, atomic_numbers
 from scipy import constants
-from sympy.physics.units import velocity
 
 from pylammpsmpi.wrapper.base import LammpsBase
 
@@ -283,7 +282,9 @@ class LammpsASELibrary:
         if not _check_ortho_prism(prism=self._prism):
             positions = self._prism.vector_to_lammps(structure.positions).flatten()
             if np.any(structure.get_velocities()):
-                velocities = self._prism.vector_to_lammps(structure.get_velocities()).flatten()
+                velocities = self._prism.vector_to_lammps(
+                    structure.get_velocities()
+                ).flatten()
             else:
                 velocities = None
         else:
