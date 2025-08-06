@@ -96,7 +96,7 @@ class LammpsASELibrary:
         Args:
             positions (List[List[float]]): The positions of atoms.
         """
-        positions = _vector_to_lammps(vector=positions, prism=self._prism, flatten=True)
+        positions = _vector_to_lammps(vector=positions, prism=self._prism)
         if self._cores == 1:
             self._interactive_library.scatter_atoms(
                 "x", 1, 3, (len(positions) * c_double)(*positions)
@@ -277,13 +277,10 @@ class LammpsASELibrary:
                 self.interactive_lib_command(
                     command=f"mass {id_eam + 1:3d} {1.00:f}",
                 )
-        positions = _vector_to_lammps(
-            vector=structure.positions, prism=self._prism, flatten=True
-        )
+        positions = _vector_to_lammps(vector=structure.positions, prism=self._prism)
         velocities = _vector_to_lammps(
             vector=structure.get_velocities(),
             prism=self._prism,
-            flatten=True,
         )
         try:
             elem_all = get_lammps_indicies_from_ase_structure(
@@ -478,11 +475,11 @@ def cell_is_skewed(cell, tolerance=1.0e-8):
     return not (volume > 0 and abs(volume - prod) / volume < tolerance)
 
 
-def _vector_to_lammps(vector, prism, flatten=False):
+def _vector_to_lammps(vector, prism):
     if vector is not None and np.any(vector):
         if not _check_ortho_prism(prism=prism):
             vector = prism.vector_to_lammps(vector)
-        return vector.flatten() if flatten else vector
+        return vector.flatten()
     else:
         return None
 
