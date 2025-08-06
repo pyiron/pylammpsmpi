@@ -132,7 +132,9 @@ class TestLammpsASELibrary(unittest.TestCase):
             disable_log_file=True,
         )
         structure = bulk("Al", cubic=True)
-        velocities_initial = np.array([[1., 1., 1.], [1., 1., 1.], [1., 1., 1.], [1., 1., 1.]])
+        velocities_initial = np.array(
+            [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
+        )
         structure.set_velocities(velocities_initial)
         lmp.interactive_structure_setter(
             structure=structure,
@@ -156,7 +158,9 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertTrue(
             np.isclose(lmp.interactive_energy_pot_getter(), -0.04342932384411341)
         )
-        self.assertTrue(np.all(np.equal(lmp.interactive_velocities_getter(), velocities_initial)))
+        self.assertTrue(
+            np.all(np.equal(lmp.interactive_velocities_getter(), velocities_initial))
+        )
         positions = structure.positions.copy()
         positions[0] += np.array([0.1, 0.1, 0.1])
         lmp.interactive_positions_setter(positions=positions)
