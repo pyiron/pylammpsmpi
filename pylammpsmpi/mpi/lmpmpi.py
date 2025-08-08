@@ -79,16 +79,14 @@ def extract_compute(job, funct_args):
         val = _gather_data_from_all_processors(
             data=job.numpy.extract_compute(*filtered_args)
         )
-        if MPI.COMM_WORLD.rank == 0:
-            length = job.get_natoms()
-            return convert_data(val=val, type=type, length=length, width=width)
+        length = job.get_natoms()
+        return convert_data(val=val, type=type, length=length, width=width)
     else:  # Todo
         raise ValueError("Local style is currently not supported")
 
 
 def get_version(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.version()
+    return job.version()
 
 
 def get_file(job, funct_args):
@@ -107,53 +105,48 @@ def commands_string(job, funct_args):
 
 
 def extract_setting(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.extract_setting(*funct_args)
+    return job.extract_setting(*funct_args)
 
 
 def extract_global(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.extract_global(*funct_args)
+    return job.extract_global(*funct_args)
 
 
 def extract_box(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.extract_box(*funct_args)
+    return job.extract_box(*funct_args)
 
 
 def extract_atom(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        # extract atoms return an internal data type
-        # this has to be reformatted
-        name = str(funct_args[0])
-        if name not in atom_properties:
-            return []
+    # extract atoms return an internal data type
+    # this has to be reformatted
+    name = str(funct_args[0])
+    if name not in atom_properties:
+        return []
 
-        # this block prevents error when trying to access values
-        # that do not exist
-        try:
-            val = job.extract_atom(name, atom_properties[name]["type"])
-        except ValueError:
-            return []
-        # this is per atom quantity - so get
-        # number of atoms - first dimension
-        natoms = job.get_natoms()
-        # second dim is from dict
-        dim = atom_properties[name]["dim"]
-        data = []
-        if dim > 1:
-            for i in range(int(natoms)):
-                dummy = [val[i][x] for x in range(dim)]
-                data.append(dummy)
-        else:
-            data = [val[x] for x in range(int(natoms))]
+    # this block prevents error when trying to access values
+    # that do not exist
+    try:
+        val = job.extract_atom(name, atom_properties[name]["type"])
+    except ValueError:
+        return []
+    # this is per atom quantity - so get
+    # number of atoms - first dimension
+    natoms = job.get_natoms()
+    # second dim is from dict
+    dim = atom_properties[name]["dim"]
+    data = []
+    if dim > 1:
+        for i in range(int(natoms)):
+            dummy = [val[i][x] for x in range(dim)]
+            data.append(dummy)
+    else:
+        data = [val[x] for x in range(int(natoms))]
 
-        return np.array(data)
+    return np.array(data)
 
 
 def extract_fix(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.extract_fix(*funct_args)
+    return job.extract_fix(*funct_args)
 
 
 def extract_variable(job, funct_args):
@@ -163,9 +156,8 @@ def extract_variable(job, funct_args):
         data = _gather_data_from_all_processors(
             data=job.numpy.extract_variable(*funct_args)
         )
-        if MPI.COMM_WORLD.rank == 0:
-            return np.array(data)
-    elif MPI.COMM_WORLD.rank == 0:
+        return np.array(data)
+    else:
         # if type is 1 - reformat file
         try:
             data = job.extract_variable(*funct_args)
@@ -175,8 +167,7 @@ def extract_variable(job, funct_args):
 
 
 def get_natoms(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.get_natoms()
+    return job.get_natoms()
 
 
 def set_variable(job, funct_args):
@@ -303,33 +294,27 @@ def set_fix_external_callback(job, funct_args):
 
 
 def get_neighlist(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.get_neighlist(*funct_args)
+    return job.get_neighlist(*funct_args)
 
 
 def find_pair_neighlist(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.find_pair_neighlist(*funct_args)
+    return job.find_pair_neighlist(*funct_args)
 
 
 def find_fix_neighlist(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.find_fix_neighlist(*funct_args)
+    return job.find_fix_neighlist(*funct_args)
 
 
 def find_compute_neighlist(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.find_compute_neighlist(*funct_args)
+    return job.find_compute_neighlist(*funct_args)
 
 
 def get_neighlist_size(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.get_neighlist_size(*funct_args)
+    return job.get_neighlist_size(*funct_args)
 
 
 def get_neighlist_element_neighbors(job, funct_args):
-    if MPI.COMM_WORLD.rank == 0:
-        return job.get_neighlist_element_neighbors(*funct_args)
+    return job.get_neighlist_element_neighbors(*funct_args)
 
 
 def get_thermo(job, funct_args):
@@ -443,12 +428,7 @@ def select_cmd(argument):
 
 def _gather_data_from_all_processors(data):
     data_gather = MPI.COMM_WORLD.gather(data, root=0)
-    if MPI.COMM_WORLD.rank == 0:
-        data = []
-        for vl in data_gather:
-            for v in vl:
-                data.append(v)
-        return data
+    return [v for vl in data_gather for v in vl]
 
 
 def _run_lammps_mpi(argument_lst):
