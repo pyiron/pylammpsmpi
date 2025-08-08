@@ -6,6 +6,6 @@ dependencies:
 - mpich =4.3.1
 - numpy =2.3.1
 - mpi4py =4.1.0
-- executorlib =1.6.0
+- executorlib =1.6.1
 - ase =3.25.0
 - scipy =1.16.0
