@@ -90,12 +90,12 @@ ignore = [
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "pyiron_lammps"
+    "pylammpsmpi"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "pyiron_lammps"
+    "pylammpsmpi"
 ]
 
 [tool.hatch.version]
