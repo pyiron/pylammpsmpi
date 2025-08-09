@@ -92,3 +92,7 @@ style = "pep440-pre"
 versionfile_source = "pylammpsmpi/_version.py"
 parentdir_prefix = "pylammpsmpi"
 tag_prefix = "pylammpsmpi-"
+
+[tool.coverage.run]
+omit = ["pylammpsmpi/_version.py", "tests/*"]
+command_line = "-m unittest discover tests"
