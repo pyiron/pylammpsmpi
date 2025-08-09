@@ -8,3 +8,5 @@ dependencies:
 - executorlib =1.2.0
 - ase =3.23.0
 - scipy =1.9.3
+- hatchling
+- hatch-vcs
