@@ -9,5 +9,6 @@ dependencies:
 - executorlib
 - ase
 - scipy
-- setuptools
+- hatchling
+- hatch-vcs
 - python =3.12

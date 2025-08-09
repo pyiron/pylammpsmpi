@@ -1,11 +1,10 @@
+import pylammpsmpi._version
 from pylammpsmpi.wrapper.base import LammpsBase
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 from pylammpsmpi.wrapper.extended import LammpsLibrary
 
-from ._version import get_versions
-
 __all__ = ["LammpsLibrary", "LammpsConcurrent", "LammpsBase"]
-__version__ = get_versions()["version"]
+__version__ = pylammpsmpi._version.__version__
 
 
 try:
