@@ -411,6 +411,16 @@ class LammpsConcurrent:
         return self._send_and_receive_dict(
             command="set_fix_external_callback", data=list(args)
         )
+    
+    def set_fix_external_callback_test(self, *args):
+        return self._send_and_receive_dict(
+            command="set_fix_external_callback_test", data=list(args)
+        )
+    
+    def set_fix_external_callback_mslt(self, *args):
+        return self._send_and_receive_dict(
+            command="set_fix_external_callback_mslt", data=list(args)
+        )
 
     def get_neighlist(self, *args):
         """Returns an instance of :class:`NeighList` which wraps access to the neighbor list with the given index
