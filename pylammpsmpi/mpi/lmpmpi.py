@@ -13,7 +13,7 @@ from executorlib.api import (
 )
 from lammps import lammps
 from mpi4py import MPI
-from pylammpsmpi.wrapper.helper import deserialize_functions
+from dill import loads
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -290,7 +290,8 @@ def installed_packages(job, funct_args):
 
 
 def set_fix_external_callback(job, funct_args):
-    job.set_fix_external_callback(*deserialize_functions(funct_args))
+    data = [funct_args[0], loads(funct_args[1]), [loads(f) for f in funct_args[2]]]
+    job.set_fix_external_callback(*data)
     return 1
 
 

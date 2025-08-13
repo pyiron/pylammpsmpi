@@ -13,7 +13,7 @@ from executorlib.api import (
     cancel_items_in_queue,
     interface_bootup,
 )
-from pylammpsmpi.wrapper.helper import serialize_functions
+from dill import dumps
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -409,9 +409,10 @@ class LammpsConcurrent:
         return self._send_and_receive_dict(command="get_installed_packages", data=[])
 
     def set_fix_external_callback(self, *args):
+        data = [args[0], dumps(args[1]), [dumps(a) for a in args[2]] if len(args) == 3 else [None]]
         return self._send_and_receive_dict(
-            command="set_fix_external_callback", data=serialize_functions(list(args))
-        )
+            command="set_fix_external_callback", data=data
+            )
     
 
     def get_neighlist(self, *args):
