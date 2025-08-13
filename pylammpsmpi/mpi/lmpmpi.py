@@ -290,7 +290,15 @@ def installed_packages(job, funct_args):
 
 
 def set_fix_external_callback(job, funct_args):
+    """
+    Follows the signature of LAMMPS's set_fix_external_callback(fix_id, callback, caller=None).
+    This layer has access to the actual LAMMPS instance.
+    We deserialize the callback function and the objects in the caller list so they can be passed directly to the LAMMPS instance.
+    If present, the placeholder for the LAMMPS instance is replaced with the actual instance before calling the callback.
+    """
     data = [funct_args[0], loads(funct_args[1]), [loads(f) for f in funct_args[2]]]
+    data[2] = [job if d == "lammps" else d for d in data[2]]
+    print(data)
     job.set_fix_external_callback(*data)
     return 1
 
