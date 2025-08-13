@@ -13,6 +13,7 @@ from executorlib.api import (
 )
 from lammps import lammps
 from mpi4py import MPI
+from pylammpsmpi.wrapper.helper import deserialize_functions
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -289,33 +290,8 @@ def installed_packages(job, funct_args):
 
 
 def set_fix_external_callback(job, funct_args):
-    job.set_fix_external_callback(*funct_args)
+    job.set_fix_external_callback(*deserialize_functions(funct_args))
     return 1
-
-
-def set_fix_external_callback_test(job, funct_args):
-    job.set_fix_external_callback('test', callback, [job])
-    return 1
-
-
-def callback(caller, ntimestep, nlocal, tag, x, f):
-    lmp = caller[0]
-    print(f"energy_pot = {lmp.get_thermo('pe')}")
-
-
-def set_fix_external_callback_mslt(job, funct_args):
-    thermostat = MassScaledLangevinThermostat(*funct_args) 
-    job.set_fix_external_callback('mslt', mslt_callback, [job, thermostat])
-    return 1
-
-
-def mslt_callback(caller, ntimestep, nlocal, ids, x, f):
-    lmp, thermostat = caller
-    velocities_global = np.array(lmp.gather_atoms('v', 1, 3)).copy().reshape(-1, 3)
-    forces_global = thermostat.apply(velocities_global)
-    forces_local = forces_global[np.array(ids) - 1]
-    f_np = np.ctypeslib.as_array(f)
-    f_np[:] = forces_local
 
 
 def get_neighlist(job, funct_args):
@@ -500,41 +476,5 @@ def _run_lammps_mpi(argument_lst):
                 interface_send(socket=socket, result_dict={"result": output})
 
 
-from typing import Optional, Union
-from scipy.constants import physical_constants, angstrom, pico
-KB = physical_constants['Boltzmann constant in eV/K'][0]
-AMU_ANG_PER_PSSQ_TO_EV_PER_ANG = physical_constants['atomic mass constant'][0]*angstrom**2/pico**2/physical_constants['electron volt'][0]
-
-class MassScaledLangevinThermostat:
-    def __init__(self,
-                 temperature: float,
-                 temperature_damping_timescale: float,
-                 masses: Union[np.ndarray, list],
-                 mass_scale_factors: Union[np.ndarray, list, None],
-                 timestep: float,
-                 seed: int | None,
-                 fix_com: Optional[bool]
-                 ):
-        self.temperature = temperature
-        self.gamma = 1000/temperature_damping_timescale
-        self.masses = np.array(masses)[:, None]
-        self.mass_scale_factors = np.ones((len(self.masses), 3)) if mass_scale_factors is None else np.array(mass_scale_factors)
-        self.timestep = timestep/1000
-        self.rng = np.random.default_rng(seed)
-        self.fix_com = fix_com
-        self.scaled_masses = self.masses*self.mass_scale_factors
-
-    def apply(self, velocities):
-        velocities = np.array(velocities)
-        friction_force = -self.gamma*self.scaled_masses*velocities*AMU_ANG_PER_PSSQ_TO_EV_PER_ANG
-        sigma = np.sqrt(2*self.scaled_masses*self.gamma*KB*self.temperature/self.timestep*AMU_ANG_PER_PSSQ_TO_EV_PER_ANG)
-        random_force = sigma*self.rng.standard_normal(size=velocities.shape)
-        if self.fix_com:
-            random_force -= random_force.mean(axis=0, keepdims=True)
-        return friction_force+random_force
-
-
 if __name__ == "__main__":
     _run_lammps_mpi(argument_lst=sys.argv)
-
-

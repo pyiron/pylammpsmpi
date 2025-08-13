@@ -13,6 +13,7 @@ from executorlib.api import (
     cancel_items_in_queue,
     interface_bootup,
 )
+from pylammpsmpi.wrapper.helper import serialize_functions
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -409,7 +410,7 @@ class LammpsConcurrent:
 
     def set_fix_external_callback(self, *args):
         return self._send_and_receive_dict(
-            command="set_fix_external_callback", data=list(args)
+            command="set_fix_external_callback", data=serialize_functions(list(args))
         )
     
     def set_fix_external_callback_test(self, *args):
