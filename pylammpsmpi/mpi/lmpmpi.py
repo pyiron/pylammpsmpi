@@ -298,7 +298,6 @@ def set_fix_external_callback(job, funct_args):
     """
     data = [funct_args[0], loads(funct_args[1]), [loads(f) for f in funct_args[2]]]
     data[2] = [job if d == "lammps" else d for d in data[2]]
-    print(data)
     job.set_fix_external_callback(*data)
     return 1
 
