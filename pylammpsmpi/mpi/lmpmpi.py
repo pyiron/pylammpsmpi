@@ -412,8 +412,6 @@ def select_cmd(argument):
             has_ffmpeg_support,
             installed_packages,
             set_fix_external_callback,
-            set_fix_external_callback_test,
-            set_fix_external_callback_mslt,
             get_neighlist,
             find_pair_neighlist,
             find_fix_neighlist,
