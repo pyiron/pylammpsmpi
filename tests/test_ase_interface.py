@@ -10,7 +10,10 @@ from ase.constraints import FixAtoms, FixCom, FixedPlane
 from pylammpsmpi import LammpsASELibrary, LammpsLibrary
 from pylammpsmpi.wrapper.ase import (
     cell_is_skewed,
+    get_fixed_atom_boolean_vector,
+    get_lammps_indicies_from_ase_indices,
     get_lammps_indicies_from_ase_structure,
+    get_species_indices_dict,
     get_species_symbols,
     get_structure_indices,
     set_selective_dynamics,
@@ -357,6 +360,43 @@ class TestASEHelperFunctions(unittest.TestCase):
         self.assertTrue(
             np.all(np.isclose(self.structure_skewed_mix.cell.array, cell_old))
         )
+
+
+class TestUntestedASEHelperFunctions(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_cubic = bulk("Al", cubic=True).repeat([2, 2, 2])
+        cls.el_eam_lst = ["Al", "H"]
+
+    def test_get_species_indices_dict(self):
+        el_dict = get_species_indices_dict(structure=self.structure_cubic)
+        self.assertEqual(el_dict, {"Al": 0})
+
+    def test_get_lammps_indicies_from_ase_indices(self):
+        indices = get_structure_indices(structure=self.structure_cubic)
+        lammps_indices = get_lammps_indicies_from_ase_indices(
+            indices=indices,
+            structure=self.structure_cubic,
+            el_eam_lst=self.el_eam_lst,
+        )
+        self.assertEqual(len(lammps_indices), len(self.structure_cubic))
+        self.assertEqual(len(set(lammps_indices)), 1)
+        self.assertEqual(set(lammps_indices), {1})
+
+    def test_get_fixed_atom_boolean_vector(self):
+        structure = bulk("Cu", cubic=True)
+        structure.symbols[2:] = "Al"
+        c1 = FixAtoms(indices=[atom.index for atom in structure if atom.symbol == "Cu"])
+        c2 = FixedPlane(
+            [atom.index for atom in structure if atom.symbol == "Al"],
+            [1, 0, 0],
+        )
+        structure.set_constraint([c1, c2])
+        fixed_atom_vector = get_fixed_atom_boolean_vector(structure=structure)
+        self.assertTrue(np.all(fixed_atom_vector[0] == [True, True, True]))
+        self.assertTrue(np.all(fixed_atom_vector[1] == [True, True, True]))
+        self.assertTrue(np.all(fixed_atom_vector[2] == [True, False, False]))
+        self.assertTrue(np.all(fixed_atom_vector[3] == [True, False, False]))
 
 
 class TestConstraints(unittest.TestCase):
