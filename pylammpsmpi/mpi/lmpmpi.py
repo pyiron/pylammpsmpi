@@ -297,7 +297,7 @@ def set_fix_external_callback(job, funct_args):
     If present, the placeholder for the LAMMPS instance is replaced with the actual instance before calling the callback.
     """
     data = [funct_args[0], loads(funct_args[1]), [loads(f) for f in funct_args[2]]]
-    data[2] = [job if d == "lammps" else d for d in data[2]]
+    data[2] = [job if isinstance(d, str) and d == "lammps" else d for d in data[2]]
     job.set_fix_external_callback(*data)
     return 1
 
