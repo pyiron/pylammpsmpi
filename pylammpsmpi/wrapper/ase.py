@@ -96,9 +96,7 @@ class LammpsASELibrary:
         Args:
             positions (List[List[float]]): The positions of atoms.
         """
-        if not _check_ortho_prism(prism=self._prism):
-            positions = self._prism.vector_to_lammps(positions)
-        positions = np.array(positions).flatten()
+        positions = _vector_to_lammps(vector=positions, prism=self._prism)
         if self._cores == 1:
             self._interactive_library.scatter_atoms(
                 "x", 1, 3, (len(positions) * c_double)(*positions)
@@ -279,10 +277,11 @@ class LammpsASELibrary:
                 self.interactive_lib_command(
                     command=f"mass {id_eam + 1:3d} {1.00:f}",
                 )
-        if not _check_ortho_prism(prism=self._prism):
-            positions = self._prism.vector_to_lammps(structure.positions).flatten()
-        else:
-            positions = structure.positions.flatten()
+        positions = _vector_to_lammps(vector=structure.positions, prism=self._prism)
+        velocities = _vector_to_lammps(
+            vector=structure.get_velocities(),
+            prism=self._prism,
+        )
         try:
             elem_all = get_lammps_indicies_from_ase_structure(
                 structure=structure, el_eam_lst=el_eam_lst
@@ -299,7 +298,7 @@ class LammpsASELibrary:
                 id=None,
                 type=elem_all,
                 x=positions,
-                v=None,
+                v=velocities,
                 image=None,
                 shrinkexceed=False,
             )
@@ -309,7 +308,7 @@ class LammpsASELibrary:
                 id=range(1, len(structure) + 1),
                 type=elem_all,
                 x=positions,
-                v=None,
+                v=velocities,
                 image=None,
                 shrinkexceed=False,
             )
@@ -474,6 +473,15 @@ def cell_is_skewed(cell, tolerance=1.0e-8):
     volume = np.abs(np.linalg.det(cell))
     prod = np.linalg.norm(cell, axis=-1).prod()
     return not (volume > 0 and abs(volume - prod) / volume < tolerance)
+
+
+def _vector_to_lammps(vector, prism):
+    if vector is not None and np.any(vector):
+        if not _check_ortho_prism(prism=prism):
+            vector = prism.vector_to_lammps(vector)
+        return vector.flatten()
+    else:
+        return None
 
 
 def _check_ortho_prism(prism, rtol=0.0, atol=1e-08):
