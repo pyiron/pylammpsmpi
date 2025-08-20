@@ -13,7 +13,7 @@ from executorlib.api import (
 )
 from lammps import lammps
 from mpi4py import MPI
-from dill import loads
+from cloudpickle import loads
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (

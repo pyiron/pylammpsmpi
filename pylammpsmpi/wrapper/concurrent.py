@@ -13,7 +13,7 @@ from executorlib.api import (
     cancel_items_in_queue,
     interface_bootup,
 )
-from dill import dumps
+from cloudpickle import dumps
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
