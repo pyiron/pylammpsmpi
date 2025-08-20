@@ -8,12 +8,12 @@ from queue import Queue
 from threading import Thread
 from typing import Any, Optional
 
+from dill import dumps
 from executorlib.api import (
     MpiExecSpawner,
     cancel_items_in_queue,
     interface_bootup,
 )
-from dill import dumps
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (

@@ -5,6 +5,7 @@ import sys
 from ctypes import c_double, c_int
 
 import numpy as np
+from dill import loads
 from executorlib.api import (
     interface_connect,
     interface_receive,
@@ -13,7 +14,6 @@ from executorlib.api import (
 )
 from lammps import lammps
 from mpi4py import MPI
-from dill import loads
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
