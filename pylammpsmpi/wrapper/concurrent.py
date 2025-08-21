@@ -422,10 +422,12 @@ class LammpsConcurrent:
             if args[2] is not None:
                 data.append(
                     [
-                        dumps("lammps")
-                        if hasattr(arg, "__class__")
-                        and arg.__class__.__name__ == "LammpsLibrary"
-                        else dumps(arg)
+                        (
+                            dumps("lammps")
+                            if hasattr(arg, "__class__")
+                            and arg.__class__.__name__ == "LammpsLibrary"
+                            else dumps(arg)
+                        )
                         for arg in args[2]
                     ]
                 )
