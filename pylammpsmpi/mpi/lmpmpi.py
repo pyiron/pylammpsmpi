@@ -6,7 +6,6 @@ from ctypes import c_double, c_int
 
 import numpy as np
 from cloudpickle import loads
-from dill import loads
 from executorlib.api import (
     interface_connect,
     interface_receive,
