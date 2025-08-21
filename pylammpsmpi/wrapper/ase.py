@@ -278,6 +278,8 @@ class LammpsASELibrary:
                     command=f"mass {id_eam + 1:3d} {1.00:f}",
                 )
         positions = _vector_to_lammps(vector=structure.positions, prism=self._prism)
+        if positions is None:
+            positions = structure.positions.flatten()
         velocities = _vector_to_lammps(
             vector=structure.get_velocities(),
             prism=self._prism,

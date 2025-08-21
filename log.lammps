@@ -1,0 +1,70 @@
+LAMMPS (27 Jun 2024)
+WARNING: Using I/O redirection is unreliable with parallel runs. Better to use the -in switch to read input files. (src/lammps.cpp:551)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+clear
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+units lj
+dimension 3
+boundary p p p
+atom_style atomic
+atom_modify map array
+region 1 block 0.0 8.0 0.0 8.0 0.0 8.0 units box
+create_box 2 1
+Created orthogonal box = (0 0 0) to (8 8 8)
+  1 by 1 by 2 MPI processor grid
+mass   1 1.000000
+mass   2 196.966569
+change_box all remap
+Changing box ...
+pair_style lj/cut 6.0
+pair_coeff 1 1 1.0 1.0 4.0
+pair_coeff 1 2 1.0 1.5 4.0
+pair_coeff 2 2 1.0 2.0 4.0
+thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol
+thermo_modify format float %20.15g
+run 0
+WARNING: No fixes with time integration, atoms won't move (src/verlet.cpp:60)
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 4.3
+  ghost atom cutoff = 4.3
+  binsize = 2.15, bins = 4 4 4
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 3.073 | 3.073 | 3.073 Mbytes
+   Step          Temp          PotEng         TotEng          Pxx            Pxy            Pxz            Pyy            Pyz            Pzz           Volume    
+         0                     0               -2.625               -2.625             -0.28125                    0                    0             -0.28125                    0             -0.28125                  512
+Loop time of 1.1665e-06 on 2 procs for 0 steps with 32 atoms
+
+85.7% CPU use with 2 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.166e-06  |            |       |100.00
+
+Nlocal:             16 ave          16 max          16 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Nghost:            268 ave         268 max         268 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Neighs:            144 ave         144 max         144 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 288
+Ave neighs/atom = 9
+Neighbor list builds = 0
+Dangerous builds = 0
+Total wall time: 0:00:00
