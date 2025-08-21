@@ -9,7 +9,6 @@ from threading import Thread
 from typing import Any, Optional
 
 from cloudpickle import dumps
-from dill import dumps
 from executorlib.api import (
     MpiExecSpawner,
     cancel_items_in_queue,
