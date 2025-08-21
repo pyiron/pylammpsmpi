@@ -417,19 +417,18 @@ class LammpsConcurrent:
         Because the LAMMPS instance is not available at this stage, we insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance during deserialization.
         """
         data = [args[0], dumps(args[1])]
-        if len(args) == 3:
-            if args[2] is not None:
-                data.append(
-                    [
-                        (
-                            dumps("lammps")
-                            if hasattr(arg, "__class__")
-                            and arg.__class__.__name__ == "LammpsLibrary"
-                            else dumps(arg)
-                        )
-                        for arg in args[2]
-                    ]
-                )
+        if len(args) == 3 and args[2] is not None:
+            data.append(
+                [
+                    (
+                        dumps("lammps")
+                        if hasattr(arg, "__class__")
+                        and arg.__class__.__name__ == "LammpsLibrary"
+                        else dumps(arg)
+                    )
+                    for arg in args[2]
+                ]
+            )
         return self._send_and_receive_dict(
             command="set_fix_external_callback", data=data
         )
