@@ -481,7 +481,7 @@ class TestBinary(unittest.TestCase):
         bulk_al = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_au = bulk("Au", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_mix = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
-        bulk_al_small = bulk("Al").repeat([2, 2, 2])
+        bulk_al_small = bulk("Al")
         chemical_symbol_lst = np.array(bulk_mix.get_chemical_symbols())
         chemical_symbol_lst[: int(len(chemical_symbol_lst) / 2) - 1] = "Au"
         bulk_mix.set_chemical_symbols(chemical_symbol_lst)
