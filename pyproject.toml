@@ -1,6 +1,6 @@
 [build-system]
-requires = ["mpi4py", "numpy", "executorlib", "setuptools", "versioneer[toml]==0.29"]
-build-backend = "setuptools.build_meta"
+requires = ["mpi4py", "numpy", "executorlib", "hatchling==1.27.0", "hatch-vcs==0.5.0"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pylammpsmpi"
@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "mpi4py==4.1.0",
-    "executorlib==1.6.0",
+    "executorlib==1.6.1",
     "numpy==2.3.1",
 ]
 dynamic = ["version"]
@@ -37,15 +37,17 @@ Repository = "https://github.com/pyiron/pylammpsmpi"
 
 [project.optional-dependencies]
 ase = [
-    "ase==3.25.0",
+    "ase==3.26.0",
     "scipy==1.16.0",
 ]
 
-[tool.setuptools.packages.find]
-include = ["pylammpsmpi*"]
+[tool.hatch.build]
+include = [
+    "pylammpsmpi"
+]
 
-[tool.setuptools.dynamic]
-version = {attr = "pylammpsmpi.__version__"}
+[tool.hatch.build.hooks.vcs]
+version-file = "pylammpsmpi/_version.py"
 
 [tool.ruff]
 exclude = [".ci_support", "docs", "notebooks", "setup.py", "_version.py"]
@@ -86,9 +88,20 @@ ignore = [
     "PLR0915",
 ]
 
-[tool.versioneer]
-VCS = "git"
-style = "pep440-pre"
-versionfile_source = "pylammpsmpi/_version.py"
-parentdir_prefix = "pylammpsmpi"
-tag_prefix = "pylammpsmpi-"
+[tool.hatch.build.targets.sdist]
+include = [
+    "pylammpsmpi"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "pylammpsmpi"
+]
+
+[tool.hatch.version]
+source = "vcs"
+path = "pylammpsmpi/_version.py"
+
+[tool.coverage.run]
+omit = ["pylammpsmpi/_version.py", "tests/*"]
+command_line = "-m unittest discover tests"
