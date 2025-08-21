@@ -476,7 +476,7 @@ def cell_is_skewed(cell, tolerance=1.0e-8):
 
 
 def _vector_to_lammps(vector, prism):
-    if vector is not None and np.any(vector):
+    if vector is not None:
         if not _check_ortho_prism(prism=prism):
             vector = prism.vector_to_lammps(vector)
         return vector.flatten()
