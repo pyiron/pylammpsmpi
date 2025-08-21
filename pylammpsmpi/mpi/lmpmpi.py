@@ -5,6 +5,7 @@ import sys
 from ctypes import c_double, c_int
 
 import numpy as np
+from dill import loads
 from executorlib.api import (
     interface_connect,
     interface_receive,

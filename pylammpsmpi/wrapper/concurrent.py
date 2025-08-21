@@ -8,6 +8,7 @@ from queue import Queue
 from threading import Thread
 from typing import Any, Optional
 
+from dill import dumps
 from executorlib.api import (
     MpiExecSpawner,
     cancel_items_in_queue,
@@ -414,7 +415,7 @@ class LammpsConcurrent:
         The `caller` arguemnt is a list of inputs to the callback function, including class instances and, importantly, the LammpsLibrary instance itself.
         Since LAMMPS's set_fix_external_callback allows passing a self-reference, we want to keep this feature.
         To transfer the callback function and its associated caller list to the layer containing the actual LAMMPS instance, we serialize them using `dill`.
-        Because the LAMMPS instance is not available at this stage, we insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance during deserialization.  
+        Because the LAMMPS instance is not available at this stage, we insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance during deserialization.
         """
         data = [args[0], dumps(args[1])]
         if len(args) == 3:
@@ -427,7 +428,7 @@ class LammpsConcurrent:
                     for arg in args[2]])
         return self._send_and_receive_dict(
             command="set_fix_external_callback", data=data
-            )
+        )
 
     def get_neighlist(self, *args):
         """Returns an instance of :class:`NeighList` which wraps access to the neighbor list with the given index
