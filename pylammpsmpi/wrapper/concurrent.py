@@ -8,13 +8,13 @@ from queue import Queue
 from threading import Thread
 from typing import Any, Optional
 
+from cloudpickle import dumps
 from dill import dumps
 from executorlib.api import (
     MpiExecSpawner,
     cancel_items_in_queue,
     interface_bootup,
 )
-from cloudpickle import dumps
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -420,12 +420,15 @@ class LammpsConcurrent:
         data = [args[0], dumps(args[1])]
         if len(args) == 3:
             if args[2] is not None:
-                data.append([
-                    dumps("lammps") 
-                    if hasattr(arg, "__class__") and arg.__class__.__name__ == "LammpsLibrary" 
-                    else 
-                    dumps(arg)
-                    for arg in args[2]])
+                data.append(
+                    [
+                        dumps("lammps")
+                        if hasattr(arg, "__class__")
+                        and arg.__class__.__name__ == "LammpsLibrary"
+                        else dumps(arg)
+                        for arg in args[2]
+                    ]
+                )
         return self._send_and_receive_dict(
             command="set_fix_external_callback", data=data
         )
