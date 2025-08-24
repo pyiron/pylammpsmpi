@@ -1,7 +1,8 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-from typing import Union
+from typing import Any, Union
+from concurrent.futures import Future
 
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
@@ -17,6 +18,13 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 
+def get_result(future: Future, cores: int) -> Any:
+    if cores > 1:
+        return future.result()[0]
+    else:
+        return future.result()
+
+
 class LammpsBase(LammpsConcurrent):
     @property
     def version(self) -> str:
@@ -27,10 +35,7 @@ class LammpsBase(LammpsConcurrent):
         version: str
             version string of lammps
         """
-        if self.cores > 1:
-            return super().version.result()[0]
-        else:
-            return super().version.result()
+        return get_result(future=super().version, cores=self.cores)
 
     def file(self, inputfile: str) -> None:
         """
@@ -58,10 +63,7 @@ class LammpsBase(LammpsConcurrent):
         value: int, float, or str
             extracted setting value
         """
-        if self.cores > 1:
-            return super().extract_setting(*args).result()[0]
-        else:
-            return super().extract_setting(*args).result()
+        return get_result(future=super().extract_setting(*args), cores=self.cores)
 
     def extract_global(self, name: str) -> Union[int, float, str]:
         """
@@ -75,10 +77,7 @@ class LammpsBase(LammpsConcurrent):
         value: int, float, or str
             extracted value of the global parameter
         """
-        if self.cores > 1:
-            return super().extract_global(name=name).result()[0]
-        else:
-            return super().extract_global(name=name).result()
+        return get_result(future=super().extract_global(name=name), cores=self.cores)
 
     def extract_box(self) -> list[Union[float, list[float], list[int]]]:
         """
@@ -93,10 +92,7 @@ class LammpsBase(LammpsConcurrent):
             the box is periodic in three dimensions, and box_change is a list of booleans
             indicating if the box dimensions have changed
         """
-        if self.cores > 1:
-            return super().extract_box().result()[0]
-        else:
-            return super().extract_box().result()
+        return get_result(future=super().extract_box(), cores=self.cores)
 
     def extract_atom(self, name: str) -> Union[list[int], list[float]]:
         """
@@ -111,10 +107,7 @@ class LammpsBase(LammpsConcurrent):
             If the requested name has multiple dimensions, output
             will be a multi-dimensional list.
         """
-        if self.cores > 1:
-            return super().extract_atom(name=name).result()[0]
-        else:
-            return super().extract_atom(name=name).result()
+        return get_result(future=super().extract_atom(name=name), cores=self.cores)
 
     def extract_fix(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
@@ -128,10 +121,7 @@ class LammpsBase(LammpsConcurrent):
         value: int, float, or list of int or float
             extracted fix value corresponding to the requested dimensions
         """
-        if self.cores > 1:
-            return super().extract_fix(*args).result()[0]
-        else:
-            return super().extract_fix(*args).result()
+        return get_result(future=super().extract_fix(*args), cores=self.cores)
 
     def extract_variable(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
@@ -145,10 +135,7 @@ class LammpsBase(LammpsConcurrent):
         data: int, float, or list of int or float
             value of the variable depending on the requested dimension
         """
-        if self.cores > 1:
-            return super().extract_variable(*args).result()[0]
-        else:
-            return super().extract_variable(*args).result()
+        return get_result(future=super().extract_variable(*args), cores=self.cores)
 
     @property
     def natoms(self) -> int:
@@ -169,10 +156,7 @@ class LammpsBase(LammpsConcurrent):
         natoms : int
             number of atoms
         """
-        if self.cores > 1:
-            return super().get_natoms().result()[0]
-        else:
-            return super().get_natoms().result()
+        return get_result(future=super().get_natoms(), cores=self.cores)
 
     def set_variable(self, *args) -> int:
         """
@@ -186,10 +170,7 @@ class LammpsBase(LammpsConcurrent):
         flag : int
             0 if successful, -1 otherwise
         """
-        if self.cores > 1:
-            return super().set_variable(*args).result()[0]
-        else:
-            return super().set_variable(*args).result()
+        return get_result(future=super().set_variable(*args), cores=self.cores)
 
     def reset_box(self, *args) -> None:
         """
@@ -297,45 +278,28 @@ class LammpsBase(LammpsConcurrent):
     @property
     def has_exceptions(self) -> bool:
         """Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled"""
-        if self.cores > 1:
-            return super().has_exceptions.result()[0]
-        else:
-            return super().has_exceptions.result()
+        return get_result(future=super().has_exceptions, cores=self.cores)
 
     @property
     def has_gzip_support(self) -> bool:
-        if self.cores > 1:
-            return super().has_gzip_support.result()[0]
-        else:
-            return super().has_gzip_support.result()
+        return get_result(future=super().has_gzip_support, cores=self.cores)
+
 
     @property
     def has_png_support(self) -> bool:
-        if self.cores > 1:
-            return super().has_png_support.result()[0]
-        else:
-            return super().has_png_support.result()
+        return get_result(future=super().has_png_support, cores=self.cores)
 
     @property
     def has_jpeg_support(self) -> bool:
-        if self.cores > 1:
-            return super().has_jpeg_support.result()[0]
-        else:
-            return super().has_jpeg_support.result()
+        return get_result(future=super().has_jpeg_support, cores=self.cores)
 
     @property
     def has_ffmpeg_support(self) -> bool:
-        if self.cores > 1:
-            return super().has_ffmpeg_support.result()[0]
-        else:
-            return super().has_ffmpeg_support.result()
+        return get_result(future=super().has_ffmpeg_support, cores=self.cores)
 
     @property
     def installed_packages(self) -> list[str]:
-        if self.cores > 1:
-            return super().installed_packages.result()[0]
-        else:
-            return super().installed_packages.result()
+        return get_result(future=super().installed_packages, cores=self.cores)
 
     def set_fix_external_callback(self, *args) -> None:
         _ = super().set_fix_external_callback(*args).result()
@@ -347,10 +311,7 @@ class LammpsBase(LammpsConcurrent):
         :return: an instance of :class:`NeighList` wrapping access to neighbor list data
         :rtype:  NeighList
         """
-        if self.cores > 1:
-            return super().get_neighlist(*args).result()[0]
-        else:
-            return super().get_neighlist(*args).result()
+        return get_result(future=super().get_neighlist(*args), cores=self.cores)
 
     def find_pair_neighlist(self, *args) -> int:
         """Find neighbor list index of pair style neighbor list
@@ -372,10 +333,7 @@ class LammpsBase(LammpsConcurrent):
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        if self.cores > 1:
-            return super().find_pair_neighlist(*args).result()[0]
-        else:
-            return super().find_pair_neighlist(*args).result()
+        return get_result(future=super().find_pair_neighlist(*args), cores=self.cores)
 
     def find_fix_neighlist(self, *args):
         """Find neighbor list index of fix neighbor list
@@ -386,10 +344,7 @@ class LammpsBase(LammpsConcurrent):
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        if self.cores > 1:
-            return super().find_fix_neighlist(*args).result()[0]
-        else:
-            return super().find_fix_neighlist(*args).result()
+        return get_result(future=super().find_fix_neighlist(*args), cores=self.cores)
 
     def find_compute_neighlist(self, *args):
         """Find neighbor list index of compute neighbor list
@@ -400,10 +355,7 @@ class LammpsBase(LammpsConcurrent):
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        if self.cores > 1:
-            return super().find_compute_neighlist(*args).result()[0]
-        else:
-            return super().find_compute_neighlist(*args).result()
+        return get_result(future=super().find_compute_neighlist(*args), cores=self.cores)
 
     def get_neighlist_size(self, *args):
         """Return the number of elements in neighbor list with the given index
@@ -412,16 +364,10 @@ class LammpsBase(LammpsConcurrent):
         :return: number of elements in neighbor list with index idx
         :rtype:  int
         """
-        if self.cores > 1:
-            return super().get_neighlist_size(*args).result()[0]
-        else:
-            return super().get_neighlist_size(*args).result()
+        return get_result(future=super().get_neighlist_size(*args), cores=self.cores)
 
     def get_neighlist_element_neighbors(self, *args):
-        if self.cores > 1:
-            return super().get_neighlist_element_neighbors(*args).result()[0]
-        else:
-            return super().get_neighlist_element_neighbors(*args).result()
+        return get_result(future=super().get_neighlist_element_neighbors(*args), cores=self.cores)
 
     def command(self, cmd):
         """
@@ -470,10 +416,7 @@ class LammpsBase(LammpsConcurrent):
         --------
         extract_atoms
         """
-        if self.cores > 1:
-            return super().gather_atoms(*args, concat=concat, ids=ids).result()[0]
-        else:
-            return super().gather_atoms(*args, concat=concat, ids=ids).result()
+        return get_result(future=super().gather_atoms(*args, concat=concat, ids=ids), cores=self.cores)
 
     def scatter_atoms(self, *args, ids=None):
         """
@@ -499,10 +442,7 @@ class LammpsBase(LammpsConcurrent):
             value of the thermo keyword
 
         """
-        if self.cores > 1:
-            return super().get_thermo(*args).result()[0]
-        else:
-            return super().get_thermo(*args).result()
+        return get_result(future=super().get_thermo(*args), cores=self.cores)
 
     # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
@@ -537,19 +477,4 @@ class LammpsBase(LammpsConcurrent):
             data computed by the fix depending on the chosen inputs
 
         """
-        if self.cores > 1:
-            return (
-                super()
-                .extract_compute(
-                    id=id, style=style, type=type, length=length, width=width
-                )
-                .result()[0]
-            )
-        else:
-            return (
-                super()
-                .extract_compute(
-                    id=id, style=style, type=type, length=length, width=width
-                )
-                .result()
-            )
+        return get_result(future=super().extract_compute(id=id, style=style, type=type, length=length, width=width), cores=self.cores)
