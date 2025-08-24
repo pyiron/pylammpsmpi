@@ -22,25 +22,29 @@ class TestMpiBackend(unittest.TestCase):
         self.assertEqual(len(f), 256)
         self.assertEqual(np.round(f[0][0], 2), -0.26)
 
-        ids =  select_cmd("extract_atom")(job=self.lmp, funct_args=["id"])
+        ids = select_cmd("extract_atom")(job=self.lmp, funct_args=["id"])
         self.assertEqual(len(ids), 256)
 
     def test_extract_compute_global(self):
-        compute_temp =  select_cmd("extract_compute")(job=self.lmp, funct_args=["1", 0, 0, 0, 0])
+        compute_temp = select_cmd("extract_compute")(
+            job=self.lmp, funct_args=["1", 0, 0, 0, 0]
+        )
         self.assertIsInstance(compute_temp, float)
 
     def test_extract_compute_per_atom(self):
-        compute_ke_atom =  select_cmd("extract_compute")(job=self.lmp, funct_args=["ke", 1, 1, 256, 0])
+        compute_ke_atom = select_cmd("extract_compute")(
+            job=self.lmp, funct_args=["ke", 1, 1, 256, 0]
+        )
         self.assertEqual(len(compute_ke_atom), 256)
 
     def test_gather_atoms(self):
-        f =  select_cmd("gather_atoms")(job=self.lmp, funct_args=["f"])
+        f = select_cmd("gather_atoms")(job=self.lmp, funct_args=["f"])
         self.assertEqual(len(f), 256)
         # this checks if info was gathered from
         # all processors
         self.assertEqual(np.round(f[-22][0], 2), 0.31)
 
-        ids =  select_cmd("extract_atom")(job=self.lmp, funct_args=["id"])
+        ids = select_cmd("extract_atom")(job=self.lmp, funct_args=["id"])
         self.assertEqual(len(ids), 256)
         self.assertEqual(select_cmd("get_natoms")(job=self.lmp, funct_args=[]), 256)
 
@@ -94,16 +98,28 @@ class TestMpiBackend(unittest.TestCase):
         )
 
     def test_properties(self):
-        self.assertEqual(select_cmd("has_exceptions")(job=self.lmp, funct_args=[]), True)
-        self.assertEqual(select_cmd("has_gzip_support")(job=self.lmp, funct_args=[]), True)
-        self.assertEqual(select_cmd("has_png_support")(job=self.lmp, funct_args=[]), True)
-        self.assertEqual(select_cmd("has_jpeg_support")(job=self.lmp, funct_args=[]), True)
-        self.assertEqual(select_cmd("has_ffmpeg_support")(job=self.lmp, funct_args=[]), False)
+        self.assertEqual(
+            select_cmd("has_exceptions")(job=self.lmp, funct_args=[]), True
+        )
+        self.assertEqual(
+            select_cmd("has_gzip_support")(job=self.lmp, funct_args=[]), True
+        )
+        self.assertEqual(
+            select_cmd("has_png_support")(job=self.lmp, funct_args=[]), True
+        )
+        self.assertEqual(
+            select_cmd("has_jpeg_support")(job=self.lmp, funct_args=[]), True
+        )
+        self.assertEqual(
+            select_cmd("has_ffmpeg_support")(job=self.lmp, funct_args=[]), False
+        )
 
     def test_get_thermo(self):
-        self.assertEqual(float(select_cmd("get_thermo")(job=self.lmp, funct_args=["temp"])), 1.1298532212880312)
+        self.assertEqual(
+            float(select_cmd("get_thermo")(job=self.lmp, funct_args=["temp"])),
+            1.1298532212880312,
+        )
 
 
 if __name__ == "__main__":
     unittest.main()
-
