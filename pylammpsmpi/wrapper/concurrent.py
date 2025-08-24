@@ -19,10 +19,10 @@ __date__ = "Feb 28, 2020"
 
 
 def init_function():
-    from lammps import lammps
-    from mpi4py import MPI
+    from lammps import lammps  # noqa: PLC0415
+    from mpi4py import MPI  # noqa: PLC0415
 
-    from pylammpsmpi.mpi.lmpmpi import select_cmd
+    from pylammpsmpi.mpi.lmpmpi import select_cmd  # noqa: PLC0415
 
     class ParallelLammps:
         def __init__(self):
