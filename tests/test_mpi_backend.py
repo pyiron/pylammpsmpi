@@ -120,6 +120,12 @@ class TestMpiBackend(unittest.TestCase):
             1.1298532212880312,
         )
 
+    def test_installed_packages(self):
+        packages = select_cmd("installed_packages")(job=self.lmp, funct_args=[])
+        self.assertIsInstance(packages, list)
+        self.assertIn("MANYBODY", packages)
+        self.assertIn("KSPACE", packages)
+        self.assertIn("MC", packages)
 
 if __name__ == "__main__":
     unittest.main()
