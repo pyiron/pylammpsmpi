@@ -8,6 +8,7 @@ import numpy as np
 from ase.atoms import Atoms
 from ase.calculators.lammps import Prism
 from ase.data import atomic_masses, atomic_numbers
+from executorlib import BaseExecutor
 from scipy import constants
 
 from pylammpsmpi.wrapper.base import LammpsBase
@@ -25,6 +26,7 @@ class LammpsASELibrary:
         log_file (str, optional): The log file path. Defaults to None.
         library (object, optional): The LAMMPS library object. Defaults to None.
         disable_log_file (bool, optional): Whether to disable the log file. Defaults to True.
+        executor: Executor to use for parallel execution (default: None)
     """
 
     def __init__(
@@ -36,6 +38,7 @@ class LammpsASELibrary:
         log_file: Optional[str] = None,
         library: Optional[object] = None,
         disable_log_file: bool = True,
+        executor: Optional[BaseExecutor] = None,
     ):
         self._logger = logger
         self._prism = None
@@ -60,7 +63,9 @@ class LammpsASELibrary:
                 )
         else:
             self._interactive_library = LammpsBase(
-                cores=self._cores, working_directory=working_directory
+                cores=self._cores,
+                working_directory=working_directory,
+                executor=executor,
             )
 
     def interactive_lib_command(self, command: str) -> None:
