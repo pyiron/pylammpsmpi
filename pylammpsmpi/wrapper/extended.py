@@ -3,7 +3,7 @@
 
 from typing import Any, Optional
 
-from pylammpsmpi.wrapper.base import LammpsConcurrent
+from pylammpsmpi.wrapper.base import LammpsConcurrent, get_result
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -283,19 +283,13 @@ class LammpsLibrary:
             def func_wrapper(*args, **kwargs) -> Any:
                 func = getattr(self.lmp, name)
                 fut = func(*args, **kwargs)
-                if self.cores > 1:
-                    return fut.result()[0]
-                else:
-                    return fut.result()
+                return get_result(future=fut, cores=self.cores)
 
             return func_wrapper
 
         elif name in thermo_list:
             fut = self.lmp.get_thermo(name)
-            if self.cores > 1:
-                return fut.result()[0]
-            else:
-                return fut.result()
+            return get_result(future=fut, cores=self.cores)
 
         elif name in command_list:
 
@@ -303,19 +297,13 @@ class LammpsLibrary:
                 args = [name] + list(args)
                 cmd = " ".join([str(x) for x in args])
                 fut = self.lmp.command(cmd)
-                if self.cores > 1:
-                    return fut.result()[0]
-                else:
-                    return fut.result()
+                return get_result(future=fut, cores=self.cores)
 
             return command_wrapper
 
         elif name in prop_list:
             fut = getattr(self.lmp, name)
-            if self.cores > 1:
-                return fut.result()[0]
-            else:
-                return fut.result()
+            return get_result(future=fut, cores=self.cores)
 
         else:
             raise AttributeError(name)
