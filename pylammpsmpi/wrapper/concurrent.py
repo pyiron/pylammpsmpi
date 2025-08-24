@@ -4,8 +4,9 @@
 import contextlib
 import os
 from concurrent.futures import Future
+from typing import Optional
 
-from executorlib import SingleNodeExecutor
+from executorlib import SingleNodeExecutor, BaseExecutor
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -73,6 +74,7 @@ class LammpsConcurrent:
         oversubscribe: bool = False,
         working_directory: str = ".",
         cmdargs: list = None,
+        executor: Optional[BaseExecutor] = None,
     ):
         """
         Initialize the LammpsConcurrent object.
@@ -87,6 +89,7 @@ class LammpsConcurrent:
             Working directory for Lammps execution (default is current directory).
         cmdargs : list, optional
             Additional command line arguments for Lammps (default is None).
+        executor: Executor to use for parallel execution (default: None)
 
         Returns
         -------
@@ -94,16 +97,19 @@ class LammpsConcurrent:
         """
         self.cores = cores
         self.working_directory = working_directory
-        self._exe = SingleNodeExecutor(
-            block_allocation=True,
-            max_workers=1,
-            init_function=init_function,
-            resource_dict={
-                "cores": self.cores,
-                "cwd": self.working_directory,
-                "openmpi_oversubscribe": oversubscribe,
-            },
-        )
+        if executor is None:
+            self._exe = SingleNodeExecutor(
+                block_allocation=True,
+                max_workers=1,
+                init_function=init_function,
+                resource_dict={
+                    "cores": self.cores,
+                    "cwd": self.working_directory,
+                    "openmpi_oversubscribe": oversubscribe,
+                },
+            )
+        else:
+            self._exe = executor
         if cmdargs is None:
             cmdargs = []
         self._exe.submit(start_lmp, argument_lst=cmdargs).result()
