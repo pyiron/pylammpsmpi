@@ -2,6 +2,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
+import contextlib
 from concurrent.futures import Future
 
 from executorlib import SingleNodeExecutor
@@ -619,10 +620,8 @@ class LammpsConcurrent:
         -------
         None
         """
-        try:
+        with contextlib.suppress(AttributeError):
             self._exe.submit(shutdown_lmp).result()
-        except AttributeError:
-            pass
         self._exe.shutdown(wait=True)
         self._exe = None
 
