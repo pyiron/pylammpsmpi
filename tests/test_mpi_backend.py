@@ -132,5 +132,6 @@ class TestMpiBackend(unittest.TestCase):
         self.assertIn("KSPACE", packages)
         self.assertIn("MC", packages)
 
+
 if __name__ == "__main__":
     unittest.main()
