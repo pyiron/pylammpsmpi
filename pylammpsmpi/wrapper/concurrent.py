@@ -1,6 +1,7 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
+import contextlib
 import os
 from concurrent.futures import Future
 
@@ -620,7 +621,8 @@ class LammpsConcurrent:
         -------
         None
         """
-        self._exe.submit(shutdown_lmp).result()
+        with contextlib.suppress(AttributeError):
+            self._exe.submit(shutdown_lmp).result()
         self._exe.shutdown(wait=True)
         self._exe = None
 
