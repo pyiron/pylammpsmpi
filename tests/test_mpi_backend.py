@@ -11,7 +11,7 @@ class TestMpiBackend(unittest.TestCase):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
         cls.lmp = lammps()
-        cls.lmp.file(cls.lammps_file)
+        select_cmd("get_file")(job=cls.lmp, funct_args=[cls.lammps_file])
 
     @classmethod
     def tearDownClass(cls):
