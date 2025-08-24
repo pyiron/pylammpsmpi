@@ -428,6 +428,7 @@ def select_cmd(argument):
 
 def _gather_data_from_all_processors(data):
     data_gather = MPI.COMM_WORLD.gather(data, root=0)
+    data_gather  = MPI.COMM_WORLD.bcast(data_gather, root=0)
     return [v for vl in data_gather for v in vl]
 
 

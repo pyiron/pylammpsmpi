@@ -1,7 +1,6 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-import contextlib
 import os
 from concurrent.futures import Future
 
@@ -38,6 +37,7 @@ def init_function():
         def shutdown(self):
             if self._job is not None:
                 self._job.close()
+                self._job = None
 
         def command(self, input_dict):
             output = select_cmd(input_dict["command"])(
@@ -620,8 +620,7 @@ class LammpsConcurrent:
         -------
         None
         """
-        with contextlib.suppress(AttributeError):
-            self._exe.submit(shutdown_lmp).result()
+        self._exe.submit(shutdown_lmp).result()
         self._exe.shutdown(wait=True)
         self._exe = None
 
