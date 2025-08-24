@@ -107,5 +107,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(self.lmp.has_jpeg_support, True)
         self.assertEqual(self.lmp.has_ffmpeg_support, False)
 
+
 if __name__ == "__main__":
     unittest.main()
