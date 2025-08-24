@@ -619,7 +619,10 @@ class LammpsConcurrent:
         -------
         None
         """
-        self._exe.submit(shutdown_lmp).result()
+        try:
+            self._exe.submit(shutdown_lmp).result()
+        except AttributeError:
+            pass
         self._exe.shutdown(wait=True)
         self._exe = None
 
