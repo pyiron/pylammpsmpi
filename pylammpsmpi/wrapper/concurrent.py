@@ -108,8 +108,10 @@ class LammpsConcurrent:
                     "openmpi_oversubscribe": oversubscribe,
                 },
             )
+            self._external_executor = False
         else:
             self._exe = executor
+            self._external_executor = True
         if cmdargs is None:
             cmdargs = []
         self._exe.submit(start_lmp, argument_lst=cmdargs).result()
@@ -629,7 +631,8 @@ class LammpsConcurrent:
         """
         with contextlib.suppress(AttributeError):
             self._exe.submit(shutdown_lmp).result()
-        self._exe.shutdown(wait=True)
+        if not self._external_executor:
+            self._exe.shutdown(wait=True)
         self._exe = None
 
     # TODO

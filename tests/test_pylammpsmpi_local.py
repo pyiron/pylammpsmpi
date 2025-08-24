@@ -110,12 +110,11 @@ class TestLocalLammpsLibrary(unittest.TestCase):
 
 
 class TestExecutorLammpsLibrary(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.execution_path = os.path.dirname(os.path.abspath(__file__))
-        cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
-        cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
-        exe = SingleNodeExecutor(
+    def test_version(self):
+        execution_path = os.path.dirname(os.path.abspath(__file__))
+        citation_file = os.path.join(execution_path, "citations.txt")
+        lammps_file = os.path.join(execution_path, "in.simple")
+        with SingleNodeExecutor(
             block_allocation=True,
             max_workers=1,
             init_function=init_function,
@@ -124,21 +123,16 @@ class TestExecutorLammpsLibrary(unittest.TestCase):
                 "cwd": ".",
                 "openmpi_oversubscribe": False,
             },
-        )
-        cls.lmp = LammpsLibrary(
-            cores=2, cmdargs=["-cite", cls.citation_file], executor=exe
-        )
-        cls.lmp.file(cls.lammps_file)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.lmp.close()
-
-    def test_version(self):
-        self.assertTrue(
-            self.lmp.version
-            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
-        )
+        ) as exe:
+            lmp = LammpsLibrary(
+            cores=2, cmdargs=["-cite", citation_file], executor=exe
+            )
+            lmp.file(lammps_file)
+            self.assertTrue(
+                lmp.version
+                in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+            )
+            lmp.close()
 
 
 if __name__ == "__main__":
