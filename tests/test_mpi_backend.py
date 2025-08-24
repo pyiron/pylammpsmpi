@@ -18,6 +18,8 @@ class TestMpiBackend(unittest.TestCase):
         cls.lmp.close()
 
     def test_extract_atom(self):
+        f = select_cmd("extract_atom")(job=self.lmp, funct_args=["error"])
+        self.assertEqual(len(f), 0)
         f = select_cmd("extract_atom")(job=self.lmp, funct_args=["f"])
         self.assertEqual(len(f), 256)
         self.assertEqual(np.round(f[0][0], 2), -0.26)
