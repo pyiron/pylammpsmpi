@@ -124,9 +124,7 @@ class TestExecutorLammpsLibrary(unittest.TestCase):
                 "openmpi_oversubscribe": False,
             },
         ) as exe:
-            lmp = LammpsLibrary(
-            cores=2, cmdargs=["-cite", citation_file], executor=exe
-            )
+            lmp = LammpsLibrary(cores=2, cmdargs=["-cite", citation_file], executor=exe)
             lmp.file(lammps_file)
             self.assertTrue(
                 lmp.version
