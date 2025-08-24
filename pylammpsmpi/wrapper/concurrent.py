@@ -2,7 +2,6 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
-import sys
 from concurrent.futures import Future
 
 from executorlib import SingleNodeExecutor
@@ -20,24 +19,25 @@ __date__ = "Feb 28, 2020"
 
 
 def init_function():
-    from mpi4py import MPI
     from lammps import lammps
+    from mpi4py import MPI
+
     from pylammpsmpi.mpi.lmpmpi import select_cmd
 
     class ParallelLammps:
         def __init__(self):
             self._job = None
-    
+
         def start(self, argument_lst):
             args = ["-screen", "none"]
             if len(argument_lst) > 0:
                 args.extend(argument_lst)
             self._job = lammps(cmdargs=args)
-    
+
         def shutdown(self):
             if self._job is not None:
                 self._job.close()
-    
+
         def command(self, input_dict):
             output = select_cmd(input_dict["command"])(
                 job=self._job, funct_args=input_dict["args"]
@@ -46,7 +46,7 @@ def init_function():
                 return output
             else:
                 return True
-    
+
     return {"lmp": ParallelLammps()}
 
 
@@ -93,11 +93,11 @@ class LammpsConcurrent:
         self.cores = cores
         self.working_directory = working_directory
         self._exe = SingleNodeExecutor(
-            block_allocation=True, 
-            max_workers=1, 
-            init_function=init_function, 
+            block_allocation=True,
+            max_workers=1,
+            init_function=init_function,
             resource_dict={
-                "cores": self.cores, 
+                "cores": self.cores,
                 "cwd": self.working_directory,
                 "openmpi_oversubscribe": oversubscribe,
             },
@@ -107,7 +107,9 @@ class LammpsConcurrent:
         self._exe.submit(start_lmp, argument_lst=cmdargs).result()
 
     def _send_and_receive_dict(self, command, data=None):
-        return self._exe.submit(call_function_lmp, input_dict={"command": command, "args": data})
+        return self._exe.submit(
+            call_function_lmp, input_dict={"command": command, "args": data}
+        )
 
     @property
     def version(self) -> Future:

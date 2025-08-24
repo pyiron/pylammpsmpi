@@ -540,12 +540,16 @@ class LammpsBase(LammpsConcurrent):
         if self.cores > 1:
             return (
                 super()
-                .extract_compute(id=id, style=style, type=type, length=length, width=width)
+                .extract_compute(
+                    id=id, style=style, type=type, length=length, width=width
+                )
                 .result()[0]
             )
         else:
             return (
                 super()
-                .extract_compute(id=id, style=style, type=type, length=length, width=width)
+                .extract_compute(
+                    id=id, style=style, type=type, length=length, width=width
+                )
                 .result()
             )
