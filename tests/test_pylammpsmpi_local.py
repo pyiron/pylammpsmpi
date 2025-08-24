@@ -116,16 +116,18 @@ class TestExecutorLammpsLibrary(unittest.TestCase):
         cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
         cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
         exe = SingleNodeExecutor(
-                block_allocation=True,
-                max_workers=1,
-                init_function=init_function,
-                resource_dict={
-                    "cores": 2,
-                    "cwd": ".",
-                    "openmpi_oversubscribe": False,
-                },
-            )
-        cls.lmp = LammpsLibrary(cores=2, cmdargs=["-cite", cls.citation_file], executor=exe)
+            block_allocation=True,
+            max_workers=1,
+            init_function=init_function,
+            resource_dict={
+                "cores": 2,
+                "cwd": ".",
+                "openmpi_oversubscribe": False,
+            },
+        )
+        cls.lmp = LammpsLibrary(
+            cores=2, cmdargs=["-cite", cls.citation_file], executor=exe
+        )
         cls.lmp.file(cls.lammps_file)
 
     @classmethod

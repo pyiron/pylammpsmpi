@@ -6,7 +6,7 @@ import os
 from concurrent.futures import Future
 from typing import Optional
 
-from executorlib import SingleNodeExecutor, BaseExecutor
+from executorlib import BaseExecutor, SingleNodeExecutor
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (

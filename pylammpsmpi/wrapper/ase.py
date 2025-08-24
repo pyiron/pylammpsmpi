@@ -63,7 +63,9 @@ class LammpsASELibrary:
                 )
         else:
             self._interactive_library = LammpsBase(
-                cores=self._cores, working_directory=working_directory, executor=executor
+                cores=self._cores,
+                working_directory=working_directory,
+                executor=executor,
             )
 
     def interactive_lib_command(self, command: str) -> None:
