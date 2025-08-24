@@ -27,7 +27,10 @@ class LammpsBase(LammpsConcurrent):
         version: str
             version string of lammps
         """
-        return super().version.result()
+        if self.cores > 1:
+            return super().version.result()[0]
+        else:
+            return super().version.result()
 
     def file(self, inputfile: str) -> None:
         """
@@ -55,7 +58,10 @@ class LammpsBase(LammpsConcurrent):
         value: int, float, or str
             extracted setting value
         """
-        return super().extract_setting(*args).result()
+        if self.cores > 1:
+            return super().extract_setting(*args).result()[0]
+        else:
+            return super().extract_setting(*args).result()
 
     def extract_global(self, name: str) -> Union[int, float, str]:
         """
@@ -69,7 +75,10 @@ class LammpsBase(LammpsConcurrent):
         value: int, float, or str
             extracted value of the global parameter
         """
-        return super().extract_global(name=name).result()
+        if self.cores > 1:
+            return super().extract_global(name=name).result()[0]
+        else:
+            return super().extract_global(name=name).result()
 
     def extract_box(self) -> list[Union[float, list[float], list[int]]]:
         """
@@ -84,7 +93,10 @@ class LammpsBase(LammpsConcurrent):
             the box is periodic in three dimensions, and box_change is a list of booleans
             indicating if the box dimensions have changed
         """
-        return super().extract_box().result()
+        if self.cores > 1:
+            return super().extract_box().result()[0]
+        else:
+            return super().extract_box().result()
 
     def extract_atom(self, name: str) -> Union[list[int], list[float]]:
         """
@@ -99,7 +111,10 @@ class LammpsBase(LammpsConcurrent):
             If the requested name has multiple dimensions, output
             will be a multi-dimensional list.
         """
-        return super().extract_atom(name=name).result()
+        if self.cores > 1:
+            return super().extract_atom(name=name).result()[0]
+        else:
+            return super().extract_atom(name=name).result()
 
     def extract_fix(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
@@ -113,7 +128,10 @@ class LammpsBase(LammpsConcurrent):
         value: int, float, or list of int or float
             extracted fix value corresponding to the requested dimensions
         """
-        return super().extract_fix(*args).result()
+        if self.cores > 1:
+            return super().extract_fix(*args).result()[0]
+        else:
+            return super().extract_fix(*args).result()
 
     def extract_variable(self, *args) -> Union[int, float, list[Union[int, float]]]:
         """
@@ -127,7 +145,10 @@ class LammpsBase(LammpsConcurrent):
         data: int, float, or list of int or float
             value of the variable depending on the requested dimension
         """
-        return super().extract_variable(*args).result()
+        if self.cores > 1:
+            return super().extract_variable(*args).result()[0]
+        else:
+            return super().extract_variable(*args).result()
 
     @property
     def natoms(self) -> int:
@@ -148,7 +169,10 @@ class LammpsBase(LammpsConcurrent):
         natoms : int
             number of atoms
         """
-        return super().get_natoms().result()
+        if self.cores > 1:
+            return super().get_natoms().result()[0]
+        else:
+            return super().get_natoms().result()
 
     def set_variable(self, *args) -> int:
         """
@@ -162,7 +186,10 @@ class LammpsBase(LammpsConcurrent):
         flag : int
             0 if successful, -1 otherwise
         """
-        return super().set_variable(*args).result()
+        if self.cores > 1:
+            return super().set_variable(*args).result()[0]
+        else:
+            return super().set_variable(*args).result()
 
     def reset_box(self, *args) -> None:
         """
@@ -270,27 +297,45 @@ class LammpsBase(LammpsConcurrent):
     @property
     def has_exceptions(self) -> bool:
         """Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled"""
-        return super().has_exceptions.result()
+        if self.cores > 1:
+            return super().has_exceptions.result()[0]
+        else:
+            return super().has_exceptions.result()
 
     @property
     def has_gzip_support(self) -> bool:
-        return super().has_gzip_support.result()
+        if self.cores > 1:
+            return super().has_gzip_support.result()[0]
+        else:
+            return super().has_gzip_support.result()
 
     @property
     def has_png_support(self) -> bool:
-        return super().has_png_support.result()
+        if self.cores > 1:
+            return super().has_png_support.result()[0]
+        else:
+            return super().has_png_support.result()
 
     @property
     def has_jpeg_support(self) -> bool:
-        return super().has_jpeg_support.result()
+        if self.cores > 1:
+            return super().has_jpeg_support.result()[0]
+        else:
+            return super().has_jpeg_support.result()
 
     @property
     def has_ffmpeg_support(self) -> bool:
-        return super().has_ffmpeg_support.result()
+        if self.cores > 1:
+            return super().has_ffmpeg_support.result()[0]
+        else:
+            return super().has_ffmpeg_support.result()
 
     @property
     def installed_packages(self) -> list[str]:
-        return super().installed_packages.result()
+        if self.cores > 1:
+            return super().installed_packages.result()[0]
+        else:
+            return super().installed_packages.result()
 
     def set_fix_external_callback(self, *args) -> None:
         _ = super().set_fix_external_callback(*args).result()
@@ -302,7 +347,10 @@ class LammpsBase(LammpsConcurrent):
         :return: an instance of :class:`NeighList` wrapping access to neighbor list data
         :rtype:  NeighList
         """
-        return super().get_neighlist(*args).result()
+        if self.cores > 1:
+            return super().get_neighlist(*args).result()[0]
+        else:
+            return super().get_neighlist(*args).result()
 
     def find_pair_neighlist(self, *args) -> int:
         """Find neighbor list index of pair style neighbor list
@@ -324,7 +372,10 @@ class LammpsBase(LammpsConcurrent):
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        return super().find_pair_neighlist(*args).result()
+        if self.cores > 1:
+            return super().find_pair_neighlist(*args).result()[0]
+        else:
+            return super().find_pair_neighlist(*args).result()
 
     def find_fix_neighlist(self, *args):
         """Find neighbor list index of fix neighbor list
@@ -335,7 +386,10 @@ class LammpsBase(LammpsConcurrent):
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        return super().find_fix_neighlist(*args).result()
+        if self.cores > 1:
+            return super().find_fix_neighlist(*args).result()[0]
+        else:
+            return super().find_fix_neighlist(*args).result()
 
     def find_compute_neighlist(self, *args):
         """Find neighbor list index of compute neighbor list
@@ -346,7 +400,10 @@ class LammpsBase(LammpsConcurrent):
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        return super().find_compute_neighlist(*args).result()
+        if self.cores > 1:
+            return super().find_compute_neighlist(*args).result()[0]
+        else:
+            return super().find_compute_neighlist(*args).result()
 
     def get_neighlist_size(self, *args):
         """Return the number of elements in neighbor list with the given index
@@ -355,10 +412,16 @@ class LammpsBase(LammpsConcurrent):
         :return: number of elements in neighbor list with index idx
         :rtype:  int
         """
-        return super().get_neighlist_size(*args).result()
+        if self.cores > 1:
+            return super().get_neighlist_size(*args).result()[0]
+        else:
+            return super().get_neighlist_size(*args).result()
 
     def get_neighlist_element_neighbors(self, *args):
-        return super().get_neighlist_element_neighbors(*args).result()
+        if self.cores > 1:
+            return super().get_neighlist_element_neighbors(*args).result()[0]
+        else:
+            return super().get_neighlist_element_neighbors(*args).result()
 
     def command(self, cmd):
         """
@@ -407,7 +470,10 @@ class LammpsBase(LammpsConcurrent):
         --------
         extract_atoms
         """
-        return super().gather_atoms(*args, concat=concat, ids=ids).result()
+        if self.cores > 1:
+            return super().gather_atoms(*args, concat=concat, ids=ids).result()[0]
+        else:
+            return super().gather_atoms(*args, concat=concat, ids=ids).result()
 
     def scatter_atoms(self, *args, ids=None):
         """
@@ -433,7 +499,10 @@ class LammpsBase(LammpsConcurrent):
             value of the thermo keyword
 
         """
-        return super().get_thermo(*args).result()
+        if self.cores > 1:
+            return super().get_thermo(*args).result()[0]
+        else:
+            return super().get_thermo(*args).result()
 
     # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
@@ -468,8 +537,15 @@ class LammpsBase(LammpsConcurrent):
             data computed by the fix depending on the chosen inputs
 
         """
-        return (
-            super()
-            .extract_compute(id=id, style=style, type=type, length=length, width=width)
-            .result()
-        )
+        if self.cores > 1:
+            return (
+                super()
+                .extract_compute(id=id, style=style, type=type, length=length, width=width)
+                .result()[0]
+            )
+        else:
+            return (
+                super()
+                .extract_compute(id=id, style=style, type=type, length=length, width=width)
+                .result()
+            )
