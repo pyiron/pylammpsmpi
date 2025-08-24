@@ -1,8 +1,8 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-from typing import Any, Union
 from concurrent.futures import Future
+from typing import Any, Union
 
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
@@ -284,7 +284,6 @@ class LammpsBase(LammpsConcurrent):
     def has_gzip_support(self) -> bool:
         return get_result(future=super().has_gzip_support, cores=self.cores)
 
-
     @property
     def has_png_support(self) -> bool:
         return get_result(future=super().has_png_support, cores=self.cores)
@@ -355,7 +354,9 @@ class LammpsBase(LammpsConcurrent):
         :return: neighbor list index if found, otherwise -1
         :rtype:  int
         """
-        return get_result(future=super().find_compute_neighlist(*args), cores=self.cores)
+        return get_result(
+            future=super().find_compute_neighlist(*args), cores=self.cores
+        )
 
     def get_neighlist_size(self, *args):
         """Return the number of elements in neighbor list with the given index
@@ -367,7 +368,9 @@ class LammpsBase(LammpsConcurrent):
         return get_result(future=super().get_neighlist_size(*args), cores=self.cores)
 
     def get_neighlist_element_neighbors(self, *args):
-        return get_result(future=super().get_neighlist_element_neighbors(*args), cores=self.cores)
+        return get_result(
+            future=super().get_neighlist_element_neighbors(*args), cores=self.cores
+        )
 
     def command(self, cmd):
         """
@@ -416,7 +419,9 @@ class LammpsBase(LammpsConcurrent):
         --------
         extract_atoms
         """
-        return get_result(future=super().gather_atoms(*args, concat=concat, ids=ids), cores=self.cores)
+        return get_result(
+            future=super().gather_atoms(*args, concat=concat, ids=ids), cores=self.cores
+        )
 
     def scatter_atoms(self, *args, ids=None):
         """
@@ -477,4 +482,9 @@ class LammpsBase(LammpsConcurrent):
             data computed by the fix depending on the chosen inputs
 
         """
-        return get_result(future=super().extract_compute(id=id, style=style, type=type, length=length, width=width), cores=self.cores)
+        return get_result(
+            future=super().extract_compute(
+                id=id, style=style, type=type, length=length, width=width
+            ),
+            cores=self.cores,
+        )
