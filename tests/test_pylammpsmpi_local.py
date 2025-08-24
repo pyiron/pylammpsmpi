@@ -23,6 +23,12 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     def tearDownClass(cls):
         cls.lmp.close()
 
+    def test_version(self):
+        self.assertTrue(
+            self.lmp.version
+            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+        )
+
     def test_extract_atom(self):
         f = self.lmp.extract_atom("f")
         self.assertEqual(len(f), 256)
@@ -94,6 +100,12 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     def test_cmdarg_options(self):
         self.assertTrue(os.path.isfile(self.citation_file))
 
+    def test_properties(self):
+        self.assertEqual(self.lmp.has_exceptions, True)
+        self.assertEqual(self.lmp.has_gzip_support, True)
+        self.assertEqual(self.lmp.has_png_support, True)
+        self.assertEqual(self.lmp.has_jpeg_support, True)
+        self.assertEqual(self.lmp.has_ffmpeg_support, False)
 
 if __name__ == "__main__":
     unittest.main()
