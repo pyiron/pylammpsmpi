@@ -1,7 +1,7 @@
 channels:
 - conda-forge
 dependencies:
-- lammps =2024.04.17=*_mpi_openmpi_*
+- lammps =2024.06.27=*_mpi_openmpi_*
 - openmpi
 - numpy =1.23.5
 - mpi4py
