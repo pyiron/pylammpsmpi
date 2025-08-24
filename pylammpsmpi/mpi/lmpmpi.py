@@ -72,7 +72,10 @@ def extract_compute(job, funct_args):
             data=job.numpy.extract_compute(*filtered_args)
         )
         length = job.get_natoms()
-        return convert_data(val=val, type=type, length=length, width=width)
+        if MPI.COMM_WORLD.rank == 0:
+            return convert_data(val=val, type=type, length=length, width=width)
+        else:
+            return val
     else:  # Todo
         raise ValueError("Local style is currently not supported")
 
@@ -148,7 +151,10 @@ def extract_variable(job, funct_args):
         data = _gather_data_from_all_processors(
             data=job.numpy.extract_variable(*funct_args)
         )
-        return np.array(data)
+        if MPI.COMM_WORLD.rank == 0:
+            return np.array(data)
+        else:
+            return np.array([])
     else:
         # if type is 1 - reformat file
         try:
@@ -420,5 +426,7 @@ def select_cmd(argument):
 
 def _gather_data_from_all_processors(data):
     data_gather = MPI.COMM_WORLD.gather(data, root=0)
-    data_gather = MPI.COMM_WORLD.bcast(data_gather, root=0)
-    return [v for vl in data_gather for v in vl]
+    if MPI.COMM_WORLD.rank == 0:
+        return [v for vl in data_gather for v in vl]
+    else:
+        return []
