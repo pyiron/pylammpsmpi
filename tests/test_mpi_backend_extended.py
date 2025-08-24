@@ -21,9 +21,7 @@ class TestMpiBackendExtended(unittest.TestCase):
 
     def test_extract_compute_style_error(self):
         with self.assertRaises(ValueError):
-            select_cmd("extract_compute")(
-                job=self.lmp, funct_args=["1", 2, 0, 0, 0]
-            )
+            select_cmd("extract_compute")(job=self.lmp, funct_args=["1", 2, 0, 0, 0])
 
     def test_get_file(self):
         lmp = lammps()
@@ -32,9 +30,7 @@ class TestMpiBackendExtended(unittest.TestCase):
         lmp.close()
 
     def test_commands(self):
-        ret = select_cmd("commands_list")(
-            job=self.lmp, funct_args=[["run 0", "run 1"]]
-        )
+        ret = select_cmd("commands_list")(job=self.lmp, funct_args=[["run 0", "run 1"]])
         self.assertEqual(ret, 1)
         ret = select_cmd("commands_string")(job=self.lmp, funct_args=["run 0\nrun 1"])
         self.assertEqual(ret, 1)
@@ -94,9 +90,7 @@ class TestMpiBackendExtended(unittest.TestCase):
             job=self.lmp, funct_args=["f", len(ids), ids]
         )
         self.assertEqual(len(f), len(ids))
-        f = select_cmd("gather_atoms_subset")(
-            job=self.lmp, funct_args=["error", 0, []]
-        )
+        f = select_cmd("gather_atoms_subset")(job=self.lmp, funct_args=["error", 0, []])
         self.assertEqual(len(f), 0)
 
     def test_scatter_atoms_subset(self):
