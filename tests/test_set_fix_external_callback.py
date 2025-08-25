@@ -12,6 +12,7 @@ class HelperClass:
     """
     Helper object passed through to the external callback.
     """
+
     def __init__(self, token: int):
         self.token = token
 
