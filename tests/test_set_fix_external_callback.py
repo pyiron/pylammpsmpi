@@ -5,7 +5,7 @@ import os
 import unittest
 
 from pylammpsmpi import LammpsLibrary
-from pylammpsmpi.wrapper.concurrent import HelperClass, external_callback
+from helpers import HelperClass, external_callback
 
 
 class TestSetFixExternalCallback(unittest.TestCase):
