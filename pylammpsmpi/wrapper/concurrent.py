@@ -78,6 +78,7 @@ def execute_async(
 
 def external_callback(caller, ntimestep, nlocal, tag, x, f):
     import numpy as np
+
     lmp, helper = caller
     assert isinstance(helper, HelperClass), "helper is not a HelperClass instance"
     assert isinstance(helper.token, int), "helper.token is not an int"
