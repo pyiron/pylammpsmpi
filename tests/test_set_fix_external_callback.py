@@ -47,7 +47,7 @@ class TestSetFixExternalCallback(unittest.TestCase):
     def tearDownClass(cls):
         cls.lmp.close()
 
-    def test_set_fix_external_callback(self):
+    def test_fix_external_callback(self):
         helper = HelperClass(token=2648)
         self.lmp.fix("cb all external pf/callback 1 1")
         self.lmp.set_fix_external_callback("cb", external_callback, [self.lmp, helper])
