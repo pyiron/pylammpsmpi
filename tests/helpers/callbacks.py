@@ -5,7 +5,6 @@ import numpy as np
 
 
 def external_callback(caller, ntimestep, nlocal, tag, x, f):
-    
     lmp, helper = caller
     assert isinstance(helper, HelperClass), "helper is not a HelperClass instance"
     assert isinstance(helper.token, int), "helper.token is not an int"
