@@ -3,7 +3,9 @@
 
 from typing import Any, Optional
 
-from pylammpsmpi.wrapper.base import LammpsConcurrent
+from executorlib import BaseExecutor
+
+from pylammpsmpi.wrapper.base import LammpsConcurrent, get_result
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -247,6 +249,7 @@ class LammpsLibrary:
         working_directory (str): Path to the working directory (default: ".")
         client: Client object for distributed computing (default: None)
         cmdargs: Additional command line arguments for Lammps (default: None)
+        executor: Executor to use for parallel execution (default: None)
     """
 
     def __init__(
@@ -256,6 +259,7 @@ class LammpsLibrary:
         working_directory: str = ".",
         client: Any = None,
         cmdargs: Optional[list[str]] = None,
+        executor: Optional[BaseExecutor] = None,
     ) -> None:
         self.cores = cores
         self.working_directory = working_directory
@@ -266,6 +270,7 @@ class LammpsLibrary:
             oversubscribe=self.oversubscribe,
             working_directory=self.working_directory,
             cmdargs=cmdargs,
+            executor=executor,
         )
 
     def __getattr__(self, name: str) -> Any:
@@ -283,13 +288,13 @@ class LammpsLibrary:
             def func_wrapper(*args, **kwargs) -> Any:
                 func = getattr(self.lmp, name)
                 fut = func(*args, **kwargs)
-                return fut.result()
+                return get_result(future=fut, cores=self.cores)
 
             return func_wrapper
 
         elif name in thermo_list:
             fut = self.lmp.get_thermo(name)
-            return fut.result()
+            return get_result(future=fut, cores=self.cores)
 
         elif name in command_list:
 
@@ -297,13 +302,13 @@ class LammpsLibrary:
                 args = [name] + list(args)
                 cmd = " ".join([str(x) for x in args])
                 fut = self.lmp.command(cmd)
-                return fut.result()
+                return get_result(future=fut, cores=self.cores)
 
             return command_wrapper
 
         elif name in prop_list:
             fut = getattr(self.lmp, name)
-            return fut.result()
+            return get_result(future=fut, cores=self.cores)
 
         else:
             raise AttributeError(name)
