@@ -5,6 +5,12 @@ from executorlib import SingleNodeExecutor
 from executorlib.api import cloudpickle_register
 
 from pylammpsmpi import LammpsASELibrary
+from pylammpsmpi.wrapper.concurrent import (
+    init_function,
+    shutdown_lmp,
+    call_function_lmp,
+    start_lmp,
+)
 
 
 def calc_lmp(structure):
@@ -45,3 +51,16 @@ class TestWithExecutor(unittest.TestCase):
             future = exe.submit(calc_lmp, bulk("Al", cubic=True).repeat([2, 2, 2]))
             energy = future.result()
         self.assertAlmostEqual(energy, -0.04342932384411344)
+
+
+class TestLammpsInterface(unittest.TestCase):
+    def test_interface(self):
+        lmp = init_function()["lmp"]
+        self.assertTrue(start_lmp(lmp=lmp, argument_lst=[]))
+        self.assertTrue(
+            call_function_lmp(
+                lmp=lmp, input_dict={"command": "get_version", "args": []}
+            )
+            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+        )
+        self.assertTrue(shutdown_lmp(lmp=lmp))
