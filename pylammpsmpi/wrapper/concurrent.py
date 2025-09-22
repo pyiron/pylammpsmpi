@@ -411,8 +411,7 @@ class LammpsConcurrent:
         args = list(args)
         if len(args) == 3 and args[2]:
             args[2] = [
-            "lammps" if type(a).__name__ == "LammpsLibrary" else a
-            for a in args[2]
+                "lammps" if type(a).__name__ == "LammpsLibrary" else a for a in args[2]
             ]
         return self._send_and_receive_dict(
             command="set_fix_external_callback", data=args
