@@ -1,19 +1,21 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
+import contextlib
 import os
-import sys
 from concurrent.futures import Future
-from queue import Queue
-from threading import Thread
-from typing import Any, Optional
+from typing import Optional
 
+<<<<<<< HEAD
 from cloudpickle import dumps
 from executorlib.api import (
     MpiExecSpawner,
     cancel_items_in_queue,
     interface_bootup,
 )
+=======
+from executorlib import BaseExecutor, SingleNodeExecutor
+>>>>>>> main
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
@@ -27,53 +29,51 @@ __status__ = "production"
 __date__ = "Feb 28, 2020"
 
 
-def execute_async(
-    future_queue: Any,
-    cmdargs: Optional[list[str]] = None,
-    cores: int = 1,
-    oversubscribe: bool = False,
-    cwd: Optional[str] = None,
-) -> None:
-    """
-    Asynchronously executes a command using MPI.
+def init_function():
+    from lammps import lammps  # noqa: PLC0415
+    from mpi4py import MPI  # noqa: PLC0415
 
-    Args:
-        future_queue (Any): A queue to receive task dictionaries.
-        cmdargs (Optional[List[str]], optional): Additional command-line arguments. Defaults to None.
-        cores (int, optional): Number of CPU cores to use. Defaults to 1.
-        oversubscribe (bool, optional): Whether to oversubscribe the CPU cores. Defaults to False.
-        cwd (Optional[str], optional): Current working directory. Defaults to None.
+    from pylammpsmpi.mpi.lmpmpi import select_cmd  # noqa: PLC0415
 
-    Returns:
-        None
-    """
-    executable = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "mpi", "lmpmpi.py"
-    )
-    cmds = [sys.executable, executable]
-    if cmdargs is not None:
-        cmds.extend(cmdargs)
-    interface = interface_bootup(
-        command_lst=cmds,
-        connections=MpiExecSpawner(
-            cwd=cwd,
-            cores=cores,
-            openmpi_oversubscribe=oversubscribe,
-        ),
-    )
-    while True:
-        task_dict = future_queue.get()
-        if "shutdown" in task_dict and task_dict["shutdown"]:
-            interface.shutdown(wait=task_dict["wait"])
-            break
-        elif "command" in task_dict and "future" in task_dict:
-            f = task_dict.pop("future")
-            if f.set_running_or_notify_cancel():
-                try:
-                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-                except Exception as error:
-                    f.set_exception(error)
-                    break
+    class ParallelLammps:
+        def __init__(self):
+            self._job = None
+
+        def start(self, argument_lst):
+            args = ["-screen", "none"]
+            if len(argument_lst) > 0:
+                args.extend(argument_lst)
+            self._job = lammps(cmdargs=args)
+
+        def shutdown(self):
+            if self._job is not None:
+                self._job.close()
+                self._job = None
+
+        def command(self, input_dict):
+            output = select_cmd(input_dict["command"])(
+                job=self._job, funct_args=input_dict["args"]
+            )
+            if MPI.COMM_WORLD.rank == 0:
+                return output
+            else:
+                return True
+
+    return {"lmp": ParallelLammps()}
+
+
+def call_function_lmp(lmp, input_dict):
+    return lmp.command(input_dict=input_dict)
+
+
+def start_lmp(lmp, argument_lst):
+    lmp.start(argument_lst=argument_lst)
+    return True
+
+
+def shutdown_lmp(lmp):
+    lmp.shutdown()
+    return True
 
 
 class LammpsConcurrent:
@@ -83,6 +83,7 @@ class LammpsConcurrent:
         oversubscribe: bool = False,
         working_directory: str = ".",
         cmdargs: list = None,
+        executor: Optional[BaseExecutor] = None,
     ):
         """
         Initialize the LammpsConcurrent object.
@@ -97,6 +98,7 @@ class LammpsConcurrent:
             Working directory for Lammps execution (default is current directory).
         cmdargs : list, optional
             Additional command line arguments for Lammps (default is None).
+        executor: Executor to use for parallel execution (default: None)
 
         Returns
         -------
@@ -104,29 +106,29 @@ class LammpsConcurrent:
         """
         self.cores = cores
         self.working_directory = working_directory
-        self._future_queue = Queue()
-        self._process = None
-        self._oversubscribe = oversubscribe
-        self._cmdargs = cmdargs
-        self._start_process()
-
-    def _start_process(self):
-        self._process = Thread(
-            target=execute_async,
-            kwargs={
-                "future_queue": self._future_queue,
-                "cmdargs": self._cmdargs,
-                "cores": self.cores,
-                "oversubscribe": self._oversubscribe,
-                "cwd": self.working_directory,
-            },
-        )
-        self._process.start()
+        if executor is None:
+            self._exe = SingleNodeExecutor(
+                block_allocation=True,
+                max_workers=1,
+                init_function=init_function,
+                resource_dict={
+                    "cores": self.cores,
+                    "cwd": self.working_directory,
+                    "openmpi_oversubscribe": oversubscribe,
+                },
+            )
+            self._external_executor = False
+        else:
+            self._exe = executor
+            self._external_executor = True
+        if cmdargs is None:
+            cmdargs = []
+        self._exe.submit(start_lmp, argument_lst=cmdargs).result()
 
     def _send_and_receive_dict(self, command, data=None):
-        f = Future()
-        self._future_queue.put({"command": command, "args": data, "future": f})
-        return f
+        return self._exe.submit(
+            call_function_lmp, input_dict={"command": command, "args": data}
+        )
 
     @property
     def version(self) -> Future:
@@ -656,12 +658,13 @@ class LammpsConcurrent:
         -------
         None
         """
-        cancel_items_in_queue(que=self._future_queue)
-        self._future_queue.put({"shutdown": True, "wait": True})
-        self._process.join()
-        self._process = None
+        with contextlib.suppress(AttributeError):
+            self._exe.submit(shutdown_lmp).result()
+        if not self._external_executor:
+            self._exe.shutdown(wait=True)
+        self._exe = None
 
     # TODO
     def __del__(self):
-        if self._process is not None:
+        if self._exe is not None:
             self.close()

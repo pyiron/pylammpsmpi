@@ -1,18 +1,9 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-import sys
 from ctypes import c_double, c_int
 
 import numpy as np
-from cloudpickle import loads
-from executorlib.api import (
-    interface_connect,
-    interface_receive,
-    interface_send,
-    interface_shutdown,
-)
-from lammps import lammps
 from mpi4py import MPI
 
 __author__ = "Sarath Menon, Jan Janssen"
@@ -81,7 +72,10 @@ def extract_compute(job, funct_args):
             data=job.numpy.extract_compute(*filtered_args)
         )
         length = job.get_natoms()
-        return convert_data(val=val, type=type, length=length, width=width)
+        if MPI.COMM_WORLD.rank == 0:
+            return convert_data(val=val, type=type, length=length, width=width)
+        else:
+            return val
     else:  # Todo
         raise ValueError("Local style is currently not supported")
 
@@ -157,7 +151,10 @@ def extract_variable(job, funct_args):
         data = _gather_data_from_all_processors(
             data=job.numpy.extract_variable(*funct_args)
         )
-        return np.array(data)
+        if MPI.COMM_WORLD.rank == 0:
+            return np.array(data)
+        else:
+            return np.array([])
     else:
         # if type is 1 - reformat file
         try:
@@ -439,50 +436,7 @@ def select_cmd(argument):
 
 def _gather_data_from_all_processors(data):
     data_gather = MPI.COMM_WORLD.gather(data, root=0)
-    return [v for vl in data_gather for v in vl]
-
-
-def _run_lammps_mpi(argument_lst):
-    index_selected = argument_lst.index("--zmqport")
-    port_selected = argument_lst[index_selected + 1]
-    if "--host" in argument_lst:
-        index_selected = argument_lst.index("--host")
-        host = argument_lst[index_selected + 1]
-    else:
-        host = "localhost"
-    argument_red_lst = argument_lst[:index_selected]
     if MPI.COMM_WORLD.rank == 0:
-        context, socket = interface_connect(host=host, port=port_selected)
+        return [v for vl in data_gather for v in vl]
     else:
-        context, socket = None, None
-    # Lammps executable
-    args = ["-screen", "none"]
-    if len(argument_red_lst) > 1:
-        args.extend(argument_red_lst[1:])
-    job = lammps(cmdargs=args)
-    while True:
-        if MPI.COMM_WORLD.rank == 0:
-            input_dict = interface_receive(socket=socket)
-        else:
-            input_dict = None
-        input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
-        if "shutdown" in input_dict and input_dict["shutdown"]:
-            job.close()
-            if MPI.COMM_WORLD.rank == 0:
-                interface_send(socket=socket, result_dict={"result": True})
-                interface_shutdown(socket=socket, context=context)
-            break
-        try:
-            output = select_cmd(input_dict["command"])(
-                job=job, funct_args=input_dict["args"]
-            )
-        except Exception as error:
-            if MPI.COMM_WORLD.rank == 0:
-                interface_send(socket=socket, result_dict={"error": error})
-        else:
-            if MPI.COMM_WORLD.rank == 0 and output is not None:
-                interface_send(socket=socket, result_dict={"result": output})
-
-
-if __name__ == "__main__":
-    _run_lammps_mpi(argument_lst=sys.argv)
+        return []

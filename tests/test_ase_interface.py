@@ -477,14 +477,15 @@ class TestConstraints(unittest.TestCase):
 
 class TestBinary(unittest.TestCase):
     def setUp(self):
-        self.result = [-0.04678345, -0.96708929, -2.625]
+        self.result = [-0.04678345, -0.04342932, -0.96708929, -2.625]
         bulk_al = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_au = bulk("Au", a=4.0, cubic=True).repeat([2, 2, 2])
         bulk_mix = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
+        bulk_al_small = bulk("Al")
         chemical_symbol_lst = np.array(bulk_mix.get_chemical_symbols())
         chemical_symbol_lst[: int(len(chemical_symbol_lst) / 2) - 1] = "Au"
         bulk_mix.set_chemical_symbols(chemical_symbol_lst)
-        self.structure_lst = [bulk_al, bulk_mix, bulk_au]
+        self.structure_lst = [bulk_al, bulk_al_small, bulk_mix, bulk_au]
 
     @staticmethod
     def setup_job(lmp_instance):

@@ -6,8 +6,9 @@ import sys
 import unittest
 
 import numpy as np
+from executorlib import SingleNodeExecutor
 
-from pylammpsmpi import LammpsLibrary
+from pylammpsmpi import LammpsLibrary, init_function
 
 
 class TestLocalLammpsLibrary(unittest.TestCase):
@@ -22,6 +23,12 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.lmp.close()
+
+    def test_version(self):
+        self.assertTrue(
+            self.lmp.version
+            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+        )
 
     def test_extract_atom(self):
         f = self.lmp.extract_atom("f")
@@ -93,6 +100,37 @@ class TestLocalLammpsLibrary(unittest.TestCase):
 
     def test_cmdarg_options(self):
         self.assertTrue(os.path.isfile(self.citation_file))
+
+    def test_properties(self):
+        self.assertEqual(self.lmp.has_exceptions, True)
+        self.assertEqual(self.lmp.has_gzip_support, True)
+        self.assertEqual(self.lmp.has_png_support, True)
+        self.assertEqual(self.lmp.has_jpeg_support, True)
+        self.assertEqual(self.lmp.has_ffmpeg_support, False)
+
+
+class TestExecutorLammpsLibrary(unittest.TestCase):
+    def test_version(self):
+        execution_path = os.path.dirname(os.path.abspath(__file__))
+        citation_file = os.path.join(execution_path, "citations.txt")
+        lammps_file = os.path.join(execution_path, "in.simple")
+        with SingleNodeExecutor(
+            block_allocation=True,
+            max_workers=1,
+            init_function=init_function,
+            resource_dict={
+                "cores": 2,
+                "cwd": ".",
+                "openmpi_oversubscribe": False,
+            },
+        ) as exe:
+            lmp = LammpsLibrary(cores=2, cmdargs=["-cite", citation_file], executor=exe)
+            lmp.file(lammps_file)
+            self.assertTrue(
+                lmp.version
+                in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+            )
+            lmp.close()
 
 
 if __name__ == "__main__":

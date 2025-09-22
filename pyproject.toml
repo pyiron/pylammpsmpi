@@ -25,8 +25,8 @@ classifiers = [
 ]
 dependencies = [
     "mpi4py==4.1.0",
-    "executorlib==1.6.1",
-    "numpy==2.3.1",
+    "executorlib==1.7.1",
+    "numpy==2.3.2",
 ]
 dynamic = ["version"]
 
@@ -38,7 +38,7 @@ Repository = "https://github.com/pyiron/pylammpsmpi"
 [project.optional-dependencies]
 ase = [
     "ase==3.26.0",
-    "scipy==1.16.0",
+    "scipy==1.16.1",
 ]
 
 [tool.hatch.build]
