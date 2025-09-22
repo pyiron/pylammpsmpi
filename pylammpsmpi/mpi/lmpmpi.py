@@ -294,7 +294,7 @@ def set_fix_external_callback(job, funct_args):
     """
     if len(funct_args) == 3:
         funct_args[2] = [job if a == "lammps" else a for a in funct_args[2]]
-        job.set_fix_external_callback(*funct_args)
+    job.set_fix_external_callback(*funct_args)
     return 1
 
 
