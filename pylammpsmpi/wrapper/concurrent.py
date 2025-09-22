@@ -413,26 +413,18 @@ class LammpsConcurrent:
     def set_fix_external_callback(self, *args):
         """
         Follows the signature of LAMMPS's set_fix_external_callback(fix_id, callback, caller=None).
-        The `caller` arguemnt is a list of inputs to the callback function, including class instances and, importantly, the LammpsLibrary instance itself.
-        Since LAMMPS's set_fix_external_callback allows passing a self-reference, we want to keep this feature.
-        To transfer the callback function and its associated caller list to the layer containing the actual LAMMPS instance, we serialize them using `dill`.
-        Because the LAMMPS instance is not available at this stage, we insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance during deserialization.
+        The `caller` argument is a list of inputs to the callback function, including class instances and, importantly, the LammpsLibrary instance itself.
+        Since LAMMPS's set_fix_external_callback allows passing to itself a self-reference, we want to keep this feature.
+        Because the LAMMPS instance is unavailable at this stage, we insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance.
         """
-        data = [args[0], dumps(args[1])]
-        if len(args) == 3 and args[2] is not None:
-            data.append(
-                [
-                    (
-                        dumps("lammps")
-                        if hasattr(arg, "__class__")
-                        and arg.__class__.__name__ == "LammpsLibrary"
-                        else dumps(arg)
-                    )
-                    for arg in args[2]
-                ]
-            )
+        args = list(args)
+        if len(args) == 3 and args[2]:
+            args[2] = [
+            "lammps" if type(a).__name__ == "LammpsLibrary" else a
+            for a in args[2]
+            ]
         return self._send_and_receive_dict(
-            command="set_fix_external_callback", data=data
+            command="set_fix_external_callback", data=args
         )
 
     def get_neighlist(self, *args):
