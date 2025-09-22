@@ -3,9 +3,10 @@
 
 import os
 import unittest
+import numpy as np
 
 from pylammpsmpi import LammpsLibrary
-from pylammpsmpi.helpers.callbacks import HelperClass, external_callback
+from pylammpsmpi.helpers.callbacks import HelperClass, external_callback_without_caller, external_callback_with_caller
 
 
 class TestSetFixExternalCallback(unittest.TestCase):
@@ -25,11 +26,35 @@ class TestSetFixExternalCallback(unittest.TestCase):
     def tearDownClass(cls):
         cls.lmp.close()
 
-    def test_set_fix_external_callback(self):
+    def test_set_fix_external_callback_without_caller(self):
+        self.lmp.fix("cb all external pf/callback 1 1")
+        self.lmp.set_fix_external_callback("cb", external_callback_without_caller)
+        self.lmp.run(1)
+
+    def test_set_fix_external_callback_with_caller(self):
         helper = HelperClass(token=2648)
         self.lmp.fix("cb all external pf/callback 1 1")
-        self.lmp.set_fix_external_callback("cb", external_callback, [self.lmp, helper])
-        self.lmp.run(0)
+        self.lmp.set_fix_external_callback("cb", external_callback_with_caller, [self.lmp, helper])
+        self.lmp.run(1)
+
+    def test_external_callback_direct_call(self):
+        class DummyLmp:
+            def get_thermo(self, key):
+                self.key = key
+                return 123.45
+
+        lmp = DummyLmp()
+        helper = HelperClass(token=42)
+        caller = (lmp, helper)
+
+        ntimestep = 10
+        nlocal = 5
+        tag = [1]
+        x = [np.array([0.0, 0.0, 0.0])]
+        f = [np.array([0.0, 0.0, 0.0])]
+
+        external_callback_without_caller(None, ntimestep, nlocal, tag, x, f)
+        external_callback_with_caller(caller, ntimestep, nlocal, tag, x, f)
 
 
 if __name__ == "__main__":
