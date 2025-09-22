@@ -6,16 +6,7 @@ import os
 from concurrent.futures import Future
 from typing import Optional
 
-<<<<<<< HEAD
-from cloudpickle import dumps
-from executorlib.api import (
-    MpiExecSpawner,
-    cancel_items_in_queue,
-    interface_bootup,
-)
-=======
 from executorlib import BaseExecutor, SingleNodeExecutor
->>>>>>> main
 
 __author__ = "Sarath Menon, Jan Janssen"
 __copyright__ = (
