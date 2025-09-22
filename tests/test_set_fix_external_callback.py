@@ -6,7 +6,11 @@ import unittest
 import numpy as np
 
 from pylammpsmpi import LammpsLibrary
-from pylammpsmpi.helpers.callbacks import HelperClass, external_callback_without_caller, external_callback_with_caller
+from pylammpsmpi.helpers.callbacks import (
+    HelperClass,
+    external_callback_without_caller,
+    external_callback_with_caller,
+)
 
 
 class TestSetFixExternalCallback(unittest.TestCase):
@@ -34,7 +38,9 @@ class TestSetFixExternalCallback(unittest.TestCase):
     def test_set_fix_external_callback_with_caller(self):
         helper = HelperClass(token=2648)
         self.lmp.fix("cb all external pf/callback 1 1")
-        self.lmp.set_fix_external_callback("cb", external_callback_with_caller, [self.lmp, helper])
+        self.lmp.set_fix_external_callback(
+            "cb", external_callback_with_caller, [self.lmp, helper]
+        )
         self.lmp.run(1)
 
     def test_external_callback_direct_call(self):
