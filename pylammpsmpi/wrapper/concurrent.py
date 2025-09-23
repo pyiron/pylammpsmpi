@@ -414,13 +414,17 @@ class LammpsConcurrent:
         if len(args) == 3 and args[2]:
             if isinstance(args[2], list):
                 args[2] = [
-                    "pylammpsmpi.lammps.reference" if type(a).__name__ in lammps_type_lst else a
+                    "pylammpsmpi.lammps.reference"
+                    if type(a).__name__ in lammps_type_lst
+                    else a
                     for a in args[2]
                 ]
             elif isinstance(args[2], dict):
                 args[2] = {
-                    k: "pylammpsmpi.lammps.reference" if type(v).__name__ in lammps_type_lst else v
-                    for k,v in args[2].items()
+                    k: "pylammpsmpi.lammps.reference"
+                    if type(v).__name__ in lammps_type_lst
+                    else v
+                    for k, v in args[2].items()
                 }
             elif type(args[2]).__name__ in lammps_type_lst:
                 args[2] = "pylammpsmpi.lammps.reference"
