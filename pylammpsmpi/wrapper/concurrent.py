@@ -404,15 +404,28 @@ class LammpsConcurrent:
     def set_fix_external_callback(self, *args):
         """
         Follows the signature of LAMMPS's set_fix_external_callback(fix_id, callback, caller=None).
-        The `caller` argument is a list of inputs to the callback function, including class instances and, importantly, the LammpsLibrary instance itself.
-        Since LAMMPS's set_fix_external_callback allows passing to itself a self-reference, we want to keep this feature.
-        Because the LAMMPS instance is unavailable at this stage, we insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance.
+        The `caller` argument is a list of inputs to the callback function, including class instances and, importantly,
+        the LammpsLibrary instance itself. Since LAMMPS's set_fix_external_callback allows passing to itself a
+        self-reference, we want to keep this feature. Because the LAMMPS instance is unavailable at this stage, we
+        insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance.
         """
         args = list(args)
+        lammps_type_lst = ["LammpsLibrary", "LammpsConcurrent", "LammpsBase"]
         if len(args) == 3 and args[2]:
-            args[2] = [
-                "lammps" if type(a).__name__ == "LammpsLibrary" else a for a in args[2]
-            ]
+            if isinstance(args[2], list):
+                args[2] = [
+                    "pylammpsmpi.lammps.reference" if type(a).__name__ in lammps_type_lst else a
+                    for a in args[2]
+                ]
+            elif isinstance(args[2], dict):
+                args[2] = {
+                    k: "pylammpsmpi.lammps.reference" if type(v).__name__ in lammps_type_lst else v
+                    for k,v in args[2].items()
+                }
+            elif type(args[2]).__name__ in lammps_type_lst:
+                args[2] = "pylammpsmpi.lammps.reference"
+            else:
+                raise TypeError(f"Argument type {type(args[2])} not supported")
         return self._send_and_receive_dict(
             command="set_fix_external_callback", data=args
         )
