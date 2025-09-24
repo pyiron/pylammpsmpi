@@ -49,6 +49,7 @@ class TestException(TestCase):
         with self.assertRaises(Exception):
             lmp = LammpsLibrary(cores=2)
             lmp.file("in.error")
+        lmp.close()
 
     def tearDown(self):
         for f in ["in.error", "log.lammps"]:

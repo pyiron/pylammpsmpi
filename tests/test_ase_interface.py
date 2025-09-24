@@ -123,6 +123,7 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertTrue(
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
+        lmp.close()
 
     def test_velocities(self):
         lmp = LammpsASELibrary(
@@ -174,6 +175,7 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertTrue(
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
+        lmp.close()
 
     def test_small_displacement_skewed(self):
         lmp = LammpsASELibrary(
@@ -218,6 +220,7 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertTrue(
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
+        lmp.close()
 
     def test_static_with_statement(self):
         structure = bulk("Al").repeat([2, 2, 2])
