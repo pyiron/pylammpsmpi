@@ -73,6 +73,7 @@ class LammpsConcurrent:
         cores: int = 8,
         oversubscribe: bool = False,
         working_directory: str = ".",
+        hostname_localhost: Optional[bool] = None,
         cmdargs: list = None,
         executor: Optional[BaseExecutor] = None,
     ):
@@ -102,6 +103,7 @@ class LammpsConcurrent:
                 block_allocation=True,
                 max_workers=1,
                 init_function=init_function,
+                hostname_localhost=hostname_localhost,
                 resource_dict={
                     "cores": self.cores,
                     "cwd": self.working_directory,

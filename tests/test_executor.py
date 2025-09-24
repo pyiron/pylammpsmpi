@@ -18,6 +18,7 @@ def calc_lmp(structure):
 
     lmp = LammpsASELibrary(
         working_directory=None,
+        hostname_localhost=True,
         cores=1,
         comm=MPI.COMM_SELF,
         logger=None,

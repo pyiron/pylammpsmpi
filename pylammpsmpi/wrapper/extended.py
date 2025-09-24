@@ -257,6 +257,7 @@ class LammpsLibrary:
         cores: int = 1,
         oversubscribe: bool = False,
         working_directory: str = ".",
+        hostname_localhost: Optional[bool] = None,
         client: Any = None,
         cmdargs: Optional[list[str]] = None,
         executor: Optional[BaseExecutor] = None,
@@ -269,6 +270,7 @@ class LammpsLibrary:
             cores=self.cores,
             oversubscribe=self.oversubscribe,
             working_directory=self.working_directory,
+            hostname_localhost=hostname_localhost,
             cmdargs=cmdargs,
             executor=executor,
         )
