@@ -154,6 +154,32 @@ class TestMpiBackendExtended(unittest.TestCase):
         self.assertEqual(ret, 1)
         lmp.close()
 
+    def test_set_fix_external_callback(self):
+        select_cmd("command")(
+            job=self.lmp, funct_args="fix cb all external pf/callback 1 1"
+        )
+        callback = lambda *a, **k: None
+        args_none = ["cb", callback]
+        ret_none = select_cmd("set_fix_external_callback")(
+            job=self.lmp, funct_args=args_none
+        )
+        self.assertEqual(ret_none, 1)
+        args_list = ["cb", callback, ["pylammpsmpi.lammps.reference", 42, "other"]]
+        ret_list = select_cmd("set_fix_external_callback")(
+            job=self.lmp, funct_args=args_list
+        )
+        self.assertEqual(ret_list, 1)
+        args_dict = ["cb", callback, {"lmp": "pylammpsmpi.lammps.reference", "val": 42}]
+        ret_dict = select_cmd("set_fix_external_callback")(
+            job=self.lmp, funct_args=args_dict
+        )
+        self.assertEqual(ret_dict, 1)
+        args_lammps = ["cb", callback, "pylammpsmpi.lammps.reference"]
+        ret_lammps = select_cmd("set_fix_external_callback")(
+            job=self.lmp, funct_args=args_lammps
+        )
+        self.assertEqual(ret_lammps, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
