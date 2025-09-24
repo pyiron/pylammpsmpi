@@ -292,21 +292,19 @@ def set_fix_external_callback(job, funct_args):
     This layer has access to the actual LAMMPS instance.
     If present, the placeholder for the LAMMPS instance is replaced with the actual instance before calling the callback.
     """
+    def convert(variable):
+        if variable == "pylammpsmpi.lammps.reference":
+            return job
+        else:
+            return variable
+
     if len(funct_args) == 3:
         if isinstance(funct_args[2], list):
-            funct_args[2] = [
-                job if a == "pylammpsmpi.lammps.reference" else a for a in funct_args[2]
-            ]
+            funct_args[2] = [convert(variable=a) for a in funct_args[2]]
         elif isinstance(funct_args[2], dict):
-            funct_args[2] = {
-                k: job if v == "pylammpsmpi.lammps.reference" else v
-                for k, v in funct_args[2].items()
-            }
-        elif (
-            isinstance(funct_args[2], str)
-            and funct_args[2] == "pylammpsmpi.lammps.reference"
-        ):
-            funct_args[2] = job
+            funct_args[2] = {k: convert(variable=v) for k, v in funct_args[2].items()}
+        else:
+            funct_args[2] = convert(variable=funct_args[2])
     job.set_fix_external_callback(*funct_args)
     return 1
 
