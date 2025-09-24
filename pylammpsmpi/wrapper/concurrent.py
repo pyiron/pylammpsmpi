@@ -402,8 +402,36 @@ class LammpsConcurrent:
         return self._send_and_receive_dict(command="get_installed_packages", data=[])
 
     def set_fix_external_callback(self, *args):
+        """
+        Follows the signature of LAMMPS's set_fix_external_callback(fix_id, callback, caller=None).
+        The `caller` argument is a list of inputs to the callback function, including class instances and, importantly,
+        the LammpsLibrary instance itself. Since LAMMPS's set_fix_external_callback allows passing to itself a
+        self-reference, we want to keep this feature. Because the LAMMPS instance is unavailable at this stage, we
+        insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance.
+        """
+
+        def check_type(variable):
+            if type(variable).__name__ in [
+                "LammpsLibrary",
+                "LammpsConcurrent",
+                "LammpsBase",
+            ]:
+                return "pylammpsmpi.lammps.reference"
+            else:
+                return variable
+
+        args = list(args)
+        if len(args) == 3 and args[2]:
+            if isinstance(args[2], list):
+                args[2] = [check_type(variable=a) for a in args[2]]
+            elif isinstance(args[2], dict):
+                args[2] = {k: check_type(variable=v) for k, v in args[2].items()}
+            elif isinstance(check_type(variable=args[2]), str):
+                args[2] = "pylammpsmpi.lammps.reference"
+            else:
+                raise TypeError(f"Argument type {type(args[2])} not supported")
         return self._send_and_receive_dict(
-            command="set_fix_external_callback", data=list(args)
+            command="set_fix_external_callback", data=args
         )
 
     def get_neighlist(self, *args):

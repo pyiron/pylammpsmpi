@@ -287,6 +287,25 @@ def installed_packages(job, funct_args):
 
 
 def set_fix_external_callback(job, funct_args):
+    """
+    Follows the signature of LAMMPS's set_fix_external_callback(fix_id, callback, caller=None).
+    This layer has access to the actual LAMMPS instance.
+    If present, the placeholder for the LAMMPS instance is replaced with the actual instance before calling the callback.
+    """
+
+    def convert(variable):
+        if variable == "pylammpsmpi.lammps.reference":
+            return job
+        else:
+            return variable
+
+    if len(funct_args) == 3:
+        if isinstance(funct_args[2], list):
+            funct_args[2] = [convert(variable=a) for a in funct_args[2]]
+        elif isinstance(funct_args[2], dict):
+            funct_args[2] = {k: convert(variable=v) for k, v in funct_args[2].items()}
+        else:
+            funct_args[2] = convert(variable=funct_args[2])
     job.set_fix_external_callback(*funct_args)
     return 1
 
