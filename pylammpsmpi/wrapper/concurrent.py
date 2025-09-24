@@ -409,28 +409,19 @@ class LammpsConcurrent:
         self-reference, we want to keep this feature. Because the LAMMPS instance is unavailable at this stage, we
         insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance.
         """
+        def check_type(variable):
+            if type(variable).__name__ in ["LammpsLibrary", "LammpsConcurrent", "LammpsBase"]:
+                return "pylammpsmpi.lammps.reference"
+            else:
+                return variable
+
         args = list(args)
-        lammps_type_lst = ["LammpsLibrary", "LammpsConcurrent", "LammpsBase"]
         if len(args) == 3 and args[2]:
             if isinstance(args[2], list):
-                args[2] = [
-                    (
-                        "pylammpsmpi.lammps.reference"
-                        if type(a).__name__ in lammps_type_lst
-                        else a
-                    )
-                    for a in args[2]
-                ]
+                args[2] = [check_type(variable=a) for a in args[2]]
             elif isinstance(args[2], dict):
-                args[2] = {
-                    k: (
-                        "pylammpsmpi.lammps.reference"
-                        if type(v).__name__ in lammps_type_lst
-                        else v
-                    )
-                    for k, v in args[2].items()
-                }
-            elif type(args[2]).__name__ in lammps_type_lst:
+                args[2] = {k: check_type(variable=v) for k, v in args[2].items()}
+            elif isinstance(check_type(variable=args[2]), str):
                 args[2] = "pylammpsmpi.lammps.reference"
             else:
                 raise TypeError(f"Argument type {type(args[2])} not supported")
