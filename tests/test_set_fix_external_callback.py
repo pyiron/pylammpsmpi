@@ -8,28 +8,6 @@ import numpy as np
 from pylammpsmpi import LammpsLibrary
 
 
-def external_callback_without_caller(caller, ntimestep, nlocal, tag, x, f):
-    assert caller is None, "caller is not None"
-    assert isinstance(ntimestep, int), "ntimestep is not int"
-    assert isinstance(nlocal, int), "nlocal is not int"
-    assert isinstance(tag[0], (int, np.integer)), "tag[0] not int-like"
-    assert len(x[0]) == 3, "x[0] must have length 3"
-    assert len(f[0]) == 3, "f[0] must have length 3"
-
-
-def external_callback_with_caller(caller, ntimestep, nlocal, tag, x, f):
-    lmp, helper = caller
-    assert isinstance(helper, HelperClass), "helper is not a HelperClass instance"
-    assert isinstance(helper.token, int), "helper.token is not an int"
-    assert isinstance(ntimestep, int), "ntimestep is not int"
-    assert isinstance(nlocal, int), "nlocal is not int"
-    assert isinstance(tag[0], (int, np.integer)), "tag[0] not int-like"
-    assert len(x[0]) == 3, "x[0] must have length 3"
-    assert len(f[0]) == 3, "f[0] must have length 3"
-    pe = lmp.get_thermo("pe")
-    assert isinstance(float(pe), float), "Potential energy should be float-like"
-
-
 class HelperClass:
     """
     Helper object passed through to the external callback.
@@ -37,6 +15,47 @@ class HelperClass:
 
     def __init__(self, token: int):
         self.token = token
+
+
+def check_caller_sans_lammps(ntimestep, nlocal, tag, x, f):
+    assert isinstance(ntimestep, int), "ntimestep is not int"
+    assert isinstance(nlocal, int), "nlocal is not int"
+    assert isinstance(tag[0], (int, np.integer)), "tag[0] not int-like"
+    assert len(x[0]) == 3, "x[0] must have length 3"
+    assert len(f[0]) == 3, "f[0] must have length 3"
+
+
+def check_lammps(lmp):
+    pe = lmp.get_thermo("pe")
+    assert isinstance(float(pe), float), "Potential energy should be float-like"
+
+
+def external_callback_with_caller_none(caller, ntimestep, nlocal, tag, x, f):
+    assert caller is None, "caller is not None"
+    check_caller_sans_lammps(ntimestep, nlocal, tag, x, f)
+
+
+def external_callback_with_caller_list(caller, ntimestep, nlocal, tag, x, f):
+    lmp, helper = caller
+    check_caller_sans_lammps(ntimestep, nlocal, tag, x, f)
+    check_lammps(lmp)
+    assert isinstance(helper, HelperClass), "helper is not a HelperClass instance"
+    assert isinstance(helper.token, int), "helper.token is not an int"
+
+
+def external_callback_with_caller_dict(caller, ntimestep, nlocal, tag, x, f):
+    lmp = caller['lmp']
+    helper = caller['helper']
+    check_caller_sans_lammps(ntimestep, nlocal, tag, x, f)
+    check_lammps(lmp)
+    assert isinstance(helper, HelperClass), "helper is not a HelperClass instance"
+    assert isinstance(helper.token, int), "helper.token is not an int"
+
+
+def external_callback_with_caller_lammps(caller, ntimestep, nlocal, tag, x, f):
+    lmp = caller
+    check_caller_sans_lammps(ntimestep, nlocal, tag, x, f)
+    check_lammps(lmp)
 
 
 class TestSetFixExternalCallback(unittest.TestCase):
@@ -56,37 +75,33 @@ class TestSetFixExternalCallback(unittest.TestCase):
     def tearDownClass(cls):
         cls.lmp.close()
 
-    def test_set_fix_external_callback_without_caller(self):
+    def test_set_fix_external_callback_with_caller_none(self):
         self.lmp.fix("cb all external pf/callback 1 1")
-        self.lmp.set_fix_external_callback("cb", external_callback_without_caller)
+        self.lmp.set_fix_external_callback("cb", external_callback_with_caller_none)
         self.lmp.run(1)
 
-    def test_set_fix_external_callback_with_caller(self):
+    def test_set_fix_external_callback_with_caller_list(self):
         helper = HelperClass(token=2648)
         self.lmp.fix("cb all external pf/callback 1 1")
         self.lmp.set_fix_external_callback(
-            "cb", external_callback_with_caller, [self.lmp, helper]
+            "cb", external_callback_with_caller_list, [self.lmp, helper]
         )
         self.lmp.run(1)
 
-    def test_external_callback_direct_call(self):
-        class DummyLmp:
-            def get_thermo(self, key):
-                self.key = key
-                return 123.45
+    def test_set_fix_external_callback_with_caller_dict(self):
+        helper = HelperClass(token=2648)
+        self.lmp.fix("cb all external pf/callback 1 1")
+        self.lmp.set_fix_external_callback(
+            "cb", external_callback_with_caller_dict, {'lmp': self.lmp, 'helper': helper}
+        )
+        self.lmp.run(1)
 
-        lmp = DummyLmp()
-        helper = HelperClass(token=42)
-        caller = (lmp, helper)
-
-        ntimestep = 10
-        nlocal = 5
-        tag = [1]
-        x = [np.array([0.0, 0.0, 0.0])]
-        f = [np.array([0.0, 0.0, 0.0])]
-
-        external_callback_without_caller(None, ntimestep, nlocal, tag, x, f)
-        external_callback_with_caller(caller, ntimestep, nlocal, tag, x, f)
+    def test_set_fix_external_callback_with_caller_lammps(self):
+        self.lmp.fix("cb all external pf/callback 1 1")
+        self.lmp.set_fix_external_callback(
+            "cb", external_callback_with_caller_lammps, self.lmp
+        )
+        self.lmp.run(1)
 
 
 if __name__ == "__main__":
