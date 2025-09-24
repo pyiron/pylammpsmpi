@@ -179,7 +179,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
 
-    @unittest.SkipIf(platform.system == "Darwin", "Skipping test for now")
+    @unittest.skipIf(platform.system == "Darwin", "Skipping test for now")   
     def test_small_displacement_skewed(self):
         lmp = LammpsASELibrary(
             working_directory=None,
