@@ -38,6 +38,7 @@ class TestLammpsBase(unittest.TestCase):
         )
         with self.assertRaises(FileNotFoundError):
             lmp.file("file_does_not_exist.txt")
+        lmp.close()
 
     def test_extract_atom(self):
         f = self.lmp.extract_atom("f")
