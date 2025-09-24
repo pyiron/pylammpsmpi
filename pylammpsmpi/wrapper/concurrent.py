@@ -409,8 +409,13 @@ class LammpsConcurrent:
         self-reference, we want to keep this feature. Because the LAMMPS instance is unavailable at this stage, we
         insert a placeholder in its position, which will later be replaced with the actual LAMMPS instance.
         """
+
         def check_type(variable):
-            if type(variable).__name__ in ["LammpsLibrary", "LammpsConcurrent", "LammpsBase"]:
+            if type(variable).__name__ in [
+                "LammpsLibrary",
+                "LammpsConcurrent",
+                "LammpsBase",
+            ]:
                 return "pylammpsmpi.lammps.reference"
             else:
                 return variable
