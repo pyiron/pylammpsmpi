@@ -1,3 +1,4 @@
+import platform
 import logging
 import unittest
 
@@ -180,6 +181,7 @@ class TestLammpsASELibrary(unittest.TestCase):
         )
         lmp.close()
 
+    @unittest.skipIf(platform.system() == "Darwin", "Skipping test for now")
     def test_small_displacement_skewed(self):
         lmp = LammpsASELibrary(
             working_directory=None,

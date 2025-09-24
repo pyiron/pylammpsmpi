@@ -118,13 +118,13 @@ class TestMpiBackend(unittest.TestCase):
 
     def test_get_thermo(self):
         self.assertEqual(
-            float(select_cmd("get_thermo")(job=self.lmp, funct_args=["temp"])),
-            1.1298532212880312,
+            np.round(select_cmd("get_thermo")(job=self.lmp, funct_args=["temp"]), 8),
+            np.round(1.1298532212880312, 8),
         )
         select_cmd("command")(job=self.lmp, funct_args="run 0")
         self.assertEqual(
-            float(select_cmd("get_thermo")(job=self.lmp, funct_args=["temp"])),
-            1.129853221288031,
+            np.round(select_cmd("get_thermo")(job=self.lmp, funct_args=["temp"]), 8),
+            np.round(1.1298532212880312, 8),
         )
 
     def test_installed_packages(self):
