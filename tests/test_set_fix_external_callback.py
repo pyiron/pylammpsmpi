@@ -44,8 +44,8 @@ def external_callback_with_caller_list(caller, ntimestep, nlocal, tag, x, f):
 
 
 def external_callback_with_caller_dict(caller, ntimestep, nlocal, tag, x, f):
-    lmp = caller['lmp']
-    helper = caller['helper']
+    lmp = caller["lmp"]
+    helper = caller["helper"]
     check_caller_sans_lammps(ntimestep, nlocal, tag, x, f)
     check_lammps(lmp)
     assert isinstance(helper, HelperClass), "helper is not a HelperClass instance"
@@ -92,7 +92,9 @@ class TestSetFixExternalCallback(unittest.TestCase):
         helper = HelperClass(token=2648)
         self.lmp.fix("cb all external pf/callback 1 1")
         self.lmp.set_fix_external_callback(
-            "cb", external_callback_with_caller_dict, {'lmp': self.lmp, 'helper': helper}
+            "cb",
+            external_callback_with_caller_dict,
+            {"lmp": self.lmp, "helper": helper},
         )
         self.lmp.run(1)
 
