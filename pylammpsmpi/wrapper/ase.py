@@ -32,6 +32,7 @@ class LammpsASELibrary:
     def __init__(
         self,
         working_directory: Optional[str] = None,
+        hostname_localhost: Optional[bool] = None,
         cores: int = 1,
         comm: Optional[object] = None,
         logger: Optional[object] = None,
@@ -65,6 +66,7 @@ class LammpsASELibrary:
             self._interactive_library = LammpsBase(
                 cores=self._cores,
                 working_directory=working_directory,
+                hostname_localhost=hostname_localhost,
                 executor=executor,
             )
 

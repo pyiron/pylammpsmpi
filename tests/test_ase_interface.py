@@ -24,6 +24,7 @@ class TestLammpsASELibrary(unittest.TestCase):
     def test_static(self):
         lmp = LammpsASELibrary(
             working_directory=None,
+            hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
@@ -83,6 +84,7 @@ class TestLammpsASELibrary(unittest.TestCase):
     def test_small_displacement(self):
         lmp = LammpsASELibrary(
             working_directory=None,
+            hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
@@ -128,6 +130,7 @@ class TestLammpsASELibrary(unittest.TestCase):
     def test_velocities(self):
         lmp = LammpsASELibrary(
             working_directory=None,
+            hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
@@ -180,6 +183,7 @@ class TestLammpsASELibrary(unittest.TestCase):
     def test_small_displacement_skewed(self):
         lmp = LammpsASELibrary(
             working_directory=None,
+            hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
@@ -226,6 +230,7 @@ class TestLammpsASELibrary(unittest.TestCase):
         structure = bulk("Al").repeat([2, 2, 2])
         with LammpsASELibrary(
             working_directory=None,
+            hostname_localhost=True,
             cores=2,
             comm=None,
             logger=None,
@@ -508,6 +513,7 @@ class TestBinary(unittest.TestCase):
         for structure in self.structure_lst:
             lmp = LammpsASELibrary(
                 working_directory=None,
+                hostname_localhost=True,
                 cores=1,
                 comm=None,
                 logger=logging.getLogger("TestStaticLogger"),
@@ -533,6 +539,7 @@ class TestBinary(unittest.TestCase):
         energy_lst = []
         lmp = LammpsASELibrary(
             working_directory=None,
+            hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
@@ -559,6 +566,7 @@ class TestBinary(unittest.TestCase):
         energy_lst = []
         lmp = LammpsASELibrary(
             working_directory=None,
+            hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
