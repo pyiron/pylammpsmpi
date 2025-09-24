@@ -17,7 +17,9 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         cls.execution_path = os.path.dirname(os.path.abspath(__file__))
         cls.citation_file = os.path.join(cls.execution_path, "citations.txt")
         cls.lammps_file = os.path.join(cls.execution_path, "in.simple")
-        cls.lmp = LammpsLibrary(cores=2, cmdargs=["-cite", cls.citation_file], hostname_localhost=True)
+        cls.lmp = LammpsLibrary(
+            cores=2, cmdargs=["-cite", cls.citation_file], hostname_localhost=True
+        )
         cls.lmp.file(cls.lammps_file)
 
     @classmethod
