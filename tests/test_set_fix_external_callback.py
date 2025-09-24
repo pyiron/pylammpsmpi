@@ -75,33 +75,29 @@ class TestSetFixExternalCallback(unittest.TestCase):
     def tearDownClass(cls):
         cls.lmp.close()
 
-    def test_set_fix_external_callback_with_caller_none(self):
-        self.lmp.fix("cb all external pf/callback 1 1")
-        self.lmp.set_fix_external_callback("cb", external_callback_with_caller_none)
-        self.lmp.run(1)
-
-    def test_set_fix_external_callback_with_caller_list(self):
+    def test_set_fix_external_callback(self):
         helper = HelperClass(token=2648)
         self.lmp.fix("cb all external pf/callback 1 1")
+        self.lmp.set_fix_external_callback(
+            "cb", external_callback_with_caller_none
+        )
+        ret_none = self.lmp.run(1)
+        self.assertEqual(ret_none, 1)
         self.lmp.set_fix_external_callback(
             "cb", external_callback_with_caller_list, [self.lmp, helper]
         )
-        self.lmp.run(1)
-
-    def test_set_fix_external_callback_with_caller_dict(self):
-        helper = HelperClass(token=2648)
-        self.lmp.fix("cb all external pf/callback 1 1")
+        ret_list = self.lmp.run(1)
+        self.assertEqual(ret_list, 1)
         self.lmp.set_fix_external_callback(
             "cb", external_callback_with_caller_dict, {'lmp': self.lmp, 'helper': helper}
         )
-        self.lmp.run(1)
-
-    def test_set_fix_external_callback_with_caller_lammps(self):
-        self.lmp.fix("cb all external pf/callback 1 1")
+        ret_dict = self.lmp.run(1)
+        self.assertEqual(ret_dict, 1)
         self.lmp.set_fix_external_callback(
             "cb", external_callback_with_caller_lammps, self.lmp
         )
-        self.lmp.run(1)
+        ret_lammps = self.lmp.run(1)
+        self.assertEqual(ret_lammps, 1)
 
 
 if __name__ == "__main__":
