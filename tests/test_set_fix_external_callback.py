@@ -78,9 +78,7 @@ class TestSetFixExternalCallback(unittest.TestCase):
     def test_set_fix_external_callback(self):
         helper = HelperClass(token=2648)
         self.lmp.fix("cb all external pf/callback 1 1")
-        self.lmp.set_fix_external_callback(
-            "cb", external_callback_with_caller_none
-        )
+        self.lmp.set_fix_external_callback("cb", external_callback_with_caller_none)
         ret_none = self.lmp.run(1)
         self.assertEqual(ret_none, 1)
         self.lmp.set_fix_external_callback(
