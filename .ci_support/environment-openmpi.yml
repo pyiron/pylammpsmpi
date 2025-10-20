@@ -6,7 +6,7 @@ dependencies:
 - openmpi =5.0.8
 - numpy =2.3.3
 - mpi4py =4.1.1
-- executorlib =1.7.1
+- executorlib =1.7.2
 - ase =3.26.0
 - scipy =1.16.2
 - hatchling
