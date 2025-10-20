@@ -47,7 +47,7 @@ include = [
 ]
 
 [tool.hatch.build.hooks.vcs]
-version-file = "pylammpsmpi/_version.py"
+version-file = "src/pylammpsmpi/_version.py"
 
 [tool.ruff]
 exclude = [".ci_support", "docs", "notebooks", "setup.py", "_version.py"]
@@ -90,18 +90,18 @@ ignore = [
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "pylammpsmpi"
+    "src/pylammpsmpi"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "pylammpsmpi"
+    "src/pylammpsmpi"
 ]
 
 [tool.hatch.version]
 source = "vcs"
-path = "pylammpsmpi/_version.py"
+path = "src/pylammpsmpi/_version.py"
 
 [tool.coverage.run]
-omit = ["pylammpsmpi/_version.py", "tests/*"]
+source = ["pylammpsmpi"]
 command_line = "-m unittest discover tests"

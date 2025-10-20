@@ -13,7 +13,7 @@ jobs:
     - uses: psf/black@stable
       with:
         options: "--check --diff"
-        src: ./${{ github.event.repository.name }}
+        src: ./src/${{ github.event.repository.name }}
 
   black_fix:  # in most cases pre-commit is faster
     needs: [black]
@@ -29,7 +29,7 @@ jobs:
       uses: psf/black@stable
       with:
         options: ""
-        src: "./${{ github.event.repository.name }}"
+        src: "./src/${{ github.event.repository.name }}"
     - name: commit
       run: |
         git config --local user.email "pyiron@mpie.de"
