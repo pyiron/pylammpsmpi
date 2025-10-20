@@ -22,10 +22,11 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "mpi4py==4.1.0",
-    "executorlib==1.7.1",
+    "mpi4py==4.1.1",
+    "executorlib==1.7.2",
     "numpy==2.3.3",
 ]
 dynamic = ["version"]
