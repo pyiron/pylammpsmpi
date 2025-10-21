@@ -31,4 +31,4 @@ html_static_path = ["_static"]
 
 from sphinx.ext.apidoc import main
 
-main(["-e", "-o", "apidoc", "../../pylammpsmpi/", "--force"])
+main(["-e", "-o", "apidoc", "../../src/pylammpsmpi/", "--force"])
