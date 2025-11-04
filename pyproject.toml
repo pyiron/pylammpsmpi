@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "mpi4py==4.1.1",
-    "executorlib==1.7.2",
+    "executorlib==1.7.3",
     "numpy==2.3.4",
 ]
 dynamic = ["version"]
