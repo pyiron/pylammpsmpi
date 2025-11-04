@@ -6,7 +6,7 @@ dependencies:
 - mpich =4.3.2
 - numpy =2.3.4
 - mpi4py =4.1.1
-- executorlib =1.7.2
+- executorlib =1.7.3
 - ase =3.26.0
 - scipy =1.16.3
 - hatchling
