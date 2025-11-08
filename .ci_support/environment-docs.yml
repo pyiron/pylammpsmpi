@@ -8,6 +8,7 @@ dependencies:
 - mpi4py
 - executorlib
 - ase
+- pyiron_lammps
 - scipy
 - hatchling
 - hatch-vcs

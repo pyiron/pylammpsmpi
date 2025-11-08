@@ -13,3 +13,10 @@ try:
     __all__ += ["LammpsASELibrary"]
 except ImportError:
     pass
+
+try:
+    from pylammpsmpi.wrapper.pyiron import lammps_file_interface_function
+
+    __all__ += ["lammps_file_interface_function"]
+except ImportError:
+    pass
