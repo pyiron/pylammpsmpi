@@ -561,7 +561,7 @@ def get_fixed_atom_boolean_vector(structure):
         if c_dict["name"] == "FixAtoms":
             fixed_atom_vector[c_dict["kwargs"]["indices"]] = [True, True, True]
         elif c_dict["name"] == "FixedPlane":
-            if all(np.isin(c_dict["kwargs"]["direction"], [0, 1])):
+            if all(np.isin(c_dict["kwargs"]["direction"], [0, 1, 1 / np.sqrt(2)])):
                 if "indices" in c_dict["kwargs"]:
                     fixed_atom_vector[c_dict["kwargs"]["indices"]] = np.array(
                         c_dict["kwargs"]["direction"]
