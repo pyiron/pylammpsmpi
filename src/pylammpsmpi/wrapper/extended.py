@@ -319,6 +319,7 @@ class LammpsLibrary:
         """
         Close the Lammps simulation
         """
+        self.lmp.finalize()
         self.lmp.close()
 
     def __dir__(self) -> list[str]:
