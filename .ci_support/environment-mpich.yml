@@ -7,7 +7,7 @@ dependencies:
 - numpy =2.4.0
 - mpi4py =4.1.1
 - executorlib =1.7.3
-- ase =3.26.0
+- ase =3.27.0
 - scipy =1.16.3
 - hatchling
 - hatch-vcs
