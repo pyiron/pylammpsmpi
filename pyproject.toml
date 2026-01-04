@@ -1,5 +1,5 @@
 [build-system]
-requires = ["mpi4py", "numpy", "executorlib", "hatchling==1.27.0", "hatch-vcs==0.5.0"]
+requires = ["mpi4py", "numpy", "executorlib", "hatchling==1.28.0", "hatch-vcs==0.5.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     "mpi4py==4.1.1",
     "executorlib==1.7.3",
-    "numpy==2.3.5",
+    "numpy==2.4.0",
 ]
 dynamic = ["version"]
 
@@ -38,7 +38,7 @@ Repository = "https://github.com/pyiron/pylammpsmpi"
 
 [project.optional-dependencies]
 ase = [
-    "ase==3.26.0",
+    "ase==3.27.0",
     "scipy==1.16.3",
 ]
 
