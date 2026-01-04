@@ -39,6 +39,7 @@ def init_function():
         def shutdown(self):
             if self._job is not None:
                 self._job.close()
+                self._job.finalize()
                 self._job = None
 
         def command(self, input_dict):
