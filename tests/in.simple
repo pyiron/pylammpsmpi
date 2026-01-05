@@ -1,4 +1,4 @@
-# 3d Lennard-Jones melt
+# 3d Lennard-Jones melt 
 
 units		lj
 atom_style	atomic
