@@ -90,12 +90,12 @@ def get_file(job, funct_args):
 
 
 def commands_list(job, funct_args):
-    job.commands_list(*funct_args)
+    job.commands_list(funct_args)
     return 1
 
 
 def commands_string(job, funct_args):
-    job.commands_string(*funct_args)
+    job.commands_string(funct_args)
     return 1
 
 
