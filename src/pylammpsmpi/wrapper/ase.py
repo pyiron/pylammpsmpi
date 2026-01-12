@@ -1,3 +1,4 @@
+import importlib
 import os
 import warnings
 from ctypes import c_double, c_int
@@ -54,6 +55,7 @@ class LammpsASELibrary:
             self._interactive_library = library
             self._cores = library.cores
         elif self._cores == 1:
+            lammps = importlib.import_module("lammps").lammps
             self._interactive_library = lammps(
                 cmdargs=cmdargs,
                 comm=comm,
