@@ -1,4 +1,3 @@
-import importlib
 import os
 import warnings
 from ctypes import c_double, c_int
@@ -46,11 +45,11 @@ class LammpsASELibrary:
         self._structure = None
         self._cores = cores
         if disable_log_file and log_file is None:
-            cmdargs=["-screen", "none", "-log", "none"],
+            cmdargs = (["-screen", "none", "-log", "none"],)
         else:
             if log_file is None:
                 log_file = os.path.join(working_directory, "log.lammps")
-            cmdargs=["-screen", "none", "-log", log_file]
+            cmdargs = ["-screen", "none", "-log", log_file]
         if library is not None:
             self._interactive_library = library
             self._cores = library.cores
