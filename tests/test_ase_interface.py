@@ -187,6 +187,7 @@ class TestLammpsASELibrary(unittest.TestCase):
 
     @unittest.skipIf(platform.system() == "Darwin", "Skipping test for now")
     def test_small_displacement_skewed(self):
+        log_file = "log.lammps"
         lmp = LammpsASELibrary(
             working_directory=None,
             hostname_localhost=True,
@@ -195,7 +196,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
             library=None,
-            disable_log_file=True,
+            disable_log_file=False,
         )
         structure = bulk("Al").repeat([2, 2, 2])
         lmp.interactive_structure_setter(
@@ -231,6 +232,8 @@ class TestLammpsASELibrary(unittest.TestCase):
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
         lmp.close()
+        self.assertTrue(os.path.exists(log_file))
+        os.remove(log_file)
 
     def test_static_with_statement(self):
         structure = bulk("Al").repeat([2, 2, 2])
