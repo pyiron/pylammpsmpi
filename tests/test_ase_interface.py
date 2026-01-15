@@ -1,6 +1,7 @@
 import platform
 import logging
 import unittest
+import os
 
 import numpy as np
 from ase.atoms import Atoms
@@ -129,15 +130,16 @@ class TestLammpsASELibrary(unittest.TestCase):
         lmp.close()
 
     def test_velocities(self):
+        log_file = "test_ase_velocities.log"
         lmp = LammpsASELibrary(
             working_directory=None,
             hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
-            log_file=None,
-            library=LammpsLibrary(cores=2),
-            disable_log_file=True,
+            log_file=log_file,
+            library=None,
+            disable_log_file=False,
         )
         structure = bulk("Al", cubic=True)
         velocities_initial = np.array(
@@ -180,18 +182,21 @@ class TestLammpsASELibrary(unittest.TestCase):
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
         lmp.close()
+        self.assertTrue(os.path.exists(log_file))
+        os.remove(log_file)
 
     @unittest.skipIf(platform.system() == "Darwin", "Skipping test for now")
     def test_small_displacement_skewed(self):
+        log_file = "log.lammps"
         lmp = LammpsASELibrary(
             working_directory=None,
             hostname_localhost=True,
-            cores=1,
+            cores=2,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2),
-            disable_log_file=True,
+            library=None,
+            disable_log_file=False,
         )
         structure = bulk("Al").repeat([2, 2, 2])
         lmp.interactive_structure_setter(
@@ -227,18 +232,21 @@ class TestLammpsASELibrary(unittest.TestCase):
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
         lmp.close()
+        self.assertTrue(os.path.exists(log_file))
+        os.remove(log_file)
 
     def test_static_with_statement(self):
         structure = bulk("Al").repeat([2, 2, 2])
+        working_directory = os.path.abspath(os.getcwd())
         with LammpsASELibrary(
-            working_directory=None,
+            working_directory=working_directory,
             hostname_localhost=True,
             cores=2,
             comm=None,
             logger=None,
             log_file=None,
             library=None,
-            disable_log_file=True,
+            disable_log_file=False,
         ) as lmp:
             lmp.interactive_structure_setter(
                 structure=structure,
@@ -277,6 +285,8 @@ class TestLammpsASELibrary(unittest.TestCase):
                 )
             )
             self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
+        self.assertTrue(os.path.exists(os.path.join(working_directory, "log.lammps")))
+        os.remove(os.path.join(working_directory, "log.lammps"))
 
 
 class TestASEHelperFunctions(unittest.TestCase):

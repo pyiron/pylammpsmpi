@@ -45,29 +45,30 @@ class LammpsASELibrary:
         self._prism = None
         self._structure = None
         self._cores = cores
+        if disable_log_file and log_file is None:
+            cmdargs = ["-screen", "none", "-log", "none"]
+        else:
+            if log_file is None and working_directory is not None:
+                log_file = os.path.join(working_directory, "log.lammps")
+            elif log_file is None:
+                log_file = "log.lammps"
+            cmdargs = ["-screen", "none", "-log", log_file]
         if library is not None:
             self._interactive_library = library
             self._cores = library.cores
         elif self._cores == 1:
             lammps = importlib.import_module("lammps").lammps
-            if disable_log_file:
-                self._interactive_library = lammps(
-                    cmdargs=["-screen", "none", "-log", "none"],
-                    comm=comm,
-                )
-            else:
-                if log_file is None:
-                    log_file = os.path.join(working_directory, "log.lammps")
-                self._interactive_library = lammps(
-                    cmdargs=["-screen", "none", "-log", log_file],
-                    comm=comm,
-                )
+            self._interactive_library = lammps(
+                cmdargs=cmdargs,
+                comm=comm,
+            )
         else:
             self._interactive_library = LammpsBase(
                 cores=self._cores,
                 working_directory=working_directory,
                 hostname_localhost=hostname_localhost,
                 executor=executor,
+                cmdargs=cmdargs,
             )
 
     def interactive_lib_command(self, command: str) -> None:
