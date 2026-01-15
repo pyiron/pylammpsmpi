@@ -237,15 +237,16 @@ class TestLammpsASELibrary(unittest.TestCase):
 
     def test_static_with_statement(self):
         structure = bulk("Al").repeat([2, 2, 2])
+        working_directory = os.path.abspath(os.getcwd())
         with LammpsASELibrary(
-            working_directory=None,
+            working_directory=working_directory,
             hostname_localhost=True,
             cores=2,
             comm=None,
             logger=None,
             log_file=None,
             library=None,
-            disable_log_file=True,
+            disable_log_file=False,
         ) as lmp:
             lmp.interactive_structure_setter(
                 structure=structure,
@@ -284,6 +285,8 @@ class TestLammpsASELibrary(unittest.TestCase):
                 )
             )
             self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
+        self.assertTrue(os.path.exists(os.path.join(working_directory, "log.lammps")))
+        os.remove(os.path.join(working_directory, "log.lammps"))
 
 
 class TestASEHelperFunctions(unittest.TestCase):
