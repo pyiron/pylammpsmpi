@@ -31,7 +31,7 @@ def init_function():
             self._job = None
 
         def start(self, argument_lst):
-            args = ["-screen", "none"]
+            args = []
             if len(argument_lst) > 0:
                 args.extend(argument_lst)
             self._job = lammps(cmdargs=args)
