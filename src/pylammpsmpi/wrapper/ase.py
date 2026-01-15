@@ -1,5 +1,6 @@
 import importlib
 import os
+import sys
 import warnings
 from ctypes import c_double, c_int
 from typing import Optional
@@ -45,6 +46,12 @@ class LammpsASELibrary:
         self._prism = None
         self._structure = None
         self._cores = cores
+        if sys.platform == "darwin" and not hostname_localhost:
+            warnings.warn(
+                "On MacOS, LAMMPS requires hostname_localhost=True to work properly.",
+                stacklevel=2,
+            )
+            hostname_localhost = True
         if disable_log_file and log_file is None:
             cmdargs = ["-screen", "none", "-log", "none"]
         else:
