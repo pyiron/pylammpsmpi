@@ -1,6 +1,7 @@
 import platform
 import logging
 import unittest
+import os
 
 import numpy as np
 from ase.atoms import Atoms
@@ -129,15 +130,16 @@ class TestLammpsASELibrary(unittest.TestCase):
         lmp.close()
 
     def test_velocities(self):
+        log_file = "test_ase_velocities.log"
         lmp = LammpsASELibrary(
             working_directory=None,
             hostname_localhost=True,
             cores=1,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
-            log_file=None,
+            log_file=log_file,
             library=LammpsLibrary(cores=2),
-            disable_log_file=True,
+            disable_log_file=False,
         )
         structure = bulk("Al", cubic=True)
         velocities_initial = np.array(
@@ -180,6 +182,8 @@ class TestLammpsASELibrary(unittest.TestCase):
             np.all(np.isclose(lmp.interactive_positions_getter(), positions))
         )
         lmp.close()
+        self.assertTrue(os.path.exists(log_file))
+        os.remove(log_file)
 
     @unittest.skipIf(platform.system() == "Darwin", "Skipping test for now")
     def test_small_displacement_skewed(self):
