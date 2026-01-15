@@ -30,9 +30,9 @@ class TestMpiBackendExtended(unittest.TestCase):
         lmp.close()
 
     def test_commands(self):
-        ret = select_cmd("commands_list")(job=self.lmp, funct_args=[["run 0", "run 1"]])
+        ret = select_cmd("commands_list")(job=self.lmp, funct_args=["run 0", "run 1"])
         self.assertEqual(ret, 1)
-        ret = select_cmd("commands_string")(job=self.lmp, funct_args=["run 0\nrun 1"])
+        ret = select_cmd("commands_string")(job=self.lmp, funct_args="run 0\nrun 1")
         self.assertEqual(ret, 1)
 
     def test_set_variable_deprecated(self):
