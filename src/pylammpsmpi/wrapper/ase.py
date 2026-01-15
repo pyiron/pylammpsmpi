@@ -46,10 +46,12 @@ class LammpsASELibrary:
         self._structure = None
         self._cores = cores
         if disable_log_file and log_file is None:
-            cmdargs = (["-screen", "none", "-log", "none"],)
+            cmdargs = ["-screen", "none", "-log", "none"]
         else:
-            if log_file is None:
+            if log_file is None and working_directory is not None:
                 log_file = os.path.join(working_directory, "log.lammps")
+            elif log_file is None:
+                log_file = "log.lammps"
             cmdargs = ["-screen", "none", "-log", log_file]
         if library is not None:
             self._interactive_library = library
