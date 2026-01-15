@@ -138,7 +138,7 @@ class TestLammpsASELibrary(unittest.TestCase):
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=log_file,
-            library=LammpsLibrary(cores=2),
+            library=None,
             disable_log_file=False,
         )
         structure = bulk("Al", cubic=True)
@@ -190,11 +190,11 @@ class TestLammpsASELibrary(unittest.TestCase):
         lmp = LammpsASELibrary(
             working_directory=None,
             hostname_localhost=True,
-            cores=1,
+            cores=2,
             comm=None,
             logger=logging.getLogger("TestStaticLogger"),
             log_file=None,
-            library=LammpsLibrary(cores=2),
+            library=None,
             disable_log_file=True,
         )
         structure = bulk("Al").repeat([2, 2, 2])
