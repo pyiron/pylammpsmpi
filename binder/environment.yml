@@ -7,6 +7,6 @@ dependencies:
 - numpy =2.4.2
 - lammps =2024.08.29=*_mpi_openmpi_*
 - mpi4py =4.1.1
-- executorlib =1.8.0
+- executorlib =1.8.1
 - ase =3.27.0
 - scipy =1.17.0
