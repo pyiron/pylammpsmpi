@@ -104,10 +104,10 @@ class LammpsConcurrent:
                 max_workers=1,
                 init_function=init_function,
                 hostname_localhost=hostname_localhost,
+                openmpi_oversubscribe=oversubscribe,
                 resource_dict={
                     "cores": self.cores,
-                    "cwd": self.working_directory,
-                    "openmpi_oversubscribe": oversubscribe,
+                    "cwd": self.working_directory,  
                 },
             )
             self._external_executor = False
