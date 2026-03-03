@@ -121,10 +121,10 @@ class TestExecutorLammpsLibrary(unittest.TestCase):
             hostname_localhost=True,
             max_workers=1,
             init_function=init_function,
+            openmpi_oversubscribe=False,
             resource_dict={
                 "cores": 2,
                 "cwd": ".",
-                "openmpi_oversubscribe": False,
             },
         ) as exe:
             lmp = LammpsLibrary(cores=2, cmdargs=["-cite", citation_file], executor=exe)
