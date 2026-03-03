@@ -107,7 +107,7 @@ class LammpsConcurrent:
                 openmpi_oversubscribe=oversubscribe,
                 resource_dict={
                     "cores": self.cores,
-                    "cwd": self.working_directory,  
+                    "cwd": self.working_directory,
                 },
             )
             self._external_executor = False
