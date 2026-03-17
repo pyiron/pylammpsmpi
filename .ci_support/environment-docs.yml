@@ -9,6 +9,6 @@ dependencies:
 - executorlib
 - ase
 - scipy
-- hatchling
-- hatch-vcs
+- hatchling =1.29.0
+- hatch-vcs =0.5.0
 - python =3.12
