@@ -214,7 +214,7 @@ jobs:
         python -m unittest tests/test_pylammpsmpi_local.py
 
   autobot:
-    needs: [uv_ckeck, unittest_old, unittest_openmpi, unittest_mpich, unittest_openmpi_mac, unittest_mpich_mac, pip_check, coverage]
+    needs: [uv_check, unittest_old, unittest_openmpi, unittest_mpich, unittest_openmpi_mac, unittest_mpich_mac, pip_check, coverage]
     permissions:
       contents: write
       pull-requests: write
