@@ -88,6 +88,18 @@ jobs:
         pip install . --no-deps --no-build-isolation
         pip check
 
+  uv_check:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v7
+    - name: Install the project and pip check
+      shell: bash -l {0}
+      run: |
+        uv sync --all-extras --dev
+        pip check
+
   unittest_mpich:
     needs: [black]
     runs-on: ubuntu-latest
@@ -202,7 +214,7 @@ jobs:
         python -m unittest tests/test_pylammpsmpi_local.py
 
   autobot:
-    needs: [unittest_old, unittest_openmpi, unittest_mpich, unittest_openmpi_mac, unittest_mpich_mac, pip_check, coverage]
+    needs: [uv_ckeck, unittest_old, unittest_openmpi, unittest_mpich, unittest_openmpi_mac, unittest_mpich_mac, pip_check, coverage]
     permissions:
       contents: write
       pull-requests: write
