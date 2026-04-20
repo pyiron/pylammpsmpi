@@ -9,4 +9,4 @@ dependencies:
 - mpi4py =4.1.1
 - executorlib =1.9.2
 - ase =3.28.0
-- scipy =1.17.0
+- scipy =1.17.1
