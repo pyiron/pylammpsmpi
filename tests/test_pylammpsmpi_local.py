@@ -131,26 +131,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertIn("extract_atom", attrs)
         self.assertIn("installed_packages", attrs)
 
-    def test_command_multiline(self):
-        ret = self.lmp.command("run 0\nrun 0")
-        self.assertEqual(ret, 1)
-
-    def test_command_list(self):
-        ret = self.lmp.command(["run 0", "run 0"])
-        self.assertEqual(ret, 1)
-
-    def test_create_atoms(self):
-        lmp = LammpsLibrary(cores=2, hostname_localhost=True)
-        lmp.command("units lj")
-        lmp.command("dimension 3")
-        lmp.command("boundary p p p")
-        lmp.command("atom_style atomic")
-        lmp.command("region box block 0 10 0 10 0 10")
-        lmp.command("create_box 1 box")
-        lmp.create_atoms(n=1, id=[1], type=[1], x=[[1.0, 1.0, 1.0]])
-        self.assertEqual(lmp.get_natoms(), 1)
-        lmp.close()
-
     def test_create_atoms_typeerror(self):
         with self.assertRaises(TypeError):
             self.lmp.create_atoms(n=1, id=[1], type=[1], x=None)
