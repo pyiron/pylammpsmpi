@@ -123,6 +123,17 @@ class TestLammpsConcurrent(unittest.TestCase):
             float(self.lmp.get_thermo("temp").result()), 1.1298532212880312
         )
 
+    def test_natoms_property(self):
+        self.assertEqual(self.lmp.natoms.result(), 256)
+
+    def test_generate_atoms_typeerror(self):
+        with self.assertRaises(TypeError):
+            self.lmp.generate_atoms()
+
+    def test_create_atoms_typeerror(self):
+        with self.assertRaises(TypeError):
+            self.lmp.create_atoms(n=1, id=[1], type=[1], x=None)
+
 
 if __name__ == "__main__":
     unittest.main()

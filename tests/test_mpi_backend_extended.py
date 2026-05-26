@@ -154,6 +154,12 @@ class TestMpiBackendExtended(unittest.TestCase):
         self.assertEqual(ret, 1)
         lmp.close()
 
+    def test_extract_setting(self):
+        nlocal = select_cmd("extract_setting")(job=self.lmp, funct_args=["nlocal"])
+        self.assertEqual(nlocal, 256)
+        ntypes = select_cmd("extract_setting")(job=self.lmp, funct_args=["ntypes"])
+        self.assertEqual(ntypes, 1)
+
     def test_set_fix_external_callback(self):
         select_cmd("command")(
             job=self.lmp, funct_args="fix cb all external pf/callback 1 1"

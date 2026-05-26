@@ -110,6 +110,31 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(self.lmp.has_jpeg_support, True)
         self.assertEqual(self.lmp.has_ffmpeg_support, False)
 
+    def test_natoms_property(self):
+        self.assertEqual(self.lmp.natoms, 256)
+
+    def test_get_natoms(self):
+        self.assertEqual(self.lmp.get_natoms(), 256)
+
+    def test_thermo_attribute_access(self):
+        temp = self.lmp.temp
+        self.assertIsInstance(float(temp), float)
+
+    def test_run_command(self):
+        ret = self.lmp.run(0)
+        self.assertEqual(ret, 1)
+
+    def test_dir(self):
+        attrs = dir(self.lmp)
+        self.assertIn("run", attrs)
+        self.assertIn("temp", attrs)
+        self.assertIn("extract_atom", attrs)
+        self.assertIn("installed_packages", attrs)
+
+    def test_create_atoms_typeerror(self):
+        with self.assertRaises(TypeError):
+            self.lmp.create_atoms(n=1, id=[1], type=[1], x=None)
+
 
 class TestExecutorLammpsLibrary(unittest.TestCase):
     def test_version(self):
