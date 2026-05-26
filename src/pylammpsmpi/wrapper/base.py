@@ -2,7 +2,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 from concurrent.futures import Future
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
@@ -187,11 +187,11 @@ class LammpsBase(LammpsConcurrent):
 
     def generate_atoms(
         self,
-        ids: list[int] = None,
-        type: list[int] = None,
-        x: list[float] = None,
-        v: list[float] = None,
-        image: list[int] = None,
+        ids: Optional[list[int]] = None,
+        type: Optional[list[int]] = None,
+        x: Optional[list[float]] = None,
+        v: Optional[list[float]] = None,
+        image: Optional[list[int]] = None,
         shrinkexceed: bool = False,
     ) -> None:
         """
@@ -234,8 +234,8 @@ class LammpsBase(LammpsConcurrent):
         id: list[int],
         type: list[int],
         x: list[float],
-        v: list[float] = None,
-        image: list[int] = None,
+        v: Optional[list[float]] = None,
+        image: Optional[list[int]] = None,
         shrinkexceed: bool = False,
     ) -> None:
         """

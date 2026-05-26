@@ -4,7 +4,7 @@
 import contextlib
 import os
 from concurrent.futures import Future
-from typing import Optional
+from typing import Any, Optional
 
 from executorlib import BaseExecutor, SingleNodeExecutor
 
@@ -74,7 +74,7 @@ class LammpsConcurrent:
         oversubscribe: bool = False,
         working_directory: str = ".",
         hostname_localhost: Optional[bool] = None,
-        cmdargs: list = None,
+        cmdargs: Optional[list[Any]] = None,
         executor: Optional[BaseExecutor] = None,
     ):
         """
@@ -310,8 +310,16 @@ class LammpsConcurrent:
         -------
         None
         """
+        if x is not None:
+            n = len(x)
+        elif ids is not None:
+            n = len(ids)
+        elif type is not None:
+            n = len(type)
+        else:
+            raise TypeError("Value of x cannot be None")
         return self.create_atoms(
-            ids=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            n=n, id=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
 
     def create_atoms(

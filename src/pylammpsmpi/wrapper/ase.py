@@ -2,7 +2,7 @@ import importlib
 import os
 import warnings
 from ctypes import c_double, c_int
-from typing import Optional
+from typing import Any, Optional, cast
 
 import numpy as np
 from ase.atoms import Atoms
@@ -37,13 +37,13 @@ class LammpsASELibrary:
         comm: Optional[object] = None,
         logger: Optional[object] = None,
         log_file: Optional[str] = None,
-        library: Optional[object] = None,
+        library: Any = None,
         disable_log_file: bool = True,
         executor: Optional[BaseExecutor] = None,
     ):
-        self._logger = logger
-        self._prism = None
-        self._structure = None
+        self._logger: Any = logger
+        self._prism: Any = None
+        self._structure: Any = None
         self._cores = cores
         if disable_log_file and log_file is None:
             cmdargs = ["-screen", "none", "-log", "none"]
@@ -54,7 +54,7 @@ class LammpsASELibrary:
                 log_file = "log.lammps"
             cmdargs = ["-screen", "none", "-log", log_file]
         if library is not None:
-            self._interactive_library = library
+            self._interactive_library: Any = library
             self._cores = library.cores
         elif self._cores == 1:
             lammps = importlib.import_module("lammps").lammps
@@ -65,7 +65,7 @@ class LammpsASELibrary:
         else:
             self._interactive_library = LammpsBase(
                 cores=self._cores,
-                working_directory=working_directory,
+                working_directory=working_directory or ".",
                 hostname_localhost=hostname_localhost,
                 executor=executor,
                 cmdargs=cmdargs,
@@ -104,13 +104,15 @@ class LammpsASELibrary:
         Args:
             positions (List[List[float]]): The positions of atoms.
         """
-        positions = _vector_to_lammps(vector=positions, prism=self._prism)
+        positions_lammps = cast(
+            Any, _vector_to_lammps(vector=positions, prism=self._prism)
+        )
         if self._cores == 1:
             self._interactive_library.scatter_atoms(
-                "x", 1, 3, (len(positions) * c_double)(*positions)
+                "x", 1, 3, (len(positions_lammps) * c_double)(*positions_lammps)
             )
         else:
-            self._interactive_library.scatter_atoms("x", positions)
+            self._interactive_library.scatter_atoms("x", positions_lammps)
         self.interactive_lib_command(command="change_box all remap")
 
     def interactive_cells_getter(self) -> np.ndarray:
@@ -275,9 +277,10 @@ class LammpsASELibrary:
             self.interactive_lib_command(
                 command="create_box " + str(len(el_eam_lst)) + " 1"
             )
-        el_dict = {}
+        el_dict: dict[str, int] = {}
         for id_eam, el_eam in enumerate(el_eam_lst):
             if el_eam in el_struct_lst:
+                el_dict[el_eam] = id_eam + 1
                 self.interactive_lib_command(
                     command=f"mass {id_eam + 1:3d} {atomic_masses[atomic_numbers[el_eam]]:f}",
                 )
@@ -295,8 +298,10 @@ class LammpsASELibrary:
                 structure=structure, el_eam_lst=el_eam_lst
             )
         except KeyError:
-            missing = set(get_species_symbols(structure)).difference(el_dict.keys())
-            missing = ", ".join([el.Abbreviation for el in missing])
+            missing_elements = set(get_species_symbols(structure)).difference(
+                el_dict.keys()
+            )
+            missing = ", ".join([str(el) for el in missing_elements])
             raise ValueError(
                 f"Structure contains elements [{missing}], that are not present in the potential!"
             )
