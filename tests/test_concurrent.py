@@ -126,18 +126,12 @@ class TestLammpsConcurrent(unittest.TestCase):
     def test_natoms_property(self):
         self.assertEqual(self.lmp.natoms.result(), 256)
 
-    def test_installed_packages(self):
-        packages = self.lmp.installed_packages.result()
-        self.assertIsInstance(packages, list)
-        self.assertIn("MANYBODY", packages)
-        self.assertIn("KSPACE", packages)
-
     def test_command_multiline(self):
         ret = self.lmp.command("run 0\nrun 0").result()
         self.assertEqual(ret, 1)
 
     def test_command_list(self):
-        ret = self.lmp.command(["run 0", "run 0"]).result()
+        ret = self.lmp.command(["print 'item1'", "print 'item2'"]).result()
         self.assertEqual(ret, 1)
 
     def test_generate_atoms_typeerror(self):

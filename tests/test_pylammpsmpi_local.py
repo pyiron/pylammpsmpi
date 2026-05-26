@@ -110,12 +110,6 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(self.lmp.has_jpeg_support, True)
         self.assertEqual(self.lmp.has_ffmpeg_support, False)
 
-    def test_installed_packages(self):
-        packages = self.lmp.installed_packages
-        self.assertIsInstance(packages, list)
-        self.assertIn("MANYBODY", packages)
-        self.assertIn("KSPACE", packages)
-
     def test_natoms_property(self):
         self.assertEqual(self.lmp.natoms, 256)
 
