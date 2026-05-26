@@ -301,8 +301,8 @@ class LammpsLibrary:
         elif name in command_list:
 
             def command_wrapper(*args) -> Any:
-                args = [name] + list(args)
-                cmd = " ".join([str(x) for x in args])
+                command_args = [name] + list(args)
+                cmd = " ".join([str(x) for x in command_args])
                 fut = self.lmp.command(cmd)
                 return get_result(future=fut, cores=self.cores)
 
