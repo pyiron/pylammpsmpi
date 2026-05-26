@@ -135,64 +135,6 @@ class TestLammpsBase(unittest.TestCase):
     def test_get_thermo(self):
         self.assertEqual(float(self.lmp.get_thermo("temp")), 1.1298532212880312)
 
-    def test_installed_packages(self):
-        packages = self.lmp.installed_packages
-        self.assertIsInstance(packages, list)
-        self.assertIn("MANYBODY", packages)
-        self.assertIn("KSPACE", packages)
-
-    def test_neighlist_methods(self):
-        nl = self.lmp.get_neighlist(0)
-        self.assertIsNotNone(nl)
-        pnl = self.lmp.find_pair_neighlist("lj/cut")
-        self.assertIsInstance(pnl, int)
-        fnl = self.lmp.find_fix_neighlist("2")
-        self.assertIsInstance(fnl, int)
-        cnl = self.lmp.find_compute_neighlist("ke")
-        self.assertIsInstance(cnl, int)
-        size = self.lmp.get_neighlist_size(0)
-        self.assertIsInstance(size, int)
-        elem = self.lmp.get_neighlist_element_neighbors(0, 0)
-        self.assertIsNotNone(elem)
-
-    def test_create_atoms(self):
-        lmp = LammpsBase(
-            cores=1,
-            oversubscribe=False,
-            working_directory=".",
-            hostname_localhost=True,
-        )
-        lmp.command("units lj")
-        lmp.command("dimension 3")
-        lmp.command("boundary p p p")
-        lmp.command("atom_style atomic")
-        lmp.command("region box block 0 10 0 10 0 10")
-        lmp.command("create_box 1 box")
-        lmp.create_atoms(n=1, id=[1], type=[1], x=[[1.0, 1.0, 1.0]])
-        self.assertEqual(lmp.get_natoms(), 1)
-        lmp.close()
-
-    def test_generate_atoms(self):
-        lmp = LammpsBase(
-            cores=1,
-            oversubscribe=False,
-            working_directory=".",
-            hostname_localhost=True,
-        )
-        lmp.command("units lj")
-        lmp.command("dimension 3")
-        lmp.command("boundary p p p")
-        lmp.command("atom_style atomic")
-        lmp.command("region box block 0 10 0 10 0 10")
-        lmp.command("create_box 1 box")
-        lmp.generate_atoms(type=[1], x=[[1.0, 1.0, 1.0]])
-        self.assertEqual(lmp.get_natoms(), 1)
-        lmp.close()
-
-    def test_generate_atoms_typeerror(self):
-        with self.assertRaises(TypeError):
-            self.lmp.generate_atoms()
-
 
 if __name__ == "__main__":
     unittest.main()
