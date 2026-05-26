@@ -27,7 +27,7 @@ def get_result(future: Future, cores: int) -> Any:
 
 class LammpsBase(LammpsConcurrent):
     @property
-    def version(self) -> str:
+    def version(self) -> str:  # type: ignore[override]
         """
         Get the version of lammps
 
@@ -37,7 +37,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().version, cores=self.cores)
 
-    def file(self, inputfile: str) -> None:
+    def file(self, inputfile: str) -> None:  # type: ignore[override]
         """
         Read script from an input file
 
@@ -65,7 +65,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_setting(*args), cores=self.cores)
 
-    def extract_global(self, name: str) -> Union[int, float, str]:
+    def extract_global(self, name: str) -> Union[int, float, str]:  # type: ignore[override]
         """
         Extract value of global simulation parameters
 
@@ -79,7 +79,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_global(name=name), cores=self.cores)
 
-    def extract_box(self) -> list[Union[float, list[float], list[int]]]:
+    def extract_box(self) -> list[Union[float, list[float], list[int]]]:  # type: ignore[override]
         """
         Get the simulation box
 
@@ -94,7 +94,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_box(), cores=self.cores)
 
-    def extract_atom(self, name: str) -> Union[list[int], list[float]]:
+    def extract_atom(self, name: str) -> Union[list[int], list[float]]:  # type: ignore[override]
         """
         Extract a property of the atoms
 
@@ -109,7 +109,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_atom(name=name), cores=self.cores)
 
-    def extract_fix(self, *args) -> Union[int, float, list[Union[int, float]]]:
+    def extract_fix(self, *args) -> Union[int, float, list[Union[int, float]]]:  # type: ignore[override]
         """
         Extract a fix value
 
@@ -123,7 +123,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_fix(*args), cores=self.cores)
 
-    def extract_variable(self, *args) -> Union[int, float, list[Union[int, float]]]:
+    def extract_variable(self, *args) -> Union[int, float, list[Union[int, float]]]:  # type: ignore[override]
         """
         Extract the value of a variable
 
@@ -138,7 +138,7 @@ class LammpsBase(LammpsConcurrent):
         return get_result(future=super().extract_variable(*args), cores=self.cores)
 
     @property
-    def natoms(self) -> int:
+    def natoms(self) -> int:  # type: ignore[override]
         """
         Get the number of atoms
 
@@ -148,7 +148,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return self.get_natoms()
 
-    def get_natoms(self) -> int:
+    def get_natoms(self) -> int:  # type: ignore[override]
         """
         Get the number of atoms
 
@@ -158,7 +158,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().get_natoms(), cores=self.cores)
 
-    def set_variable(self, *args) -> int:
+    def set_variable(self, *args) -> int:  # type: ignore[override]
         """
         Set the value of a string style variable
 
@@ -172,7 +172,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().set_variable(*args), cores=self.cores)
 
-    def reset_box(self, *args) -> None:
+    def reset_box(self, *args) -> None:  # type: ignore[override]
         """
         Reset the simulation box
 
@@ -185,7 +185,7 @@ class LammpsBase(LammpsConcurrent):
         """
         _ = super().reset_box(*args).result()
 
-    def generate_atoms(
+    def generate_atoms(  # type: ignore[override]
         self,
         ids: Optional[list[int]] = None,
         type: Optional[list[int]] = None,
@@ -228,7 +228,7 @@ class LammpsBase(LammpsConcurrent):
             .result()
         )
 
-    def create_atoms(
+    def create_atoms(  # type: ignore[override]
         self,
         n: int,
         id: list[int],
@@ -276,20 +276,20 @@ class LammpsBase(LammpsConcurrent):
         )
 
     @property
-    def has_exceptions(self) -> bool:
+    def has_exceptions(self) -> bool:  # type: ignore[override]
         """Return whether the LAMMPS shared library was compiled with C++ exceptions handling enabled"""
         return get_result(future=super().has_exceptions, cores=self.cores)
 
     @property
-    def has_gzip_support(self) -> bool:
+    def has_gzip_support(self) -> bool:  # type: ignore[override]
         return get_result(future=super().has_gzip_support, cores=self.cores)
 
     @property
-    def has_png_support(self) -> bool:
+    def has_png_support(self) -> bool:  # type: ignore[override]
         return get_result(future=super().has_png_support, cores=self.cores)
 
     @property
-    def has_jpeg_support(self) -> bool:
+    def has_jpeg_support(self) -> bool:  # type: ignore[override]
         return get_result(future=super().has_jpeg_support, cores=self.cores)
 
     @property
