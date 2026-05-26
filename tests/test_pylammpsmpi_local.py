@@ -110,6 +110,57 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         self.assertEqual(self.lmp.has_jpeg_support, True)
         self.assertEqual(self.lmp.has_ffmpeg_support, False)
 
+    def test_installed_packages(self):
+        packages = self.lmp.installed_packages
+        self.assertIsInstance(packages, list)
+        self.assertIn("MANYBODY", packages)
+        self.assertIn("KSPACE", packages)
+
+    def test_natoms_property(self):
+        self.assertEqual(self.lmp.natoms, 256)
+
+    def test_get_natoms(self):
+        self.assertEqual(self.lmp.get_natoms(), 256)
+
+    def test_thermo_attribute_access(self):
+        temp = self.lmp.temp
+        self.assertIsInstance(float(temp), float)
+
+    def test_run_command(self):
+        ret = self.lmp.run(0)
+        self.assertEqual(ret, 1)
+
+    def test_dir(self):
+        attrs = dir(self.lmp)
+        self.assertIn("run", attrs)
+        self.assertIn("temp", attrs)
+        self.assertIn("extract_atom", attrs)
+        self.assertIn("installed_packages", attrs)
+
+    def test_command_multiline(self):
+        ret = self.lmp.command("run 0\nrun 0")
+        self.assertEqual(ret, 1)
+
+    def test_command_list(self):
+        ret = self.lmp.command(["run 0", "run 0"])
+        self.assertEqual(ret, 1)
+
+    def test_create_atoms(self):
+        lmp = LammpsLibrary(cores=2, hostname_localhost=True)
+        lmp.command("units lj")
+        lmp.command("dimension 3")
+        lmp.command("boundary p p p")
+        lmp.command("atom_style atomic")
+        lmp.command("region box block 0 10 0 10 0 10")
+        lmp.command("create_box 1 box")
+        lmp.create_atoms(n=1, id=[1], type=[1], x=[[1.0, 1.0, 1.0]])
+        self.assertEqual(lmp.get_natoms(), 1)
+        lmp.close()
+
+    def test_create_atoms_typeerror(self):
+        with self.assertRaises(TypeError):
+            self.lmp.create_atoms(n=1, id=[1], type=[1], x=None)
+
 
 class TestExecutorLammpsLibrary(unittest.TestCase):
     def test_version(self):

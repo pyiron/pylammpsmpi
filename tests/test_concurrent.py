@@ -123,6 +123,31 @@ class TestLammpsConcurrent(unittest.TestCase):
             float(self.lmp.get_thermo("temp").result()), 1.1298532212880312
         )
 
+    def test_natoms_property(self):
+        self.assertEqual(self.lmp.natoms.result(), 256)
+
+    def test_installed_packages(self):
+        packages = self.lmp.installed_packages.result()
+        self.assertIsInstance(packages, list)
+        self.assertIn("MANYBODY", packages)
+        self.assertIn("KSPACE", packages)
+
+    def test_command_multiline(self):
+        ret = self.lmp.command("run 0\nrun 0").result()
+        self.assertEqual(ret, 1)
+
+    def test_command_list(self):
+        ret = self.lmp.command(["run 0", "run 0"]).result()
+        self.assertEqual(ret, 1)
+
+    def test_generate_atoms_typeerror(self):
+        with self.assertRaises(TypeError):
+            self.lmp.generate_atoms()
+
+    def test_create_atoms_typeerror(self):
+        with self.assertRaises(TypeError):
+            self.lmp.create_atoms(n=1, id=[1], type=[1], x=None)
+
 
 if __name__ == "__main__":
     unittest.main()
