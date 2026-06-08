@@ -156,7 +156,15 @@ class TestExecutorLammpsLibrary(unittest.TestCase):
             lmp.file(lammps_file)
             self.assertTrue(
                 lmp.version
-                in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829, 20250722]
+                in [
+                    20220623,
+                    20230802,
+                    20231121,
+                    20240207,
+                    20240627,
+                    20240829,
+                    20250722,
+                ]
             )
             lmp.close()
 
