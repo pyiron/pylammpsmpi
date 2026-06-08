@@ -270,7 +270,13 @@ class LammpsBase(LammpsConcurrent):
         _ = (
             super()
             .create_atoms(
-                n=n, atomid=atomid, atype=atype, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+                n=n,
+                atomid=atomid,
+                atype=atype,
+                x=x,
+                v=v,
+                image=image,
+                shrinkexceed=shrinkexceed,
             )
             .result()
         )
