@@ -133,7 +133,7 @@ class TestLocalLammpsLibrary(unittest.TestCase):
 
     def test_create_atoms_typeerror(self):
         with self.assertRaises(TypeError):
-            self.lmp.create_atoms(n=1, id=[1], type=[1], x=None)
+            self.lmp.create_atoms(n=1, atomid=[1], atype=[1], x=None)
 
 
 class TestExecutorLammpsLibrary(unittest.TestCase):
