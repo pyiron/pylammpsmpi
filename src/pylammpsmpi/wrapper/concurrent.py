@@ -319,7 +319,13 @@ class LammpsConcurrent:
         else:
             raise TypeError("Value of x cannot be None")
         return self.create_atoms(
-            n=n, atomid=ids, atype=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            n=n,
+            atomid=ids,
+            atype=type,
+            x=x,
+            v=v,
+            image=image,
+            shrinkexceed=shrinkexceed,
         )
 
     def create_atoms(
