@@ -231,8 +231,8 @@ class LammpsBase(LammpsConcurrent):
     def create_atoms(  # type: ignore[override]
         self,
         n: int,
-        id: list[int],
-        type: list[int],
+        atomid: list[int],
+        atype: list[int],
         x: list[float],
         v: Optional[list[float]] = None,
         image: Optional[list[int]] = None,
@@ -245,11 +245,11 @@ class LammpsBase(LammpsConcurrent):
         n : int
             number of atoms
 
-        id : list of ints, optional
+        atomid : list of ints, optional
             ids of N atoms that need to be created
             if not specified, ids from 1 to N are assigned
 
-        type : list of atom types, optional
+        atype : list of atom types, optional
             type of N atoms, if not specified, all atoms are assigned as type 1
 
         x: list of positions
@@ -270,7 +270,7 @@ class LammpsBase(LammpsConcurrent):
         _ = (
             super()
             .create_atoms(
-                n=n, id=id, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+                n=n, atomid=atomid, atype=atype, x=x, v=v, image=image, shrinkexceed=shrinkexceed
             )
             .result()
         )
