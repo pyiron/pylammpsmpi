@@ -319,11 +319,11 @@ class LammpsConcurrent:
         else:
             raise TypeError("Value of x cannot be None")
         return self.create_atoms(
-            n=n, id=ids, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+            n=n, atomid=ids, atype=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
         )
 
     def create_atoms(
-        self, n, id, type, x, v=None, image=None, shrinkexceed=False
+        self, n, atomid, atype, x, v=None, image=None, shrinkexceed=False
     ) -> Future:
         """
         Create atoms on all processors.
@@ -332,9 +332,9 @@ class LammpsConcurrent:
         ----------
         n : int
             Number of atoms.
-        id : list of ints, optional
+        atomid : list of ints, optional
             IDs of N atoms that need to be created.
-        type : list of atom types, optional
+        atype : list of atom types, optional
             Type of N atoms.
         x : list of positions
             List of positions for N atoms.
@@ -350,7 +350,7 @@ class LammpsConcurrent:
         None
         """
         if x is not None:
-            funct_args = [n, id, type, x, v, image, shrinkexceed]
+            funct_args = [n, atomid, atype, x, v, image, shrinkexceed]
             return self._send_and_receive_dict(command="create_atoms", data=funct_args)
         else:
             raise TypeError("Value of x cannot be None")
