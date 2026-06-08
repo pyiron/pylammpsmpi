@@ -72,10 +72,10 @@ class TestMpiBackendExtended(unittest.TestCase):
         self.assertEqual(ret, 1)
 
     def test_extract_variable_error(self):
-        v = select_cmd("extract_variable")(
-            job=self.lmp, funct_args=["var_not_exist", "all", 0]
-        )
-        self.assertIsNone(v)
+        with self.assertRaises(Exception):
+            select_cmd("extract_variable")(
+                job=self.lmp, funct_args=["var_not_exist", "all", 0]
+            )
 
     def test_gather_atoms_concat(self):
         f = select_cmd("gather_atoms_concat")(job=self.lmp, funct_args=["f"])
