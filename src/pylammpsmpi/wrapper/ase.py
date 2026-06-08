@@ -308,8 +308,8 @@ class LammpsASELibrary:
         if self._cores == 1:
             self._interactive_library.create_atoms(
                 n=len(structure),
-                id=None,
-                type=elem_all,
+                atomid=None,
+                atype=elem_all,
                 x=positions,
                 v=velocities,
                 image=None,
@@ -318,8 +318,8 @@ class LammpsASELibrary:
         else:
             self._interactive_library.create_atoms(
                 n=len(structure),
-                id=range(1, len(structure) + 1),
-                type=elem_all,
+                atomid=range(1, len(structure) + 1),
+                atype=elem_all,
                 x=positions,
                 v=velocities,
                 image=None,
