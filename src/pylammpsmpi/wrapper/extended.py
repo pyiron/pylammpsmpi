@@ -1,7 +1,7 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-from typing import Any, Optional
+from typing import Any
 
 from executorlib import BaseExecutor
 
@@ -257,10 +257,10 @@ class LammpsLibrary:
         cores: int = 1,
         oversubscribe: bool = False,
         working_directory: str = ".",
-        hostname_localhost: Optional[bool] = None,
+        hostname_localhost: bool | None = None,
         client: Any = None,
-        cmdargs: Optional[list[str]] = None,
-        executor: Optional[BaseExecutor] = None,
+        cmdargs: list[str] | None = None,
+        executor: BaseExecutor | None = None,
     ) -> None:
         self.cores = cores
         self.working_directory = working_directory

@@ -4,7 +4,7 @@
 import contextlib
 import os
 from concurrent.futures import Future
-from typing import Any, Optional
+from typing import Any
 
 from executorlib import BaseExecutor, SingleNodeExecutor
 
@@ -73,9 +73,9 @@ class LammpsConcurrent:
         cores: int = 8,
         oversubscribe: bool = False,
         working_directory: str = ".",
-        hostname_localhost: Optional[bool] = None,
-        cmdargs: Optional[list[Any]] = None,
-        executor: Optional[BaseExecutor] = None,
+        hostname_localhost: bool | None = None,
+        cmdargs: list[Any] | None = None,
+        executor: BaseExecutor | None = None,
     ):
         """
         Initialize the LammpsConcurrent object.
