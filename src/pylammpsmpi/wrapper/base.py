@@ -2,7 +2,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 from concurrent.futures import Future
-from typing import Any, Optional, Union
+from typing import Any
 
 from pylammpsmpi.wrapper.concurrent import LammpsConcurrent
 
@@ -51,7 +51,7 @@ class LammpsBase(LammpsConcurrent):
         _ = super().file(inputfile=inputfile).result()
 
     # TODO
-    def extract_setting(self, *args) -> Union[int, float, str]:
+    def extract_setting(self, *args) -> int | float | str:
         """
         Extract a setting value
 
@@ -65,7 +65,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_setting(*args), cores=self.cores)
 
-    def extract_global(self, name: str) -> Union[int, float, str]:  # type: ignore[override]
+    def extract_global(self, name: str) -> int | float | str:  # type: ignore[override]
         """
         Extract value of global simulation parameters
 
@@ -79,7 +79,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_global(name=name), cores=self.cores)
 
-    def extract_box(self) -> list[Union[float, list[float], list[int]]]:  # type: ignore[override]
+    def extract_box(self) -> list[float | list[float] | list[int]]:  # type: ignore[override]
         """
         Get the simulation box
 
@@ -94,7 +94,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_box(), cores=self.cores)
 
-    def extract_atom(self, name: str) -> Union[list[int], list[float]]:  # type: ignore[override]
+    def extract_atom(self, name: str) -> list[int] | list[float]:  # type: ignore[override]
         """
         Extract a property of the atoms
 
@@ -109,7 +109,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_atom(name=name), cores=self.cores)
 
-    def extract_fix(self, *args) -> Union[int, float, list[Union[int, float]]]:  # type: ignore[override]
+    def extract_fix(self, *args) -> int | float | list[int | float]:  # type: ignore[override]
         """
         Extract a fix value
 
@@ -123,7 +123,7 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().extract_fix(*args), cores=self.cores)
 
-    def extract_variable(self, *args) -> Union[int, float, list[Union[int, float]]]:  # type: ignore[override]
+    def extract_variable(self, *args) -> int | float | list[int | float]:  # type: ignore[override]
         """
         Extract the value of a variable
 
@@ -187,11 +187,11 @@ class LammpsBase(LammpsConcurrent):
 
     def generate_atoms(  # type: ignore[override]
         self,
-        ids: Optional[list[int]] = None,
-        type: Optional[list[int]] = None,
-        x: Optional[list[float]] = None,
-        v: Optional[list[float]] = None,
-        image: Optional[list[int]] = None,
+        ids: list[int] | None = None,
+        type: list[int] | None = None,
+        x: list[float] | None = None,
+        v: list[float] | None = None,
+        image: list[int] | None = None,
         shrinkexceed: bool = False,
     ) -> None:
         """
@@ -231,11 +231,11 @@ class LammpsBase(LammpsConcurrent):
     def create_atoms(  # type: ignore[override]
         self,
         n: int,
-        id: list[int],
-        type: list[int],
+        atomid: list[int],
+        atype: list[int],
         x: list[float],
-        v: Optional[list[float]] = None,
-        image: Optional[list[int]] = None,
+        v: list[float] | None = None,
+        image: list[int] | None = None,
         shrinkexceed: bool = False,
     ) -> None:
         """
@@ -245,11 +245,11 @@ class LammpsBase(LammpsConcurrent):
         n : int
             number of atoms
 
-        id : list of ints, optional
+        atomid : list of ints, optional
             ids of N atoms that need to be created
             if not specified, ids from 1 to N are assigned
 
-        type : list of atom types, optional
+        atype : list of atom types, optional
             type of N atoms, if not specified, all atoms are assigned as type 1
 
         x: list of positions
@@ -270,7 +270,13 @@ class LammpsBase(LammpsConcurrent):
         _ = (
             super()
             .create_atoms(
-                n=n, id=id, type=type, x=x, v=v, image=image, shrinkexceed=shrinkexceed
+                n=n,
+                atomid=atomid,
+                atype=atype,
+                x=x,
+                v=v,
+                image=image,
+                shrinkexceed=shrinkexceed,
             )
             .result()
         )

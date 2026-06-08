@@ -1,12 +1,12 @@
 channels:
 - conda-forge
 dependencies:
-- lammps =2022.06.23
+- lammps =2025.07.22=*_mpi_openmpi_*
 - openmpi
-- numpy =1.23.5
-- mpi4py =3.1.4
+- numpy =2.4.6
+- mpi4py =4.1.2
 - executorlib =1.9.0
 - ase =3.23.0
-- scipy =1.9.3
+- scipy =1.15.0
 - hatchling
 - hatch-vcs

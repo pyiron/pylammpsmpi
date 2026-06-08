@@ -86,7 +86,7 @@ class TestMpiBackend(unittest.TestCase):
     def test_version(self):
         self.assertTrue(
             select_cmd("get_version")(job=self.lmp, funct_args=[])
-            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829, 20250722]
         )
 
     def test_extract_global(self):

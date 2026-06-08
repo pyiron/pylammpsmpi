@@ -2,7 +2,7 @@ import importlib
 import os
 import warnings
 from ctypes import c_double, c_int
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 import numpy as np
 from ase.atoms import Atoms
@@ -31,15 +31,15 @@ class LammpsASELibrary:
 
     def __init__(
         self,
-        working_directory: Optional[str] = None,
-        hostname_localhost: Optional[bool] = None,
+        working_directory: str | None = None,
+        hostname_localhost: bool | None = None,
         cores: int = 1,
-        comm: Optional[object] = None,
-        logger: Optional[object] = None,
-        log_file: Optional[str] = None,
+        comm: object | None = None,
+        logger: object | None = None,
+        log_file: str | None = None,
         library: Any = None,
         disable_log_file: bool = True,
-        executor: Optional[BaseExecutor] = None,
+        executor: BaseExecutor | None = None,
     ):
         self._logger: Any = logger
         self._prism: Any = None
@@ -308,8 +308,8 @@ class LammpsASELibrary:
         if self._cores == 1:
             self._interactive_library.create_atoms(
                 n=len(structure),
-                id=None,
-                type=elem_all,
+                atomid=None,
+                atype=elem_all,
                 x=positions,
                 v=velocities,
                 image=None,
@@ -318,8 +318,8 @@ class LammpsASELibrary:
         else:
             self._interactive_library.create_atoms(
                 n=len(structure),
-                id=range(1, len(structure) + 1),
-                type=elem_all,
+                atomid=range(1, len(structure) + 1),
+                atype=elem_all,
                 x=positions,
                 v=velocities,
                 image=None,

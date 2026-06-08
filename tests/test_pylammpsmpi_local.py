@@ -29,7 +29,7 @@ class TestLocalLammpsLibrary(unittest.TestCase):
     def test_version(self):
         self.assertTrue(
             self.lmp.version
-            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829, 20250722]
         )
 
     def test_extract_atom(self):
@@ -133,7 +133,7 @@ class TestLocalLammpsLibrary(unittest.TestCase):
 
     def test_create_atoms_typeerror(self):
         with self.assertRaises(TypeError):
-            self.lmp.create_atoms(n=1, id=[1], type=[1], x=None)
+            self.lmp.create_atoms(n=1, atomid=[1], atype=[1], x=None)
 
 
 class TestExecutorLammpsLibrary(unittest.TestCase):
@@ -156,7 +156,15 @@ class TestExecutorLammpsLibrary(unittest.TestCase):
             lmp.file(lammps_file)
             self.assertTrue(
                 lmp.version
-                in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+                in [
+                    20220623,
+                    20230802,
+                    20231121,
+                    20240207,
+                    20240627,
+                    20240829,
+                    20250722,
+                ]
             )
             lmp.close()
 

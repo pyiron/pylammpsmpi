@@ -62,6 +62,6 @@ class TestLammpsInterface(unittest.TestCase):
             call_function_lmp(
                 lmp=lmp, input_dict={"command": "get_version", "args": []}
             )
-            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829]
+            in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829, 20250722]
         )
         self.assertTrue(shutdown_lmp(lmp=lmp))
