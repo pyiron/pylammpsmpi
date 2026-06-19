@@ -1,10 +1,11 @@
+import os
 import unittest
 
 from ase.build import bulk
 from executorlib import SingleNodeExecutor
 from executorlib.api import cloudpickle_register
 
-from pylammpsmpi import LammpsASELibrary
+from pylammpsmpi import LammpsASELibrary, LammpsLibrary
 from pylammpsmpi.wrapper.concurrent import (
     init_function,
     shutdown_lmp,
@@ -65,3 +66,36 @@ class TestLammpsInterface(unittest.TestCase):
             in [20220623, 20230802, 20231121, 20240207, 20240627, 20240829, 20250722]
         )
         self.assertTrue(shutdown_lmp(lmp=lmp))
+
+
+class TestExecutorLammpsLibrary(unittest.TestCase):
+    def test_version(self):
+        execution_path = os.path.dirname(os.path.abspath(__file__))
+        citation_file = os.path.join(execution_path, "citations.txt")
+        lammps_file = os.path.join(execution_path, "in.simple")
+        with SingleNodeExecutor(
+            block_allocation=True,
+            hostname_localhost=True,
+            max_workers=1,
+            init_function=init_function,
+            openmpi_oversubscribe=False,
+            resource_dict={
+                "cores": 2,
+                "cwd": ".",
+            },
+        ) as exe:
+            lmp = LammpsLibrary(cores=2, cmdargs=["-cite", citation_file], executor=exe)
+            lmp.file(lammps_file)
+            self.assertTrue(
+                lmp.version
+                in [
+                    20220623,
+                    20230802,
+                    20231121,
+                    20240207,
+                    20240627,
+                    20240829,
+                    20250722,
+                ]
+            )
+            lmp.close()
