@@ -53,6 +53,30 @@ class TestWithExecutor(unittest.TestCase):
             energy = future.result()
         self.assertAlmostEqual(energy, -0.04342932384411344)
 
+    def test_executor_serial(self):
+        structure = bulk("Al", cubic=True).repeat([2, 2, 2])
+        with SingleNodeExecutor(max_workers=1, hostname_localhost=True) as exe:
+            lmp = LammpsASELibrary(executor=exe)
+            lmp.interactive_structure_setter(
+                structure=structure,
+                units="lj",
+                dimension=3,
+                boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+                atom_style="atomic",
+                el_eam_lst=["Al"],
+                calc_md=False,
+            )
+            lmp.interactive_lib_command("pair_style lj/cut 6.0")
+            lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.04")
+            lmp.interactive_lib_command(
+                command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
+            )
+            lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
+            lmp.interactive_lib_command("run 0")
+            energy_future = lmp.interactive_energy_pot_getter()
+            energy = energy_future.result()
+        self.assertAlmostEqual(energy, -0.04342932384411344)
+
 
 class TestLammpsInterface(unittest.TestCase):
     def test_interface(self):
