@@ -134,6 +134,10 @@ class TestLocalLammpsLibrary(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.lmp.create_atoms(n=1, atomid=[1], atype=[1], x=None)
 
+    def test_attribute_error(self):
+        with self.assertRaises(AttributeError):
+            _ = self.lmp.not_a_real_lammps_attribute
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -134,6 +134,29 @@ class TestLammpsConcurrent(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.lmp.create_atoms(n=1, atomid=[1], atype=[1], x=None)
 
+    def test_extract_setting(self):
+        self.assertEqual(self.lmp.extract_setting("nlocal").result(), 256)
+        self.assertEqual(self.lmp.extract_setting("ntypes").result(), 1)
+
+    def test_command_list(self):
+        self.lmp.command(
+            ["variable cmdtest equal 1", "variable cmdtest delete"]
+        ).result()
+        self.assertEqual(self.lmp.get_natoms().result(), 256)
+
+    def test_command_multiline_string(self):
+        self.lmp.command("variable cmdtest2 equal 2\nvariable cmdtest2 delete").result()
+        self.assertEqual(self.lmp.get_natoms().result(), 256)
+
+    def test_neighlist(self):
+        idx = self.lmp.find_pair_neighlist("lj/cut").result()
+        self.assertIsInstance(idx, int)
+        self.assertGreaterEqual(idx, 0)
+        size = self.lmp.get_neighlist_size(idx).result()
+        self.assertEqual(size, 256)
+        self.assertIsInstance(self.lmp.find_fix_neighlist("2").result(), int)
+        self.assertIsInstance(self.lmp.find_compute_neighlist("ke").result(), int)
+
 
 if __name__ == "__main__":
     unittest.main()
