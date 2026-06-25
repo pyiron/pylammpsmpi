@@ -288,6 +288,85 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(working_directory, "log.lammps")))
         os.remove(os.path.join(working_directory, "log.lammps"))
 
+    def test_interactive_indices_setter(self):
+        lmp = LammpsASELibrary(
+            working_directory=None,
+            hostname_localhost=True,
+            cores=1,
+            comm=None,
+            logger=None,
+            log_file=None,
+            library=LammpsLibrary(cores=2),
+            disable_log_file=True,
+        )
+        structure = bulk("Al", a=4.0, cubic=True).repeat([2, 2, 2])
+        chemical_symbol_lst = np.array(structure.get_chemical_symbols())
+        chemical_symbol_lst[:4] = "Au"
+        structure.set_chemical_symbols(chemical_symbol_lst)
+        el_eam_lst = ["Al", "Au"]
+        lmp.interactive_structure_setter(
+            structure=structure,
+            units="lj",
+            dimension=3,
+            boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+            atom_style="atomic",
+            el_eam_lst=el_eam_lst,
+            calc_md=False,
+        )
+        lmp.interactive_lib_command("pair_style lj/cut 6.0")
+        lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.0")
+        lmp.interactive_lib_command("pair_coeff 1 2 1.0 1.5 4.0")
+        lmp.interactive_lib_command("pair_coeff 2 2 1.0 2.0 4.0")
+        lmp.interactive_lib_command(
+            command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
+        )
+        lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
+        lmp.interactive_lib_command("run 0")
+        original_types = lmp.interactive_indices_getter()
+        self.assertTrue(np.any(original_types == 2))
+
+        # remap every atom onto the first species in el_eam_lst ("Al")
+        all_al_indices = np.zeros(len(structure), dtype=int)
+        lmp.interactive_indices_setter(indices=all_al_indices, el_eam_lst=el_eam_lst)
+        updated_types = lmp.interactive_indices_getter()
+        self.assertTrue(np.all(updated_types == 1))
+        self.assertFalse(np.array_equal(original_types, updated_types))
+        lmp.close()
+
+    def test_interactive_stress_getter(self):
+        lmp = LammpsASELibrary(
+            working_directory=None,
+            hostname_localhost=True,
+            cores=1,
+            comm=None,
+            logger=None,
+            log_file=None,
+            library=LammpsLibrary(cores=2),
+            disable_log_file=True,
+        )
+        structure = bulk("Al", cubic=True).repeat([2, 2, 2])
+        lmp.interactive_structure_setter(
+            structure=structure,
+            units="lj",
+            dimension=3,
+            boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
+            atom_style="atomic",
+            el_eam_lst=["Al"],
+            calc_md=False,
+        )
+        lmp.interactive_lib_command("pair_style lj/cut 6.0")
+        lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.04")
+        lmp.interactive_lib_command(
+            command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
+        )
+        lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
+        lmp.interactive_lib_command("run 0")
+        stress = lmp.interactive_stress_getter()
+        self.assertEqual(stress.shape, (len(structure), 3, 3))
+        self.assertTrue(np.all(np.isfinite(stress)))
+        self.assertTrue(np.allclose(stress, np.transpose(stress, axes=(0, 2, 1))))
+        lmp.close()
+
 
 class TestASEHelperFunctions(unittest.TestCase):
     @classmethod

@@ -310,11 +310,11 @@ class LammpsBase(LammpsConcurrent):
         _ = super().set_fix_external_callback(*args).result()
 
     def get_neighlist(self, *args):
-        """Returns an instance of :class:`NeighList` which wraps access to the neighbor list with the given index
+        """Returns the neighbor list with the given index as a plain Python structure
         :param idx: index of neighbor list
         :type  idx: int
-        :return: an instance of :class:`NeighList` wrapping access to neighbor list data
-        :rtype:  NeighList
+        :return: list of (atom local index, list of neighbor local atom indices) tuples, or None if idx < 0
+        :rtype:  list[tuple[int, list[int]]] | None
         """
         return get_result(future=super().get_neighlist(*args), cores=self.cores)
 
@@ -374,6 +374,14 @@ class LammpsBase(LammpsConcurrent):
         return get_result(future=super().get_neighlist_size(*args), cores=self.cores)
 
     def get_neighlist_element_neighbors(self, *args):
+        """Return data of neighbor list entry
+        :param idx: neighbor list index
+        :type  idx: int
+        :param element: neighbor list element index
+        :type  element: int
+        :return: tuple with atom local index and list of neighbor local atom indices
+        :rtype:  tuple[int, list[int]]
+        """
         return get_result(
             future=super().get_neighlist_element_neighbors(*args), cores=self.cores
         )

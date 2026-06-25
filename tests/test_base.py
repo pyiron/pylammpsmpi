@@ -135,6 +135,27 @@ class TestLammpsBase(unittest.TestCase):
     def test_get_thermo(self):
         self.assertEqual(float(self.lmp.get_thermo("temp")), 1.1298532212880312)
 
+    def test_extract_setting(self):
+        self.assertEqual(self.lmp.extract_setting("nlocal"), 256)
+        self.assertEqual(self.lmp.extract_setting("ntypes"), 1)
+
+    def test_command_list(self):
+        self.lmp.command(["variable cmdtest equal 1", "variable cmdtest delete"])
+        self.assertEqual(self.lmp.get_natoms(), 256)
+
+    def test_command_multiline_string(self):
+        self.lmp.command("variable cmdtest2 equal 2\nvariable cmdtest2 delete")
+        self.assertEqual(self.lmp.get_natoms(), 256)
+
+    def test_neighlist(self):
+        idx = self.lmp.find_pair_neighlist("lj/cut")
+        self.assertIsInstance(idx, int)
+        self.assertGreaterEqual(idx, 0)
+        size = self.lmp.get_neighlist_size(idx)
+        self.assertEqual(size, 256)
+        self.assertIsInstance(self.lmp.find_fix_neighlist("2"), int)
+        self.assertIsInstance(self.lmp.find_compute_neighlist("ke"), int)
+
 
 if __name__ == "__main__":
     unittest.main()

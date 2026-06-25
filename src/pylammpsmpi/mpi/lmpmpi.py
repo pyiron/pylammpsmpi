@@ -311,7 +311,19 @@ def set_fix_external_callback(job, funct_args):
 
 
 def get_neighlist(job, funct_args):
-    return job.get_neighlist(*funct_args)
+    """
+    Convert the NeighList into a plain, picklable list of
+    (atom index, list of neighbor indices) tuples, since the NeighList
+    object itself holds a reference to the lammps instance and cannot be
+    pickled across the executor process boundary.
+    """
+    neighlist = job.get_neighlist(*funct_args)
+    if neighlist is None:
+        return None
+    return [
+        (iatom, [neighbors[k] for k in range(numneigh)])
+        for iatom, numneigh, neighbors in neighlist
+    ]
 
 
 def find_pair_neighlist(job, funct_args):
@@ -331,7 +343,13 @@ def get_neighlist_size(job, funct_args):
 
 
 def get_neighlist_element_neighbors(job, funct_args):
-    return job.get_neighlist_element_neighbors(*funct_args)
+    """
+    Convert the ctypes c_int pointer to neighbor indices into a plain
+    Python list, since ctypes objects containing pointers cannot be
+    pickled across the executor process boundary.
+    """
+    iatom, numneigh, neighbors = job.get_neighlist_element_neighbors(*funct_args)
+    return iatom, [neighbors[k] for k in range(numneigh)]
 
 
 def get_thermo(job, funct_args):
