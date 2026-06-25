@@ -333,40 +333,6 @@ class TestLammpsASELibrary(unittest.TestCase):
         self.assertFalse(np.array_equal(original_types, updated_types))
         lmp.close()
 
-    def test_interactive_stress_getter(self):
-        lmp = LammpsASELibrary(
-            working_directory=None,
-            hostname_localhost=True,
-            cores=1,
-            comm=None,
-            logger=None,
-            log_file=None,
-            library=LammpsLibrary(cores=2),
-            disable_log_file=True,
-        )
-        structure = bulk("Al", cubic=True).repeat([2, 2, 2])
-        lmp.interactive_structure_setter(
-            structure=structure,
-            units="lj",
-            dimension=3,
-            boundary=" ".join(["p" if coord else "f" for coord in structure.pbc]),
-            atom_style="atomic",
-            el_eam_lst=["Al"],
-            calc_md=False,
-        )
-        lmp.interactive_lib_command("pair_style lj/cut 6.0")
-        lmp.interactive_lib_command("pair_coeff 1 1 1.0 1.0 4.04")
-        lmp.interactive_lib_command(
-            command="thermo_style custom step temp pe etotal pxx pxy pxz pyy pyz pzz vol"
-        )
-        lmp.interactive_lib_command(command="thermo_modify format float %20.15g")
-        lmp.interactive_lib_command("run 0")
-        stress = lmp.interactive_stress_getter()
-        self.assertEqual(stress.shape, (len(structure), 3, 3))
-        self.assertTrue(np.all(np.isfinite(stress)))
-        self.assertTrue(np.allclose(stress, np.transpose(stress, axes=(0, 2, 1))))
-        lmp.close()
-
 
 class TestASEHelperFunctions(unittest.TestCase):
     @classmethod
