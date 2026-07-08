@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - openmpi
-- hatchling =1.30.1
+- hatchling =1.31.0
 - hatch-vcs =0.5.0
 - numpy =2.4.6
 - lammps =2025.07.22=*_mpi_openmpi_*
