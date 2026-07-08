@@ -56,7 +56,7 @@ class LammpsASELibrary:
         if library is not None:
             self._interactive_library: Any = library
             self._cores = library.cores
-        elif self._cores == 1:
+        elif self._cores == 1 and executor is None:
             lammps = importlib.import_module("lammps").lammps
             self._interactive_library = lammps(
                 cmdargs=cmdargs,
