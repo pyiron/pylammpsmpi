@@ -8,7 +8,10 @@ from pylammpsmpi import LammpsConcurrent
 try:
     import lammps.mliap  # noqa: F401
 
-    _HAS_MLIAP = True
+    if os.name == "darwin":
+        _HAS_MLIAP = False
+    else:
+        _HAS_MLIAP = True
 except ImportError:
     _HAS_MLIAP = False
 
