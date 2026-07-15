@@ -669,6 +669,21 @@ class LammpsConcurrent:
         args = [id, style, type, length, width]
         return self._send_and_receive_dict(command="extract_compute", data=args)
 
+    def activate_mliappy(self) -> Future:
+        """
+        Activate the ML-IAP python coupling module, so that pair_style mliap
+        can load a python model via lammps.mliap.loader.load_model()/load_unified().
+
+        This must be called before a `pair_style mliap ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        return self._send_and_receive_dict(command="activate_mliappy", data=[])
+
     def close(self):
         """
         Close the current lammps object

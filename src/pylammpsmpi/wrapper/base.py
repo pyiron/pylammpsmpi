@@ -463,6 +463,21 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().get_thermo(*args), cores=self.cores)
 
+    def activate_mliappy(self) -> None:
+        """
+        Activate the ML-IAP python coupling module, so that pair_style mliap
+        can load a python model via lammps.mliap.loader.load_model()/load_unified().
+
+        This must be called before a `pair_style mliap ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().activate_mliappy().result()
+
     # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
         """
