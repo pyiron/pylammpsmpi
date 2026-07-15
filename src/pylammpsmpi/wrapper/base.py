@@ -478,6 +478,22 @@ class LammpsBase(LammpsConcurrent):
         """
         _ = super().activate_mliappy().result()
 
+    def activate_mliappy_kokkos(self):
+        """
+        Activate the ML-IAP python coupling module for the KOKKOS package, so that
+        pair_style mliap/kk can load a python model via
+        lammps.mliap.loader.load_model_kokkos()/load_unified_kokkos().
+
+        This must be called before a `pair_style mliap/kk ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().activate_mliappy_kokkos().result()
+
     # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
         """

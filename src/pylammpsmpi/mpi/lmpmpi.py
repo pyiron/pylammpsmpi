@@ -415,6 +415,13 @@ def activate_mliappy(job, funct_args):
     return 1
 
 
+def activate_mliappy_kokkos(job, funct_args):
+    from lammps.mliap import activate_mliappy_kokkos as _activate_mliappy_kokkos  # noqa: PLC0415
+
+    _activate_mliappy_kokkos(job)
+    return 1
+
+
 def select_cmd(argument):
     """
     Select a lammps command
@@ -464,6 +471,7 @@ def select_cmd(argument):
             command,
             gather_atoms,
             activate_mliappy,
+            activate_mliappy_kokkos,
         ]
     }
     return switcher.get(argument)

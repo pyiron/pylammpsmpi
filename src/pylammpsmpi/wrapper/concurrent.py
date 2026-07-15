@@ -684,6 +684,22 @@ class LammpsConcurrent:
         """
         return self._send_and_receive_dict(command="activate_mliappy", data=[])
 
+    def activate_mliappy_kokkos(self) -> Future:
+        """
+        Activate the ML-IAP python coupling module for the KOKKOS package, so that
+        pair_style mliap/kk can load a python model via
+        lammps.mliap.loader.load_model_kokkos()/load_unified_kokkos().
+
+        This must be called before a `pair_style mliap/kk ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        return self._send_and_receive_dict(command="activate_mliappy_kokkos", data=[])
+
     def close(self):
         """
         Close the current lammps object
