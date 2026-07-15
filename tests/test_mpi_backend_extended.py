@@ -186,6 +186,16 @@ class TestMpiBackendExtended(unittest.TestCase):
         )
         self.assertEqual(ret_lammps, 1)
 
+    def test_activate_mliappy(self):
+        from unittest.mock import MagicMock, patch
+
+        mock_mliap = MagicMock()
+        mock_mliap.activate_mliappy = MagicMock(return_value=None)
+        with patch.dict("sys.modules", {"lammps.mliap": mock_mliap}):
+            result = select_cmd("activate_mliappy")(job=self.lmp, funct_args=[])
+        self.assertEqual(result, 1)
+        mock_mliap.activate_mliappy.assert_called_once_with(self.lmp)
+
 
 if __name__ == "__main__":
     unittest.main()

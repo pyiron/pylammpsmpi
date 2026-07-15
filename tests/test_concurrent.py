@@ -5,6 +5,13 @@ import numpy as np
 
 from pylammpsmpi import LammpsConcurrent
 
+try:
+    import lammps.mliap  # noqa: F401
+
+    _HAS_MLIAP = True
+except ImportError:
+    _HAS_MLIAP = False
+
 
 class TestLammpsConcurrent(unittest.TestCase):
     @classmethod
@@ -156,6 +163,12 @@ class TestLammpsConcurrent(unittest.TestCase):
         self.assertEqual(size, 256)
         self.assertIsInstance(self.lmp.find_fix_neighlist("2").result(), int)
         self.assertIsInstance(self.lmp.find_compute_neighlist("ke").result(), int)
+
+    @unittest.skipUnless(_HAS_MLIAP, "lammps.mliap not available")
+    def test_activate_mliappy(self):
+        future = self.lmp.activate_mliappy()
+        result = future.result()
+        self.assertEqual(result, 1)
 
 
 if __name__ == "__main__":

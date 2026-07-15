@@ -8,6 +8,13 @@ import numpy as np
 
 from pylammpsmpi import LammpsBase
 
+try:
+    import lammps.mliap  # noqa: F401
+
+    _HAS_MLIAP = True
+except ImportError:
+    _HAS_MLIAP = False
+
 
 class TestLammpsBase(unittest.TestCase):
     @classmethod
@@ -155,6 +162,11 @@ class TestLammpsBase(unittest.TestCase):
         self.assertEqual(size, 256)
         self.assertIsInstance(self.lmp.find_fix_neighlist("2"), int)
         self.assertIsInstance(self.lmp.find_compute_neighlist("ke"), int)
+
+    @unittest.skipUnless(_HAS_MLIAP, "lammps.mliap not available")
+    def test_activate_mliappy(self):
+        result = self.lmp.activate_mliappy()
+        self.assertIsNone(result)
 
 
 if __name__ == "__main__":
