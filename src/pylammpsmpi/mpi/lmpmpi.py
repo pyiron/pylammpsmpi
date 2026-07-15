@@ -416,7 +416,9 @@ def activate_mliappy(job, funct_args):
 
 
 def activate_mliappy_kokkos(job, funct_args):
-    from lammps.mliap import activate_mliappy_kokkos as _activate_mliappy_kokkos  # noqa: PLC0415
+    from lammps.mliap import (
+        activate_mliappy_kokkos as _activate_mliappy_kokkos,  # noqa: PLC0415
+    )
 
     _activate_mliappy_kokkos(job)
     return 1
