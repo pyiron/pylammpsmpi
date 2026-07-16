@@ -181,6 +181,12 @@ class TestLammpsConcurrent(unittest.TestCase):
         result = future.result()
         self.assertEqual(result, 1)
 
+    @unittest.skipUnless(_HAS_MLIAP, "lammps.mliap not available")
+    def test_activate_mliappy_kokkos(self):
+        future = self.lmp.activate_mliappy_kokkos()
+        result = future.result()
+        self.assertEqual(result, 1)
+
     @unittest.skipUnless(
         _HAS_MLIAP and _HAS_TORCH, "lammps.mliap or torch not available"
     )

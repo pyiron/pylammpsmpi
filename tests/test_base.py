@@ -179,6 +179,12 @@ class TestLammpsBase(unittest.TestCase):
         result = self.lmp.activate_mliappy()
         self.assertIsNone(result)
 
+    @unittest.skipUnless(_HAS_MLIAP, "lammps.mliap not available")
+    def test_activate_mliappy_kokkos(self):
+        result = self.lmp.activate_mliappy_kokkos()
+        self.assertIsNone(result)
+
+
     @unittest.skipUnless(
         _HAS_MLIAP and _HAS_TORCH, "lammps.mliap or torch not available"
     )
