@@ -19,6 +19,13 @@ try:
 except ImportError:
     _HAS_MLIAP = False
 
+try:
+    import torch  # noqa: F401
+
+    _HAS_TORCH = True
+except ImportError:
+    _HAS_TORCH = False
+
 
 class TestLammpsBase(unittest.TestCase):
     @classmethod
@@ -171,6 +178,66 @@ class TestLammpsBase(unittest.TestCase):
     def test_activate_mliappy(self):
         result = self.lmp.activate_mliappy()
         self.assertIsNone(result)
+
+    @unittest.skipUnless(
+        _HAS_MLIAP and _HAS_TORCH, "lammps.mliap or torch not available"
+    )
+    def test_mliappy_pytorch_workflow(self):
+        # Follows lammps/lammps examples/mliap/mliap_pytorch_Ta06A.py: load a
+        # PyTorch SNAP model through the ML-IAP python coupling and run a few
+        # steps of MD. Ta06A.mliap.descriptor/.pt are vendored from that
+        # LAMMPS example (GPL-licensed, used here only as test fixtures).
+        descriptor_file = os.path.join(self.execution_path, "Ta06A.mliap.descriptor")
+        model_file = os.path.join(self.execution_path, "Ta06A.mliap.pytorch.model.pt")
+
+        self.lmp.command("clear")
+        try:
+            self.lmp.activate_mliappy()
+            self.lmp.command(
+                f"""
+units           metal
+boundary        p p p
+lattice         bcc 3.316
+region          box block 0 4 0 4 0 4
+create_box      1 box
+create_atoms    1 box
+mass 1 180.88
+pair_style hybrid/overlay zbl 4 4.8 mliap model mliappy LATER descriptor sna {descriptor_file}
+pair_coeff 1 1 zbl 73 73
+pair_coeff * * mliap Ta
+"""
+            )
+
+            model = torch.load(model_file, weights_only=False)
+            self.lmp.mliappy_load_model(model)
+
+            self.lmp.command(
+                """
+compute  eatom all pe/atom
+compute  energy all reduce sum c_eatom
+thermo_style    custom step temp epair c_energy etotal press
+thermo          5
+thermo_modify norm yes
+timestep 0.5e-3
+neighbor 1.0 bin
+neigh_modify once no every 1 delay 0 check yes
+velocity all create 300.0 4928459 loop geom
+fix 1 all nve
+run 0
+"""
+            )
+
+            self.assertEqual(self.lmp.get_natoms(), 128)
+            self.assertEqual(self.lmp.get_thermo("temp"), 300.0)
+            self.assertAlmostEqual(self.lmp.get_thermo("pe"), -11.85157, places=4)
+
+            self.lmp.command("run 10")
+            final_temp = self.lmp.get_thermo("temp")
+            self.assertTrue(np.isfinite(final_temp))
+            self.assertLess(final_temp, 300.0)
+        finally:
+            self.lmp.command("clear")
+            self.lmp.file(self.lammps_file)
 
 
 if __name__ == "__main__":

@@ -8,5 +8,6 @@ dependencies:
 - executorlib =1.9.0
 - ase =3.23.0
 - scipy =1.15.0
+- pytorch-cpu
 - hatchling
 - hatch-vcs
