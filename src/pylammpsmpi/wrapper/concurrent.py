@@ -117,6 +117,7 @@ class LammpsConcurrent:
         if cmdargs is None:
             cmdargs = []
         self._exe.submit(start_lmp, argument_lst=cmdargs).result()
+        self._mliappy_activated = False
 
     def _send_and_receive_dict(self, command, data=None):
         return self._exe.submit(
@@ -682,6 +683,7 @@ class LammpsConcurrent:
         -------
         None
         """
+        self._mliappy_activated = True
         return self._send_and_receive_dict(command="activate_mliappy", data=[])
 
     def activate_mliappy_kokkos(self) -> Future:
@@ -698,7 +700,84 @@ class LammpsConcurrent:
         -------
         None
         """
+        self._mliappy_activated = True
         return self._send_and_receive_dict(command="activate_mliappy_kokkos", data=[])
+
+    def mliappy_load_model(self, *args) -> Future:
+        """
+        Load a ML-IAP model via the ML-IAP python coupling module.
+
+        This must be called after `activate_mliappy()` or `activate_mliappy_kokkos()`
+        has been called, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        if not self._mliappy_activated:
+            raise RuntimeError(
+                "ML-IAP python coupling module is not activated. "
+                "Call activate_mliappy() or activate_mliappy_kokkos() first."
+            )
+        return self._send_and_receive_dict(command="mliappy_load_model", data=list(args))
+    
+    def mliappy_load_model_kokkos(self, *args) -> Future:
+        """
+        Load a ML-IAP model via the ML-IAP python coupling module for the KOKKOS package.
+
+        This must be called after `activate_mliappy()` or `activate_mliappy_kokkos()`
+        has been called, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        if not self._mliappy_activated:
+            raise RuntimeError(
+                "ML-IAP python coupling module is not activated. "
+                "Call activate_mliappy() or activate_mliappy_kokkos() first."
+            )
+        return self._send_and_receive_dict(command="mliappy_load_model_kokkos", data=list(args))
+    
+    def mliappy_load_unified(self, *args) -> Future:
+        """
+        Load a ML-IAP unified model via the ML-IAP python coupling module.
+
+        This must be called after `activate_mliappy()` or `activate_mliappy_kokkos()`
+        has been called, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        if not self._mliappy_activated:
+            raise RuntimeError(
+                "ML-IAP python coupling module is not activated. "
+                "Call activate_mliappy() or activate_mliappy_kokkos() first."
+            )
+        return self._send_and_receive_dict(command="mliappy_load_unified", data=list(args))
+    
+    def mliappy_load_unified_kokkos(self, *args) -> Future:
+        """
+        Load a ML-IAP unified model via the ML-IAP python coupling module for the KOKKOS package.
+
+        This must be called after `activate_mliappy()` or `activate_mliappy_kokkos()`
+        has been called, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        if not self._mliappy_activated:
+            raise RuntimeError(
+                "ML-IAP python coupling module is not activated. "
+                "Call activate_mliappy() or activate_mliappy_kokkos() first."
+            )
+        return self._send_and_receive_dict(command="mliappy_load_unified_kokkos", data=list(args))
 
     def close(self):
         """

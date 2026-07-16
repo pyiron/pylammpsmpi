@@ -494,6 +494,62 @@ class LammpsBase(LammpsConcurrent):
         """
         _ = super().activate_mliappy_kokkos().result()
 
+    def mliappy_load_model(self, *args):
+        """
+        Load a python model for the ML-IAP python coupling module.
+
+        This must be called after a `pair_style mliap ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_model(*args).result()
+
+    def mliappy_load_model_kokkos(self, *args):
+        """
+        Load a python model for the ML-IAP python coupling module for the KOKKOS package.
+
+        This must be called after a `pair_style mliap/kk ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_model_kokkos(*args).result()
+
+    def mliappy_load_unified(self, *args):
+        """
+        Load a unified model for the ML-IAP python coupling module.
+
+        This must be called after a `pair_style mliap ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_unified(*args).result()
+
+    def mliappy_load_unified_kokkos(self, *args):
+        """
+        Load a unified model for the ML-IAP python coupling module for the KOKKOS package.
+
+        This must be called after a `pair_style mliap/kk ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_unified_kokkos(*args).result()
+
     # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
         """

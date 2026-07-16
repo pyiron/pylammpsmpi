@@ -422,6 +422,38 @@ def activate_mliappy_kokkos(job, funct_args):
     return 1
 
 
+def mliappy_load_model(job, funct_args):
+    from lammps.mliap import load_model as _load  # noqa: PLC0415
+
+    model = funct_args[0]
+    _load(model)
+    return 1
+
+
+def mliappy_load_model_kokkos(job, funct_args):
+    from lammps.mliap import load_model_kokkos as _load  # noqa: PLC0415
+
+    model = funct_args[0]
+    _load(model)
+    return 1
+
+
+def mliappy_load_unified(job, funct_args):
+    from lammps.mliap import load_unified as _load  # noqa: PLC0415
+
+    model = funct_args[0]
+    _load(model)
+    return 1
+
+
+def mliappy_load_unified_kokkos(job, funct_args):
+    from lammps.mliap import load_unified_kokkos as _load  # noqa: PLC0415
+
+    model = funct_args[0]
+    _load(model)
+    return 1
+
+
 def select_cmd(argument):
     """
     Select a lammps command
@@ -472,6 +504,10 @@ def select_cmd(argument):
             gather_atoms,
             activate_mliappy,
             activate_mliappy_kokkos,
+            mliappy_load_model,
+            mliappy_load_model_kokkos,
+            mliappy_load_unified,
+            mliappy_load_unified_kokkos,
         ]
     }
     return switcher.get(argument)
