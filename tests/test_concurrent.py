@@ -190,9 +190,7 @@ class TestLammpsConcurrent(unittest.TestCase):
         # steps of MD. Ta06A.mliap.descriptor/.pt are vendored from that
         # LAMMPS example (GPL-licensed, used here only as test fixtures).
         descriptor_file = os.path.join(self.execution_path, "Ta06A.mliap.descriptor")
-        model_file = os.path.join(
-            self.execution_path, "Ta06A.mliap.pytorch.model.pt"
-        )
+        model_file = os.path.join(self.execution_path, "Ta06A.mliap.pytorch.model.pt")
 
         self.lmp.command("clear").result()
         try:
