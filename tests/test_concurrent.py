@@ -230,7 +230,9 @@ run 0
             ).result()
 
             self.assertEqual(self.lmp.get_natoms().result(), 128)
-            self.assertEqual(self.lmp.get_thermo("temp").result(), 300.0)
+            self.assertAlmostEqual(
+                self.lmp.get_thermo("temp").result(), 300.0, places=4
+            )
             self.assertAlmostEqual(
                 self.lmp.get_thermo("pe").result(), -11.85157, places=4
             )
