@@ -4,7 +4,7 @@ dependencies:
 - openmpi
 - hatchling =1.31.0
 - hatch-vcs =0.5.0
-- numpy =2.4.6
+- numpy =2.5.1
 - lammps =2025.07.22=*_mpi_openmpi_*
 - mpi4py =4.1.2
 - executorlib =1.10.1

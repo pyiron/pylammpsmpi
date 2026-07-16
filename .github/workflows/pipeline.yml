@@ -48,7 +48,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           architecture: x64
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,7 +66,7 @@ jobs:
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: "3.12"
+        python-version: "3.14"
         miniforge-version: latest
         condarc-file: .condarc
         environment-file: .ci_support/environment-openmpi.yml
@@ -91,7 +91,7 @@ jobs:
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: "3.12"
+        python-version: "3.14"
         miniforge-version: latest
         condarc-file: .condarc
         environment-file: .ci_support/environment-openmpi.yml
@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.12', '3.13', '3.14']
     steps:
     - uses: actions/checkout@v4
     - name: Conda config
@@ -136,7 +136,7 @@ jobs:
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.13'
+        python-version: '3.14'
         miniforge-version: latest
         condarc-file: .condarc
         environment-file: .ci_support/environment-mpich.yml
@@ -152,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.12', '3.13', '3.14']
     steps:
     - uses: actions/checkout@v4
     - name: Conda config
@@ -179,7 +179,7 @@ jobs:
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.13'
+        python-version: '3.14'
         miniforge-version: latest
         condarc-file: .condarc
         environment-file: .ci_support/environment-openmpi.yml
