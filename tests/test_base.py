@@ -26,6 +26,13 @@ try:
 except ImportError:
     _HAS_TORCH = False
 
+try:
+    from lammps.mliap.mliap_unified_lj import MLIAPUnifiedLJ  # noqa: F401
+
+    _HAS_MLIAP_UNIFIED_LJ = True
+except ImportError:
+    _HAS_MLIAP_UNIFIED_LJ = False
+
 
 class TestLammpsBase(unittest.TestCase):
     @classmethod
@@ -235,6 +242,66 @@ run 0
             final_temp = self.lmp.get_thermo("temp")
             self.assertTrue(np.isfinite(final_temp))
             self.assertLess(final_temp, 300.0)
+        finally:
+            self.lmp.command("clear")
+            self.lmp.file(self.lammps_file)
+
+    @unittest.skipUnless(
+        _HAS_MLIAP and _HAS_MLIAP_UNIFIED_LJ,
+        "lammps.mliap.mliap_unified_lj not available",
+    )
+    def test_mliappy_unified_lj_workflow(self):
+        # Follows lammps/lammps examples/mliap/mliap_unified_lj_Ar.py: activate
+        # the ML-IAP python coupling and connect the bundled analytic LJ
+        # reference implementation (MLIAPUnifiedLJ) via the "unified" pair
+        # style, then check that a short NVE run conserves total energy.
+        self.lmp.command("clear")
+        try:
+            self.lmp.activate_mliappy()
+            self.lmp.command(
+                """
+units           lj
+atom_style      atomic
+lattice         fcc 0.8442
+region          box block 0 4 0 4 0 4
+create_box      1 box
+create_atoms    1 box
+mass            1 1.0
+velocity        all create 3.0 87287 loop geom
+"""
+            )
+
+            unified = MLIAPUnifiedLJ(["Ar"])
+            self.lmp.mliappy_load_unified(unified)
+
+            self.lmp.command(
+                """
+pair_style      mliap unified EXISTS
+pair_coeff      * * Ar
+neighbor        0.3 bin
+neigh_modify    every 20 delay 0 check no
+fix             1 all nve
+thermo          5
+"""
+            )
+
+            self.assertEqual(self.lmp.get_natoms(), 256)
+
+            self.lmp.command("run 0")
+            etotal_initial = self.lmp.get_thermo("etotal")
+            self.assertTrue(np.isfinite(etotal_initial))
+
+            self.lmp.command("run 10")
+            temp_final = self.lmp.get_thermo("temp")
+            etotal_final = self.lmp.get_thermo("etotal")
+
+            self.assertTrue(np.isfinite(temp_final))
+            self.assertTrue(np.isfinite(etotal_final))
+            self.assertAlmostEqual(
+                etotal_final,
+                etotal_initial,
+                delta=max(0.1, abs(etotal_initial) * 0.05),
+            )
         finally:
             self.lmp.command("clear")
             self.lmp.file(self.lammps_file)
