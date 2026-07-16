@@ -720,8 +720,10 @@ class LammpsConcurrent:
                 "ML-IAP python coupling module is not activated. "
                 "Call activate_mliappy() or activate_mliappy_kokkos() first."
             )
-        return self._send_and_receive_dict(command="mliappy_load_model", data=list(args))
-    
+        return self._send_and_receive_dict(
+            command="mliappy_load_model", data=list(args)
+        )
+
     def mliappy_load_model_kokkos(self, *args) -> Future:
         """
         Load a ML-IAP model via the ML-IAP python coupling module for the KOKKOS package.
@@ -739,8 +741,10 @@ class LammpsConcurrent:
                 "ML-IAP python coupling module is not activated. "
                 "Call activate_mliappy() or activate_mliappy_kokkos() first."
             )
-        return self._send_and_receive_dict(command="mliappy_load_model_kokkos", data=list(args))
-    
+        return self._send_and_receive_dict(
+            command="mliappy_load_model_kokkos", data=list(args)
+        )
+
     def mliappy_load_unified(self, *args) -> Future:
         """
         Load a ML-IAP unified model via the ML-IAP python coupling module.
@@ -758,8 +762,10 @@ class LammpsConcurrent:
                 "ML-IAP python coupling module is not activated. "
                 "Call activate_mliappy() or activate_mliappy_kokkos() first."
             )
-        return self._send_and_receive_dict(command="mliappy_load_unified", data=list(args))
-    
+        return self._send_and_receive_dict(
+            command="mliappy_load_unified", data=list(args)
+        )
+
     def mliappy_load_unified_kokkos(self, *args) -> Future:
         """
         Load a ML-IAP unified model via the ML-IAP python coupling module for the KOKKOS package.
@@ -777,7 +783,9 @@ class LammpsConcurrent:
                 "ML-IAP python coupling module is not activated. "
                 "Call activate_mliappy() or activate_mliappy_kokkos() first."
             )
-        return self._send_and_receive_dict(command="mliappy_load_unified_kokkos", data=list(args))
+        return self._send_and_receive_dict(
+            command="mliappy_load_unified_kokkos", data=list(args)
+        )
 
     def close(self):
         """
