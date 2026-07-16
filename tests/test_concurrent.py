@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 
 import numpy as np
@@ -8,7 +9,7 @@ from pylammpsmpi import LammpsConcurrent
 try:
     import lammps.mliap  # noqa: F401
 
-    if os.name == "darwin":
+    if sys.platform == "darwin":
         _HAS_MLIAP = False
     else:
         _HAS_MLIAP = True
