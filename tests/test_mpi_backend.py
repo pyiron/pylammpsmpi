@@ -134,6 +134,9 @@ class TestMpiBackend(unittest.TestCase):
         self.assertIn("KSPACE", packages)
         self.assertIn("MC", packages)
 
+    def test_activate_mliappy_registered(self):
+        self.assertIsNotNone(select_cmd("activate_mliappy"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,9 +1,27 @@
 import os
+import sys
 import unittest
 
 import numpy as np
 
 from pylammpsmpi import LammpsConcurrent
+
+try:
+    import lammps.mliap  # noqa: F401
+
+    if sys.platform == "darwin":
+        _HAS_MLIAP = False
+    else:
+        _HAS_MLIAP = True
+except ImportError:
+    _HAS_MLIAP = False
+
+try:
+    import torch  # noqa: F401
+
+    _HAS_TORCH = True
+except ImportError:
+    _HAS_TORCH = False
 
 
 class TestLammpsConcurrent(unittest.TestCase):
@@ -156,6 +174,76 @@ class TestLammpsConcurrent(unittest.TestCase):
         self.assertEqual(size, 256)
         self.assertIsInstance(self.lmp.find_fix_neighlist("2").result(), int)
         self.assertIsInstance(self.lmp.find_compute_neighlist("ke").result(), int)
+
+    @unittest.skipUnless(_HAS_MLIAP, "lammps.mliap not available")
+    def test_activate_mliappy(self):
+        future = self.lmp.activate_mliappy()
+        result = future.result()
+        self.assertEqual(result, 1)
+
+    @unittest.skipUnless(
+        _HAS_MLIAP and _HAS_TORCH, "lammps.mliap or torch not available"
+    )
+    def test_mliappy_pytorch_workflow(self):
+        # Follows lammps/lammps examples/mliap/mliap_pytorch_Ta06A.py: load a
+        # PyTorch SNAP model through the ML-IAP python coupling and run a few
+        # steps of MD. Ta06A.mliap.descriptor/.pt are vendored from that
+        # LAMMPS example (GPL-licensed, used here only as test fixtures).
+        descriptor_file = os.path.join(self.execution_path, "Ta06A.mliap.descriptor")
+        model_file = os.path.join(self.execution_path, "Ta06A.mliap.pytorch.model.pt")
+
+        self.lmp.command("clear").result()
+        try:
+            self.lmp.activate_mliappy().result()
+            self.lmp.command(
+                f"""
+units           metal
+boundary        p p p
+lattice         bcc 3.316
+region          box block 0 4 0 4 0 4
+create_box      1 box
+create_atoms    1 box
+mass 1 180.88
+pair_style hybrid/overlay zbl 4 4.8 mliap model mliappy LATER descriptor sna {descriptor_file}
+pair_coeff 1 1 zbl 73 73
+pair_coeff * * mliap Ta
+"""
+            ).result()
+
+            model = torch.load(model_file, weights_only=False)
+            self.lmp.mliappy_load_model(model).result()
+
+            self.lmp.command(
+                """
+compute  eatom all pe/atom
+compute  energy all reduce sum c_eatom
+thermo_style    custom step temp epair c_energy etotal press
+thermo          5
+thermo_modify norm yes
+timestep 0.5e-3
+neighbor 1.0 bin
+neigh_modify once no every 1 delay 0 check yes
+velocity all create 300.0 4928459 loop geom
+fix 1 all nve
+run 0
+"""
+            ).result()
+
+            self.assertEqual(self.lmp.get_natoms().result(), 128)
+            self.assertAlmostEqual(
+                self.lmp.get_thermo("temp").result(), 300.0, places=4
+            )
+            self.assertAlmostEqual(
+                self.lmp.get_thermo("pe").result(), -11.85157, places=4
+            )
+
+            self.lmp.command("run 10").result()
+            final_temp = self.lmp.get_thermo("temp").result()
+            self.assertTrue(np.isfinite(final_temp))
+            self.assertLess(final_temp, 300.0)
+        finally:
+            self.lmp.command("clear").result()
+            self.lmp.file(self.lammps_file).result()
 
 
 if __name__ == "__main__":

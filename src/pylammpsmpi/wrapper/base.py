@@ -463,6 +463,93 @@ class LammpsBase(LammpsConcurrent):
         """
         return get_result(future=super().get_thermo(*args), cores=self.cores)
 
+    def activate_mliappy(self):
+        """
+        Activate the ML-IAP python coupling module, so that pair_style mliap
+        can load a python model via lammps.mliap.loader.load_model()/load_unified().
+
+        This must be called before a `pair_style mliap ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().activate_mliappy().result()
+
+    def activate_mliappy_kokkos(self):
+        """
+        Activate the ML-IAP python coupling module for the KOKKOS package, so that
+        pair_style mliap/kk can load a python model via
+        lammps.mliap.loader.load_model_kokkos()/load_unified_kokkos().
+
+        This must be called before a `pair_style mliap/kk ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().activate_mliappy_kokkos().result()
+
+    def mliappy_load_model(self, *args):
+        """
+        Load a python model for the ML-IAP python coupling module.
+
+        This must be called after a `pair_style mliap ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_model(*args).result()
+
+    def mliappy_load_model_kokkos(self, *args):
+        """
+        Load a python model for the ML-IAP python coupling module for the KOKKOS package.
+
+        This must be called after a `pair_style mliap/kk ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_model_kokkos(*args).result()
+
+    def mliappy_load_unified(self, *args):
+        """
+        Load a unified model for the ML-IAP python coupling module.
+
+        This must be called after a `pair_style mliap ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_unified(*args).result()
+
+    def mliappy_load_unified_kokkos(self, *args):
+        """
+        Load a unified model for the ML-IAP python coupling module for the KOKKOS package.
+
+        This must be called after a `pair_style mliap/kk ... model mliappy ...`
+        command is issued, following the LAMMPS documentation:
+        https://docs.lammps.org/pair_mliap.html
+
+        Returns
+        -------
+        None
+        """
+        _ = super().mliappy_load_unified_kokkos(*args).result()
+
     # TODO
     def extract_compute(self, id, style, type, length=0, width=0):
         """
