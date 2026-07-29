@@ -38,7 +38,7 @@ Repository = "https://github.com/pyiron/pylammpsmpi"
 [project.optional-dependencies]
 ase = [
     "ase==3.29.0",
-    "scipy==1.17.1",
+    "scipy==1.18.0",
 ]
 
 [tool.hatch.build]
