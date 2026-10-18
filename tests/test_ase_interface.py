@@ -1,7 +1,9 @@
 import platform
 import logging
+import subprocess
 import unittest
 import os
+from unittest import mock
 
 import numpy as np
 from ase.atoms import Atoms
@@ -287,6 +289,29 @@ class TestLammpsASELibrary(unittest.TestCase):
             self.assertEqual(np.sum(lmp.interactive_velocities_getter()), 0.0)
         self.assertTrue(os.path.exists(os.path.join(working_directory, "log.lammps")))
         os.remove(os.path.join(working_directory, "log.lammps"))
+
+    def _launch_commands(self, **kwargs):
+        # Record every command started via subprocess.Popen, while still launching it.
+        with mock.patch("subprocess.Popen", wraps=subprocess.Popen) as popen:
+            with LammpsASELibrary(
+                working_directory=os.path.abspath(os.getcwd()),
+                hostname_localhost=True,
+                cores=2,
+                **kwargs,
+            ):
+                pass
+        return [
+            call.kwargs["args"] if "args" in call.kwargs else call.args[0]
+            for call in popen.call_args_list
+        ]
+
+    def test_oversubscribe_reaches_mpiexec_command(self):
+        commands = self._launch_commands(oversubscribe=True)
+        self.assertTrue(any("--oversubscribe" in command for command in commands))
+
+    def test_oversubscribe_default_not_in_mpiexec_command(self):
+        commands = self._launch_commands()
+        self.assertFalse(any("--oversubscribe" in command for command in commands))
 
     def test_interactive_indices_setter(self):
         lmp = LammpsASELibrary(
