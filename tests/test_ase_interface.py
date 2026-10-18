@@ -24,6 +24,16 @@ from pylammpsmpi.wrapper.ase import (
 )
 
 
+def _mpiexec_is_openmpi():
+    try:
+        version = subprocess.run(
+            ["mpiexec", "--version"], capture_output=True, text=True
+        ).stdout
+    except OSError:
+        return False
+    return "Open MPI" in version
+
+
 class TestLammpsASELibrary(unittest.TestCase):
     def test_static(self):
         lmp = LammpsASELibrary(
@@ -305,6 +315,9 @@ class TestLammpsASELibrary(unittest.TestCase):
             for call in popen.call_args_list
         ]
 
+    @unittest.skipUnless(
+        _mpiexec_is_openmpi(), "--oversubscribe is an Open MPI option, not MPICH"
+    )
     def test_oversubscribe_reaches_mpiexec_command(self):
         commands = self._launch_commands(oversubscribe=True)
         self.assertTrue(any("--oversubscribe" in command for command in commands))
