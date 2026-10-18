@@ -27,6 +27,9 @@ class LammpsASELibrary:
         library (object, optional): The LAMMPS library object. Defaults to None.
         disable_log_file (bool, optional): Whether to disable the log file. Defaults to True.
         executor: Executor to use for parallel execution (default: None)
+        oversubscribe (bool, optional): Start the MPI ranks with ``mpiexec --oversubscribe``. Needed when the
+            resource manager reports fewer slots than ranks are requested, e.g. inside a SLURM step started as
+            ``srun -n 1 --cpus-per-task=N``, where Open MPI counts one slot. Defaults to False.
     """
 
     def __init__(
@@ -40,6 +43,7 @@ class LammpsASELibrary:
         library: Any = None,
         disable_log_file: bool = True,
         executor: BaseExecutor | None = None,
+        oversubscribe: bool = False,
     ):
         self._logger: Any = logger
         self._prism: Any = None
@@ -69,6 +73,7 @@ class LammpsASELibrary:
                 hostname_localhost=hostname_localhost,
                 executor=executor,
                 cmdargs=cmdargs,
+                oversubscribe=oversubscribe,
             )
 
     def interactive_lib_command(self, command: str) -> None:
