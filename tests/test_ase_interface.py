@@ -315,10 +315,9 @@ class TestLammpsASELibrary(unittest.TestCase):
             for call in popen.call_args_list
         ]
 
-    @unittest.skipUnless(
-        _mpiexec_is_openmpi(), "--oversubscribe is an Open MPI option, not MPICH"
-    )
     def test_oversubscribe_reaches_mpiexec_command(self):
+        if not _mpiexec_is_openmpi():
+            self.skipTest("--oversubscribe is an Open MPI option, not MPICH")
         commands = self._launch_commands(oversubscribe=True)
         self.assertTrue(any("--oversubscribe" in command for command in commands))
 
