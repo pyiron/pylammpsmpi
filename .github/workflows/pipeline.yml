@@ -9,7 +9,7 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: psf/black@stable
       with:
         options: "--check --diff"
@@ -20,7 +20,7 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
         ref: ${{ github.event.pull_request.head.ref }} # Check out the head of the actual branch, not the PR
@@ -46,12 +46,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           architecture: x64
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install mypy
         run: pip install mypy
       - name: Test
@@ -61,10 +61,10 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.14"
         miniforge-version: latest
@@ -86,10 +86,10 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.14"
         miniforge-version: latest
@@ -111,10 +111,10 @@ jobs:
       matrix:
         python-version: ['3.12', '3.13', '3.14']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -131,10 +131,10 @@ jobs:
     needs: [black]
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: '3.14'
         miniforge-version: latest
@@ -154,10 +154,10 @@ jobs:
       matrix:
         python-version: ['3.12', '3.13', '3.14']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -174,10 +174,10 @@ jobs:
     needs: [black]
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: '3.14'
         miniforge-version: latest
@@ -194,10 +194,10 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Conda config
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: '3.11'
         miniforge-version: latest
