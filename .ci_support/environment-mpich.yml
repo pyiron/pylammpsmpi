@@ -6,7 +6,7 @@ dependencies:
 - mpich =4.3.2
 - numpy =2.5.3
 - mpi4py =4.1.2
-- executorlib =1.10.4
+- executorlib =1.11.0
 - ase =3.29.0
 - scipy =1.18.1
 - pytorch-cpu =2.12.1
