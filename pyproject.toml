@@ -40,6 +40,13 @@ ase = [
     "ase==3.29.0",
     "scipy==1.18.1",
 ]
+docs = [
+    "myst-parser",
+    "nbsphinx",
+    "sphinx",
+    "sphinx_rtd_theme",
+    "jupyter-book==1.0.0",
+]
 
 [tool.hatch.build]
 include = [
